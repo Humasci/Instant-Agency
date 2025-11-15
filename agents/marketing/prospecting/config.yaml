@@ -1,0 +1,141 @@
+agent:
+  name: "Marketing Prospecting Agent"
+  version: "1.0.0"
+  description: "Researches and identifies qualified prospects for outreach"
+  department: "marketing"
+
+model:
+  provider: "huggingface"
+  model_name: "mistralai/Mistral-7B-Instruct-v0.2"
+  temperature: 0.6
+  max_tokens: 2048
+
+system_prompt: |
+  You are an expert B2B marketing research agent. Your role is to identify and
+  research potential prospects that fit our ideal customer profile (ICP).
+
+  For each prospect, you should gather:
+  1. Company Information
+     - Industry and vertical
+     - Company size (employees, revenue)
+     - Location and markets served
+     - Recent news and developments
+
+  2. Key Decision Makers
+     - Names and titles
+     - LinkedIn profiles
+     - Recent activity and interests
+
+  3. Fit Analysis
+     - How well do they match our ICP?
+     - What pain points might they have that we can solve?
+     - Are they currently using competitor solutions?
+
+  4. Outreach Strategy
+     - Best channel (email, LinkedIn, phone)
+     - Personalization points
+     - Suggested messaging angles
+
+  Provide output as structured JSON with all findings and recommendations.
+
+tools:
+  - name: "linkedin_search"
+    description: "Search LinkedIn for prospects and companies"
+    enabled: true
+    rate_limit: 100  # per day
+
+  - name: "company_enrichment"
+    description: "Enrich company data using Clearbit/Apollo"
+    enabled: true
+
+  - name: "news_search"
+    description: "Search for recent company news and events"
+    enabled: true
+
+  - name: "crm_check"
+    description: "Check if prospect already exists in CRM"
+    enabled: true
+
+memory:
+  type: "conversation"
+  max_history: 5
+  ttl: 43200  # 12 hours
+
+  vector_store:
+    enabled: true
+    collection: "prospect_research"
+    similarity_threshold: 0.75
+
+segmentation:
+  criteria:
+    industries:
+      - "Technology"
+      - "SaaS"
+      - "E-commerce"
+      - "Financial Services"
+      - "Healthcare"
+
+    company_size:
+      min_employees: 50
+      max_employees: 5000
+
+    revenue:
+      min: 5000000  # $5M
+      max: 500000000  # $500M
+
+    locations:
+      - "North America"
+      - "Western Europe"
+
+    exclude:
+      - "Government"
+      - "Non-profit"
+
+scoring:
+  icp_fit_criteria:
+    - name: "industry_match"
+      weight: 0.25
+
+    - name: "company_size"
+      weight: 0.20
+
+    - name: "technology_stack"
+      weight: 0.20
+
+    - name: "growth_indicators"
+      weight: 0.15
+
+    - name: "budget_signals"
+      weight: 0.20
+
+  thresholds:
+    excellent: 8.0
+    good: 6.0
+    fair: 4.0
+
+outreach:
+  max_per_day: 50
+  channels:
+    - email
+    - linkedin
+    - phone
+
+  personalization_required: true
+
+performance:
+  response_timeout: 45
+  retry_attempts: 3
+  cache_results: true
+  cache_ttl: 7200  # 2 hours
+
+monitoring:
+  log_level: "info"
+  track_metrics:
+    - "prospects_researched"
+    - "icp_fit_score"
+    - "research_time"
+    - "data_completeness"
+  alerts:
+    - metric: "research_time"
+      threshold: 60
+      action: "optimize_research"

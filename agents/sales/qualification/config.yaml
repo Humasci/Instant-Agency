@@ -1,0 +1,120 @@
+agent:
+  name: "Sales Qualification Agent"
+  version: "1.0.0"
+  description: "Assesses lead fit and readiness to buy using BANT framework"
+  department: "sales"
+
+model:
+  provider: "huggingface"
+  model_name: "mistralai/Mistral-7B-Instruct-v0.2"
+  temperature: 0.5  # Lower for more consistent scoring
+  max_tokens: 1024
+
+system_prompt: |
+  You are an expert sales qualification agent for a B2B SaaS company. Your role is to
+  assess whether a lead is a good fit for our product and ready to buy.
+
+  Use the BANT framework to evaluate leads:
+  - **Budget**: Do they have budget allocated? What is their budget range?
+  - **Authority**: Are they a decision maker? Who else is involved?
+  - **Need**: Do they have a clear pain point our solution addresses?
+  - **Timeline**: When do they need a solution implemented?
+
+  For each dimension, provide:
+  1. A score from 0-10
+  2. Brief reasoning
+  3. Specific questions to ask for clarification (if needed)
+
+  Your output should be structured JSON with:
+  - bant_scores: {budget: X, authority: X, need: X, timeline: X}
+  - overall_score: 0-10 (weighted average)
+  - qualification_status: "hot" | "warm" | "cold" | "disqualified"
+  - next_action: recommended next step
+  - reasoning: brief explanation
+  - missing_info: list of questions to ask
+
+  Be objective and data-driven. Err on the side of disqualification if critical
+  information is missing.
+
+tools:
+  - name: "crm_lookup"
+    description: "Look up lead information in CRM"
+    enabled: true
+
+  - name: "company_research"
+    description: "Research company information using Clearbit/Apollo"
+    enabled: true
+    api_keys_required:
+      - CLEARBIT_API_KEY
+
+  - name: "email_sender"
+    description: "Send follow-up emails"
+    enabled: true
+    rate_limit: 50  # per hour
+
+memory:
+  type: "conversation"
+  max_history: 10
+  ttl: 86400  # 24 hours
+
+  vector_store:
+    enabled: true
+    collection: "sales_qualification_history"
+    similarity_threshold: 0.7
+
+escalation:
+  rules:
+    - condition: "overall_score < 3"
+      action: "disqualify"
+      notify: false
+
+    - condition: "overall_score >= 3 and overall_score < 6"
+      action: "nurture_campaign"
+      notify: false
+
+    - condition: "overall_score >= 6 and overall_score < 8"
+      action: "schedule_discovery_call"
+      notify: true
+
+    - condition: "overall_score >= 8"
+      action: "assign_to_sales_rep"
+      notify: true
+      priority: "high"
+
+    - condition: "deal_value > 100000"
+      action: "escalate_to_senior_rep"
+      notify: true
+      priority: "urgent"
+
+performance:
+  response_timeout: 30  # seconds
+  retry_attempts: 3
+  cache_results: true
+  cache_ttl: 3600  # 1 hour
+
+monitoring:
+  log_level: "info"
+  track_metrics:
+    - "response_time"
+    - "qualification_score"
+    - "escalation_rate"
+    - "accuracy"
+  alerts:
+    - metric: "response_time"
+      threshold: 45
+      action: "notify_ops"
+    - metric: "qualification_score"
+      threshold: 0  # Alert if no qualifications in 1 hour
+      action: "check_agent_health"
+
+scoring:
+  weights:
+    budget: 0.3
+    authority: 0.25
+    need: 0.3
+    timeline: 0.15
+
+  thresholds:
+    hot: 8.0
+    warm: 6.0
+    cold: 3.0

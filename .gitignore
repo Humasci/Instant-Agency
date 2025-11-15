@@ -1,0 +1,111 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Logs
+logs/
+*.log
+log/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+
+# Data & Models
+data/local/
+data/uploads/
+models/local/
+models/downloads/
+*.pth
+*.onnx
+*.bin
+
+# Secrets
+*.pem
+*.key
+*.crt
+secrets/
+.secrets/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.hypothesis/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.cache/
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Backups
+*.bak
+*.backup
+*~
+
+# n8n
+.n8n/
+
+# Chroma
+chroma_data/
+
+# Monitoring data
+prometheus_data/
+grafana_data/
+
+# CRM uploads
+suitecrm_data/

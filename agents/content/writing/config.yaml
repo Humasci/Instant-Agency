@@ -1,0 +1,157 @@
+agent:
+  name: "Content Writing Agent"
+  version: "1.0.0"
+  description: "Generates high-quality blog posts, articles, and marketing copy"
+  department: "content"
+
+model:
+  provider: "huggingface"
+  model_name: "mistralai/Mistral-7B-Instruct-v0.2"
+  temperature: 0.8  # Higher for creativity
+  max_tokens: 4096
+
+system_prompt: |
+  You are an expert content writer specializing in B2B SaaS marketing. You create
+  engaging, educational content that drives traffic and conversions.
+
+  Your writing style:
+  - Clear and conversational, not overly formal
+  - Data-driven with real examples and statistics
+  - SEO-optimized without keyword stuffing
+  - Scannable with clear structure (headings, bullets, short paragraphs)
+  - Thought-provoking and valuable to the reader
+
+  Content structure:
+  1. **Compelling Headline**: Attention-grabbing, includes primary keyword
+  2. **Introduction**: Hook + problem statement + what reader will learn
+  3. **Body**: Well-organized sections with H2/H3 subheadings
+  4. **Examples**: Real-world case studies and data points
+  5. **Actionable Takeaways**: Specific steps readers can implement
+  6. **Strong CTA**: Clear next action for the reader
+
+  Always optimize for:
+  - Readability (Flesch-Kincaid score 60+)
+  - SEO (keyword placement, meta description, internal links)
+  - Engagement (questions, storytelling, relatability)
+  - Value (actionable insights, not fluff)
+
+tools:
+  - name: "research"
+    description: "Research topics using web search"
+    enabled: true
+
+  - name: "seo_analyzer"
+    description: "Analyze and optimize for SEO"
+    enabled: true
+
+  - name: "plagiarism_checker"
+    description: "Check content originality"
+    enabled: true
+
+  - name: "readability_analyzer"
+    description: "Check readability scores"
+    enabled: true
+
+memory:
+  type: "conversation"
+  max_history: 3
+  ttl: 7200  # 2 hours
+
+  vector_store:
+    enabled: true
+    collection: "content_library"
+    similarity_threshold: 0.7
+
+templates:
+  blog_post:
+    min_words: 1000
+    max_words: 2500
+    include_toc: true
+    include_images: true
+    seo_optimized: true
+
+  case_study:
+    min_words: 800
+    max_words: 1500
+    structure:
+      - challenge
+      - solution
+      - results
+      - testimonial
+
+  social_post:
+    platforms:
+      linkedin:
+        max_chars: 3000
+        include_hashtags: true
+        hashtag_count: 3
+        tone: "professional"
+
+      twitter:
+        max_chars: 280
+        include_hashtags: true
+        hashtag_count: 2
+        tone: "casual"
+
+      facebook:
+        max_chars: 5000
+        include_hashtags: false
+        tone: "friendly"
+
+  email:
+    types:
+      newsletter:
+        max_words: 500
+        structure: "teaser + value + cta"
+
+      nurture:
+        max_words: 300
+        structure: "problem + solution + cta"
+
+approval:
+  required: true
+  approvers:
+    - "content_manager"
+  timeout: "24h"
+  auto_publish_on_timeout: false
+
+quality_checks:
+  - name: "readability"
+    tool: "flesch_kincaid"
+    min_score: 60
+
+  - name: "grammar"
+    tool: "languagetool"
+    auto_fix: true
+
+  - name: "seo_score"
+    tool: "custom"
+    min_score: 70
+
+  - name: "plagiarism"
+    tool: "copyscape"
+    max_similarity: 15  # percent
+
+  - name: "brand_voice"
+    tool: "custom_classifier"
+    confidence_threshold: 0.75
+
+performance:
+  response_timeout: 60
+  retry_attempts: 2
+  cache_results: true
+  cache_ttl: 3600
+
+monitoring:
+  log_level: "info"
+  track_metrics:
+    - "content_generated"
+    - "word_count"
+    - "seo_score"
+    - "approval_rate"
+    - "generation_time"
+
+  alerts:
+    - metric: "approval_rate"
+      threshold: 0.7  # 70% approval rate
+      action: "review_quality"
