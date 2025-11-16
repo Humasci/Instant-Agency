@@ -488,15 +488,128 @@ services:
 - Resource alerts
 - Performance profiling
 
+## Digital Avatar Layer
+
+**Purpose**: Human-like visual AI agents for client-facing interactions
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Client Browser/App                      │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  WebRTC Video Stream (Avatar Video + Audio)      │   │
+│  │  Microphone Input (Client Speech)                │   │
+│  └────────────────┬─────────────────────────────────┘   │
+└───────────────────┼──────────────────────────────────────┘
+                    │
+┌───────────────────▼──────────────────────────────────────┐
+│         Avatar Interaction Service (Real-Time)           │
+│                                                           │
+│  ┌────────────┐  ┌──────────┐  ┌─────────┐  ┌────────┐ │
+│  │ Speech-to- │→ │   LLM    │→ │ Text-to-│→ │ Avatar │ │
+│  │   Text     │  │ (Mistral)│  │ Speech  │  │ Video  │ │
+│  │ (Wav2Vec2) │  │          │  │ (11Labs)│  │ (D-ID) │ │
+│  └────────────┘  └──────────┘  └─────────┘  └────────┘ │
+│                                                           │
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  Context Manager (Conversation History, CRM Data)│  │
+│  └───────────────────────────────────────────────────┘  │
+└──────────────┬───────────────────────────────────────────┘
+               │
+               ▼
+      ┌────────────────┐
+      │  n8n Workflow  │ → Triggers, logging, escalation
+      │  Orchestration │
+      └────────────────┘
+```
+
+### Components
+
+#### 1. Avatar Video Service
+- **Provider**: D-ID, HeyGen, or self-hosted (SadTalker)
+- **Function**: Generate lifelike talking avatar videos in real-time
+- **Models**: Pre-built avatar personas (Sarah, Marcus, Priya)
+- **Customization**: Brand-specific avatars possible
+
+#### 2. Voice Synthesis
+- **Provider**: ElevenLabs (recommended) or Hugging Face TTS
+- **Function**: Convert LLM text responses to natural speech
+- **Features**: Voice cloning, emotion control, multilingual
+
+#### 3. Speech Recognition
+- **Model**: `facebook/wav2vec2-large-960h-lv60-self`
+- **Function**: Transcribe client speech in real-time
+- **Latency**: <500ms for responsive conversation
+
+#### 4. Conversational AI
+- **Model**: Fine-tuned Mistral-7B or GPT-Neo-2.7B
+- **Prompts**: Persona-specific (see `agents/prompts/avatar/`)
+- **Context**: Full CRM history, previous interactions
+- **Escalation**: Automatic handoff to human when needed
+
+#### 5. WebRTC Streaming
+- **Platform**: Jitsi Meet (open-source) or Daily.co (cloud)
+- **Function**: Stream avatar video to client browser
+- **Features**: Screen sharing, recording, multi-party calls
+
+### Avatar Personas
+
+1. **Sarah Williams** - Senior Sales Consultant
+   - Discovery calls, demos, closing
+   - Warm, consultative, empathetic
+
+2. **Marcus Rodriguez** - Technical Solutions Architect
+   - Technical deep-dives, implementation
+   - Knowledgeable, patient, detail-oriented
+
+3. **Priya Sharma** - Customer Success Manager
+   - Onboarding, training, relationship nurturing
+   - Supportive, enthusiastic, proactive
+
+### Integration Points
+
+```yaml
+avatar_service:
+  endpoints:
+    - POST /api/avatar/start-call
+    - POST /api/avatar/request-takeover
+    - GET /api/avatar/call-status/{call_id}
+    - POST /api/avatar/end-call
+
+  n8n_integration:
+    - Trigger on calendar event
+    - Webhook for call progress updates
+    - Escalation notifications to Slack
+    - Post-call CRM logging
+
+  crm_integration:
+    - Fetch contact data pre-call
+    - Update contact with call notes
+    - Create follow-up tasks
+    - Log call summary
+```
+
+### Performance Metrics
+
+- **Latency**: <1 second response time
+- **Uptime**: >99.5% availability
+- **Escalation Rate**: <20% of calls
+- **Satisfaction**: Target >4.2/5 rating
+
+See [DIGITAL_AVATARS.md](DIGITAL_AVATARS.md) for complete implementation guide.
+
+---
+
 ## Future Enhancements
 
 1. **Real-time Collaboration**: WebSocket-based agent monitoring
 2. **Mobile Access**: Progressive Web App for on-the-go management
-3. **Voice Agents**: Integration with speech synthesis/recognition
-4. **Avatar Agents**: Video-based client interactions
-5. **Advanced ML**: Custom model fine-tuning and deployment
-6. **Multi-tenancy**: Support for multiple organizations
-7. **Marketplace**: Community-contributed agents and workflows
+3. **Multi-Avatar Team Calls**: Coordinated presentations with multiple avatars
+4. **Advanced ML**: Custom model fine-tuning and deployment
+5. **Multi-tenancy**: Support for multiple organizations
+6. **Marketplace**: Community-contributed agents and workflows
+7. **Emotion AI**: Advanced sentiment detection and empathetic responses
 
 ---
 

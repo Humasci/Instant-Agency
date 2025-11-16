@@ -1,0 +1,472 @@
+{
+  "name": "Phase 4 - Avatar Sales Call Orchestration",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meeting-scheduled",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook - Meeting Scheduled",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "webhookId": "meeting-scheduled",
+      "id": "webhook-1"
+    },
+    {
+      "parameters": {
+        "url": "=http://suitecrm:8080/api/v8/module/Contacts/{{$json.contact_id}}",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "name": "Fetch Contact Data from CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 400],
+      "id": "http-request-1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM interactions WHERE contact_id = '{{$json.contact_id}}' ORDER BY created_at DESC LIMIT 20",
+        "options": {}
+      },
+      "name": "Fetch Interaction History",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 500],
+      "id": "postgres-1"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/prepare-call",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"contact_data\": {{$json.contact}}, \"interaction_history\": {{$json.interactions}}, \"meeting_purpose\": \"{{$json.meeting_purpose}}\", \"meeting_type\": \"{{$json.meeting_type}}\"}",
+        "options": {}
+      },
+      "name": "Generate Pre-Call Brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 400],
+      "id": "http-request-2"
+    },
+    {
+      "parameters": {
+        "resource": "event",
+        "operation": "create",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list",
+          "cachedResultName": "Primary"
+        },
+        "start": "={{$json.meeting_datetime}}",
+        "end": "={{DateTime.fromISO($json.meeting_datetime).plus({minutes: 30}).toISO()}}",
+        "subject": "=Discovery Call with {{$json.contact.name}}",
+        "description": "=**AI Avatar Call - Sarah Williams**\n\nJoin link: {{$json.avatar_meeting_link}}\n\n**Agenda:**\n{{$json.call_brief.agenda}}\n\n**Key Points:**\n{{$json.call_brief.key_points}}",
+        "attendees": "={{$json.contact.email}}",
+        "options": {
+          "conferenceDataVersion": 1,
+          "sendUpdates": "all"
+        }
+      },
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [850, 400],
+      "id": "google-calendar-1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "={{DateTime.fromISO($json.meeting_datetime).minus({minutes: 5}).toFormat('m H d M *')}}"
+            }
+          ]
+        }
+      },
+      "name": "Schedule - 5 Min Before Meeting",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 700],
+      "id": "schedule-trigger-1"
+    },
+    {
+      "parameters": {
+        "url": "http://avatar-service:9000/api/start-call",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"avatar_id\": \"sarah-williams\", \"meeting_id\": \"{{$json.meeting_id}}\", \"meeting_room\": \"{{$json.meeting_room}}\", \"context\": {{$json.call_brief}}, \"prospect_data\": {{$json.contact}}, \"conversation_goals\": [\"qualify_budget\", \"identify_pain_points\", \"schedule_demo\"], \"escalation_rules\": {\"low_confidence_threshold\": 0.6, \"technical_questions\": true, \"pricing_negotiation\": true}}",
+        "options": {}
+      },
+      "name": "Start Avatar Interaction Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 700],
+      "id": "http-request-3"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "call-progress-update",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook - Call Progress Updates",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [650, 700],
+      "webhookId": "call-progress",
+      "id": "webhook-2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{$json.escalation_triggered}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Check If Escalation Needed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 700],
+      "id": "if-1"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C987654321",
+          "mode": "list",
+          "cachedResultName": "#sales-escalations"
+        },
+        "text": "=🚨 **Avatar Call Escalation Required**\n\n**Prospect:** {{$json.contact.name}} ({{$json.contact.company}})\n**Reason:** {{$json.escalation_reason}}\n**Call Stage:** {{$json.call_stage}}\n**Conversation Summary:** {{$json.conversation_summary}}\n\n**Join Call Immediately:** {{$json.join_link}}\n\n**Context:**\n- Budget Range: {{$json.detected_budget}}\n- Pain Points: {{$json.pain_points}}\n- Objections: {{$json.objections}}\n\n@sales-team",
+        "otherOptions": {}
+      },
+      "name": "Alert Sales Team - Escalation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1050, 650],
+      "id": "slack-1"
+    },
+    {
+      "parameters": {
+        "url": "http://avatar-service:9000/api/request-human-takeover",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"meeting_id\": \"{{$json.meeting_id}}\", \"human_rep_id\": \"{{$json.assigned_sales_rep}}\", \"context_transfer\": {{$json.full_context}}}",
+        "options": {}
+      },
+      "name": "Initiate Human Takeover",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 750],
+      "id": "http-request-4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "call-ended",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook - Call Ended",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [850, 900],
+      "webhookId": "call-ended",
+      "id": "webhook-3"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/summarize-call",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"meeting_id\": \"{{$json.meeting_id}}\", \"transcript\": \"{{$json.full_transcript}}\", \"call_duration\": {{$json.duration_minutes}}, \"participant_data\": {{$json.participants}}}",
+        "options": {}
+      },
+      "name": "Generate Call Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 900],
+      "id": "http-request-5"
+    },
+    {
+      "parameters": {
+        "url": "http://suitecrm:8080/api/v8/module/Meetings",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"data\": {\"type\": \"Meetings\", \"attributes\": {\"name\": \"Avatar Call - {{$json.contact.name}}\", \"status\": \"Held\", \"duration_hours\": 0, \"duration_minutes\": {{$json.duration_minutes}}, \"description\": \"{{$json.call_summary.summary}}\", \"date_start\": \"{{$json.start_time}}\"}}, \"relationships\": {\"contacts\": {\"data\": [{\"type\": \"Contacts\", \"id\": \"{{$json.contact_id}}\"}]}}}",
+        "options": {}
+      },
+      "name": "Log Call in CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 900],
+      "id": "http-request-6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{$json.call_summary.next_action}}",
+              "rightValue": "schedule_demo",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "name": "Check If Follow-Up Needed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1450, 900],
+      "id": "if-2"
+    },
+    {
+      "parameters": {
+        "url": "http://n8n:5678/webhook/schedule-demo",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"contact_id\": \"{{$json.contact_id}}\", \"suggested_times\": {{$json.call_summary.suggested_times}}, \"demo_type\": \"{{$json.call_summary.recommended_demo_type}}\"}",
+        "options": {}
+      },
+      "name": "Trigger Demo Scheduling Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1650, 850],
+      "id": "http-request-7"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sarah.williams@instant-agency.ai",
+        "toEmail": "={{$json.contact.email}}",
+        "subject": "=Great connecting with you today!",
+        "emailType": "html",
+        "message": "=Hi {{$json.contact.first_name}},\n\nThank you for taking the time to speak with me today! I enjoyed learning about {{$json.contact.company}} and how we might help with {{$json.call_summary.key_pain_points}}.\n\n**Key Takeaways from our call:**\n{{$json.call_summary.key_points}}\n\n**Next Steps:**\n{{$json.call_summary.next_steps}}\n\n{{$json.call_summary.personalized_closing}}\n\nBest regards,\nSarah Williams\nSenior Sales Consultant\nInstant Agency",
+        "options": {
+          "senderName": "Sarah Williams",
+          "replyTo": "sales@instant-agency.ai"
+        }
+      },
+      "name": "Send Follow-Up Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1650, 950],
+      "id": "email-send-1"
+    }
+  ],
+  "connections": {
+    "Webhook - Meeting Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Fetch Contact Data from CRM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Interaction History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Contact Data from CRM": {
+      "main": [
+        [
+          {
+            "node": "Generate Pre-Call Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Interaction History": {
+      "main": [
+        [
+          {
+            "node": "Generate Pre-Call Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Pre-Call Brief": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule - 5 Min Before Meeting": {
+      "main": [
+        [
+          {
+            "node": "Start Avatar Interaction Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Avatar Interaction Service": {
+      "main": [
+        [
+          {
+            "node": "Webhook - Call Progress Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Call Progress Updates": {
+      "main": [
+        [
+          {
+            "node": "Check If Escalation Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Escalation Needed": {
+      "main": [
+        [
+          {
+            "node": "Alert Sales Team - Escalation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Initiate Human Takeover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Call Ended": {
+      "main": [
+        [
+          {
+            "node": "Generate Call Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Call Summary": {
+      "main": [
+        [
+          {
+            "node": "Log Call in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Call in CRM": {
+      "main": [
+        [
+          {
+            "node": "Check If Follow-Up Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Follow-Up Needed": {
+      "main": [
+        [
+          {
+            "node": "Trigger Demo Scheduling Workflow",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Follow-Up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "id": "1",
+      "name": "Phase 4"
+    },
+    {
+      "id": "2",
+      "name": "Digital Avatars"
+    },
+    {
+      "id": "3",
+      "name": "Sales"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "instant-agency-production"
+  }
+}

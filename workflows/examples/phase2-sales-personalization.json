@@ -1,0 +1,381 @@
+{
+  "name": "Phase 2 - AI Sales Agent Email Personalization",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-qualified-lead",
+        "responseMode": "onReceived",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "name": "Webhook - New Qualified Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "instant-agency-new-lead",
+      "id": "webhook-1"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/generate-pitch",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"prospect_name\": \"{{$json.name}}\", \"company\": \"{{$json.company}}\", \"industry\": \"{{$json.industry}}\", \"pain_points\": \"{{$json.pain_points}}\", \"company_size\": \"{{$json.company_size}}\", \"trigger_event\": \"{{$json.trigger_event}}\"}",
+        "options": {}
+      },
+      "name": "Generate Sales Pitch (GPT-Neo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300],
+      "id": "http-request-1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$json.sales_rep_email || 'sales@instant-agency.ai'}}",
+        "toEmail": "={{$json.prospect_email}}",
+        "subject": "={{$json.email_subject}}",
+        "emailType": "html",
+        "message": "={{$json.email_body}}",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "ccList": "",
+          "bccList": "tracking@instant-agency.ai",
+          "replyTo": "={{$json.sales_rep_email || 'sales@instant-agency.ai'}}",
+          "senderName": "={{$json.sales_rep_name || 'Instant Agency Sales Team'}}",
+          "attachments": ""
+        }
+      },
+      "name": "Send Personalized Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "id": "email-send-1"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "email_tracking",
+          "mode": "list",
+          "cachedResultName": "email_tracking"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prospect_email": "={{$json.prospect_email}}",
+            "email_subject": "={{$json.email_subject}}",
+            "sent_at": "=NOW()",
+            "campaign_type": "ai_sales_pitch",
+            "generated_by": "gpt-neo-2.7b",
+            "tracking_id": "={{$json.tracking_id}}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Log Email Sent",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "id": "postgres-1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "email-reply-webhook",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook - Capture Email Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 500],
+      "webhookId": "email-reply-capture",
+      "id": "webhook-2"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/analyze-sentiment",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"email_content\": \"{{$json.reply_text}}\", \"prospect_email\": \"{{$json.from_email}}\"}",
+        "options": {}
+      },
+      "name": "Analyze Reply Sentiment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 500],
+      "id": "http-request-2"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/extract-intent",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"email_content\": \"{{$json.reply_text}}\"}",
+        "options": {}
+      },
+      "name": "Extract Intent (BART Zero-Shot)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 500],
+      "id": "http-request-3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{$json.sentiment}}",
+              "rightValue": "positive",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition-2",
+              "leftValue": "={{$json.intent}}",
+              "rightValue": "meeting,demo,pricing,purchase",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "name": "Check If Hot Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 500],
+      "id": "if-1"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C123456789",
+          "mode": "list",
+          "cachedResultName": "#sales-hot-leads"
+        },
+        "text": "=🔥 **Hot Lead Alert!**\n\n**Prospect:** {{$json.prospect_name}}\n**Company:** {{$json.company}}\n**Sentiment:** {{$json.sentiment}} ({{$json.sentiment_score}})\n**Intent:** {{$json.intent}}\n**Reply:** \"{{$json.reply_text.substring(0, 200)}}...\"\n\n**Action Needed:** Schedule discovery call ASAP\n**CRM Link:** https://crm.instant-agency.ai/leads/{{$json.lead_id}}",
+        "otherOptions": {}
+      },
+      "name": "Notify Sales Team - Hot Lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1050, 450],
+      "id": "slack-1"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/sales/chatbot",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"message\": \"{{$json.reply_text}}\", \"context\": \"{{$json.conversation_history}}\", \"prospect_data\": {\"name\": \"{{$json.prospect_name}}\", \"company\": \"{{$json.company}}\", \"industry\": \"{{$json.industry}}\"}}",
+        "options": {}
+      },
+      "name": "Generate Auto-Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 550],
+      "id": "http-request-4"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sales@instant-agency.ai",
+        "toEmail": "={{$json.prospect_email}}",
+        "subject": "=Re: {{$json.original_subject}}",
+        "emailType": "html",
+        "message": "={{$json.chatbot_response}}",
+        "options": {
+          "replyTo": "sales@instant-agency.ai"
+        }
+      },
+      "name": "Send Auto-Response Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 550],
+      "id": "email-send-2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list"
+        },
+        "table": {
+          "__rl": true,
+          "value": "leads",
+          "mode": "list"
+        },
+        "updateKey": "email",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "hot_lead",
+            "sentiment": "={{$json.sentiment}}",
+            "intent": "={{$json.intent}}",
+            "last_interaction": "=NOW()",
+            "engagement_score": "={{$json.engagement_score}}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "name": "Update Lead Status in DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1450, 500],
+      "id": "postgres-2"
+    }
+  ],
+  "connections": {
+    "Webhook - New Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Generate Sales Pitch (GPT-Neo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Sales Pitch (GPT-Neo)": {
+      "main": [
+        [
+          {
+            "node": "Send Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Log Email Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Capture Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Analyze Reply Sentiment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Reply Sentiment": {
+      "main": [
+        [
+          {
+            "node": "Extract Intent (BART Zero-Shot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Intent (BART Zero-Shot)": {
+      "main": [
+        [
+          {
+            "node": "Check If Hot Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Notify Sales Team - Hot Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Lead Status in DB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Auto-Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Auto-Response": {
+      "main": [
+        [
+          {
+            "node": "Send Auto-Response Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "id": "1",
+      "name": "Phase 2"
+    },
+    {
+      "id": "2",
+      "name": "Sales"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "instant-agency-dev"
+  }
+}
