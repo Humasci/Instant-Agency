@@ -34,6 +34,13 @@ from phase3_marketing_campaign_agent import Phase3MarketingCampaignAgent
 from phase3_customer_success_agent import Phase3CustomerSuccessAgent
 from phase3_analytics_agent import Phase3AnalyticsAgent
 
+# Import Phase 4 agents
+from phase4_digital_avatar_agent import Phase4DigitalAvatarAgent
+from phase4_voice_conversation_agent import Phase4VoiceConversationAgent
+from phase4_multilingual_agent import Phase4MultilingualAgent
+from phase4_realtime_conversation_agent import Phase4RealTimeConversationAgent
+from phase4_advanced_personalization_agent import Phase4AdvancedPersonalizationAgent
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Instant Agency - AI Agent Service",
@@ -80,6 +87,13 @@ async def startup_event():
         agents['phase3_marketing_campaign'] = Phase3MarketingCampaignAgent()
         agents['phase3_customer_success'] = Phase3CustomerSuccessAgent()
         agents['phase3_analytics'] = Phase3AnalyticsAgent()
+
+        # Phase 4 agents
+        agents['phase4_digital_avatar'] = Phase4DigitalAvatarAgent()
+        agents['phase4_voice_conversation'] = Phase4VoiceConversationAgent()
+        agents['phase4_multilingual'] = Phase4MultilingualAgent()
+        agents['phase4_realtime_conversation'] = Phase4RealTimeConversationAgent()
+        agents['phase4_advanced_personalization'] = Phase4AdvancedPersonalizationAgent()
 
         print("✓ All agents initialized successfully")
         print(f"  Loaded agents ({len(agents)}): {', '.join(agents.keys())}")
@@ -462,6 +476,103 @@ async def phase3_analytics(analytics_data: Dict[str, Any]):
     }
     """
     return await process_with_agent('phase3_analytics', analytics_data)
+
+
+# Phase 4 endpoints
+@app.post("/phase4/digital-avatar")
+async def phase4_digital_avatar(avatar_data: Dict[str, Any]):
+    """
+    Phase 4: Digital Avatar Generation
+
+    Request body:
+    {
+        "action": "create_video" | "start_stream" | "list_personas" | "get_video_status",
+        "persona": "sarah" | "marcus" | "priya",
+        "script": "Text for avatar to speak",
+        "options": {
+            "provider": "d-id" | "heygen" | "synthesia",
+            "format": "mp4" | "webm",
+            "quality": "standard" | "high"
+        }
+    }
+    """
+    return await process_with_agent('phase4_digital_avatar', avatar_data)
+
+
+@app.post("/phase4/voice-conversation")
+async def phase4_voice_conversation(voice_data: Dict[str, Any]):
+    """
+    Phase 4: Voice-Enabled Conversation
+
+    Request body:
+    {
+        "action": "transcribe" | "synthesize" | "conversation_turn" | "list_voices",
+        "audio_data": "base64 encoded audio" (for transcription),
+        "text": "Text to synthesize" (for TTS),
+        "voice": "professional" | "friendly" | "authoritative",
+        "language": "en" | "es" | "fr" | "de"
+    }
+    """
+    return await process_with_agent('phase4_voice_conversation', voice_data)
+
+
+@app.post("/phase4/multilingual")
+async def phase4_multilingual(multilingual_data: Dict[str, Any]):
+    """
+    Phase 4: Multilingual Translation
+
+    Request body:
+    {
+        "action": "translate" | "detect_language" | "generate_multilingual" | "list_languages",
+        "text": "Text to translate",
+        "source_language": "en" (optional, auto-detect),
+        "target_language": "es" (for single translation),
+        "target_languages": ["es", "fr", "de"] (for multi-language)
+    }
+    """
+    return await process_with_agent('phase4_multilingual', multilingual_data)
+
+
+@app.post("/phase4/realtime-conversation")
+async def phase4_realtime_conversation(conversation_data: Dict[str, Any]):
+    """
+    Phase 4: Real-Time Conversation (Avatar + Voice + AI)
+
+    Request body:
+    {
+        "action": "start_session" | "process_turn" | "end_session" | "get_session_info",
+        "session_id": "session_xyz" (for existing sessions),
+        "persona": "sarah" | "marcus" | "priya",
+        "input_type": "audio" | "text",
+        "input_data": "User message or audio",
+        "video_enabled": true | false,
+        "language": "en" | "es" | "fr"
+    }
+    """
+    return await process_with_agent('phase4_realtime_conversation', conversation_data)
+
+
+@app.post("/phase4/personalization")
+async def phase4_personalization(personalization_data: Dict[str, Any]):
+    """
+    Phase 4: Advanced Personalization
+
+    Request body:
+    {
+        "action": "personalize_content" | "update_profile" | "get_profile" | "ab_test" | "segment_user" | "recommend",
+        "user_id": "user_123",
+        "content_type": "email" | "landing_page" | "product_recommendation",
+        "context": {...},
+        "behavior_data": {
+            "email_opened": true,
+            "link_clicked": true,
+            "page_viewed": "/pricing",
+            "purchase": {"amount": 999}
+        },
+        "test_id": "test_xyz" (for A/B testing)
+    }
+    """
+    return await process_with_agent('phase4_advanced_personalization', personalization_data)
 
 
 # ============================================================================
