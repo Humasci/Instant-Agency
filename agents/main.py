@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
+from datetime import datetime
 import uvicorn
 import os
 
@@ -461,6 +462,252 @@ async def phase3_analytics(analytics_data: Dict[str, Any]):
     }
     """
     return await process_with_agent('phase3_analytics', analytics_data)
+
+
+# ============================================================================
+# CONTROL PANEL & MONITORING ENDPOINTS
+# ============================================================================
+
+@app.get("/control-panel/dashboard")
+async def get_dashboard():
+    """
+    Get centralized control panel dashboard with all system metrics
+
+    Returns comprehensive overview of all agents, activities, and system health
+    """
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    # Get all agent statuses
+    agent_statuses = logger.get_all_agent_status()
+
+    # Get system statistics
+    stats_24h = logger.get_statistics('24h')
+    stats_1h = logger.get_statistics('1h')
+
+    # Get recent system events
+    events = logger.get_system_events(limit=50)
+    critical_events = logger.get_system_events(severity='critical', limit=10)
+    warnings = logger.get_system_events(severity='warning', unacknowledged_only=True)
+
+    # Get real-time metrics
+    real_time = logger.get_real_time_metrics()
+
+    return {
+        'success': True,
+        'dashboard': {
+            'agent_statuses': agent_statuses,
+            'statistics_24h': stats_24h,
+            'statistics_1h': stats_1h,
+            'recent_events': events[:20],
+            'critical_events': critical_events,
+            'unacknowledged_warnings': warnings,
+            'real_time_metrics': real_time,
+            'system_health': {
+                'total_agents': len(agent_statuses),
+                'active_agents': sum(1 for a in agent_statuses if a['status'] == 'active'),
+                'error_count_24h': stats_24h.get('error_count', 0),
+                'avg_success_rate': stats_24h.get('success_rate', 0),
+                'total_interactions_24h': stats_24h.get('total_interactions', 0)
+            }
+        },
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/agents")
+async def get_all_agents():
+    """Get status and metrics for all agents"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    agent_statuses = logger.get_all_agent_status()
+    real_time = logger.get_real_time_metrics()
+
+    # Combine status and real-time metrics
+    combined = []
+    for status in agent_statuses:
+        agent_name = status['agent_name']
+        combined.append({
+            **status,
+            'real_time': real_time.get(agent_name, {})
+        })
+
+    return {
+        'success': True,
+        'total_agents': len(combined),
+        'agents': combined,
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/agent/{agent_name}")
+async def get_agent_detail(agent_name: str, limit: int = 100):
+    """Get detailed information for a specific agent"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    # Get recent activities
+    activities = logger.get_recent_activities(agent_name=agent_name, limit=limit)
+
+    # Get agent status
+    all_statuses = logger.get_all_agent_status()
+    agent_status = next((a for a in all_statuses if a['agent_name'] == agent_name), None)
+
+    # Get real-time metrics
+    real_time = logger.get_real_time_metrics(agent_name)
+
+    if not agent_status:
+        raise HTTPException(status_code=404, detail=f"Agent '{agent_name}' not found")
+
+    return {
+        'success': True,
+        'agent_name': agent_name,
+        'status': agent_status,
+        'real_time_metrics': real_time,
+        'recent_activities': activities,
+        'activity_count': len(activities),
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/activities")
+async def get_activities(
+    agent_name: Optional[str] = None,
+    workflow_id: Optional[str] = None,
+    limit: int = 100,
+    offset: int = 0
+):
+    """Get recent activities across all or specific agents"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    activities = logger.get_recent_activities(
+        agent_name=agent_name,
+        workflow_id=workflow_id,
+        limit=limit,
+        offset=offset
+    )
+
+    return {
+        'success': True,
+        'activities': activities,
+        'count': len(activities),
+        'filters': {
+            'agent_name': agent_name,
+            'workflow_id': workflow_id,
+            'limit': limit,
+            'offset': offset
+        },
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/workflow/{workflow_id}")
+async def get_workflow_trace(workflow_id: str):
+    """Get complete trace of a workflow across all agents"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    trace = logger.get_workflow_trace(workflow_id)
+
+    return {
+        'success': True,
+        'workflow_trace': trace,
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/events")
+async def get_system_events(
+    severity: Optional[str] = None,
+    limit: int = 100,
+    unacknowledged_only: bool = False
+):
+    """Get system events and alerts"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    events = logger.get_system_events(
+        severity=severity,
+        limit=limit,
+        unacknowledged_only=unacknowledged_only
+    )
+
+    return {
+        'success': True,
+        'events': events,
+        'count': len(events),
+        'filters': {
+            'severity': severity,
+            'unacknowledged_only': unacknowledged_only
+        },
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/statistics")
+async def get_statistics(time_period: str = '24h'):
+    """Get system-wide statistics for a time period"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    stats = logger.get_statistics(time_period)
+
+    return {
+        'success': True,
+        'statistics': stats,
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+@app.get("/control-panel/inter-agent-messages")
+async def get_inter_agent_messages(agent_name: Optional[str] = None):
+    """Get inter-agent communication messages"""
+    from central_logger import get_central_logger
+    logger = get_central_logger()
+
+    if agent_name:
+        messages = logger.get_unprocessed_messages(agent_name)
+        return {
+            'success': True,
+            'agent_name': agent_name,
+            'unprocessed_messages': messages,
+            'count': len(messages),
+            'timestamp': datetime.now().isoformat()
+        }
+    else:
+        # Get all messages from database
+        import sqlite3
+        conn = sqlite3.connect(logger.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, timestamp, from_agent, to_agent, message_type, processed
+            FROM inter_agent_messages
+            ORDER BY timestamp DESC
+            LIMIT 100
+        """)
+
+        messages = []
+        for row in cursor.fetchall():
+            messages.append({
+                'id': row[0],
+                'timestamp': row[1],
+                'from_agent': row[2],
+                'to_agent': row[3],
+                'message_type': row[4],
+                'processed': bool(row[5])
+            })
+
+        conn.close()
+
+        return {
+            'success': True,
+            'all_messages': messages,
+            'count': len(messages),
+            'timestamp': datetime.now().isoformat()
+        }
 
 
 if __name__ == "__main__":
