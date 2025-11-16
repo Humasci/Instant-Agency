@@ -25,6 +25,14 @@ from phase2_intent_classifier_agent import Phase2IntentClassifierAgent
 from phase2_email_personalizer_agent import Phase2EmailPersonalizerAgent
 from phase2_social_media_agent import Phase2SocialMediaAgent
 
+# Import Phase 3 agents
+from phase3_orchestrator_agent import Phase3OrchestratorAgent
+from phase3_rag_research_agent import Phase3RAGResearchAgent
+from phase3_sales_strategist_agent import Phase3SalesStrategistAgent
+from phase3_marketing_campaign_agent import Phase3MarketingCampaignAgent
+from phase3_customer_success_agent import Phase3CustomerSuccessAgent
+from phase3_analytics_agent import Phase3AnalyticsAgent
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Instant Agency - AI Agent Service",
@@ -63,6 +71,14 @@ async def startup_event():
         agents['phase2_intent_classifier'] = Phase2IntentClassifierAgent()
         agents['phase2_email_personalizer'] = Phase2EmailPersonalizerAgent()
         agents['phase2_social_media'] = Phase2SocialMediaAgent()
+
+        # Phase 3 agents
+        agents['phase3_orchestrator'] = Phase3OrchestratorAgent()
+        agents['phase3_rag_research'] = Phase3RAGResearchAgent()
+        agents['phase3_sales_strategist'] = Phase3SalesStrategistAgent()
+        agents['phase3_marketing_campaign'] = Phase3MarketingCampaignAgent()
+        agents['phase3_customer_success'] = Phase3CustomerSuccessAgent()
+        agents['phase3_analytics'] = Phase3AnalyticsAgent()
 
         print("✓ All agents initialized successfully")
         print(f"  Loaded agents ({len(agents)}): {', '.join(agents.keys())}")
@@ -345,6 +361,106 @@ async def get_agent_metrics(agent_name: str):
         "agent": agent_name,
         "metrics": metrics
     }
+
+
+# Phase 3 endpoints
+@app.post("/phase3/orchestrate")
+async def phase3_orchestrate(workflow_data: Dict[str, Any]):
+    """
+    Phase 3: Orchestrate multi-agent workflow
+
+    Request body:
+    {
+        "customer_id": "cust_001",
+        "workflow_type": "lead_nurture" | "sales_cycle" | "support" | "content_marketing",
+        "journey_stage": "awareness" | "consideration" | "decision",
+        "engagement_score": 75,
+        "current_state": {...}
+    }
+    """
+    return await process_with_agent('phase3_orchestrator', workflow_data)
+
+
+@app.post("/phase3/research")
+async def phase3_research(research_data: Dict[str, Any]):
+    """
+    Phase 3: RAG-enhanced research
+
+    Request body:
+    {
+        "query": "AI automation benefits for small businesses",
+        "depth": "quick" | "standard" | "deep",
+        "max_results": 5,
+        "include_citations": true
+    }
+    """
+    return await process_with_agent('phase3_rag_research', research_data)
+
+
+@app.post("/phase3/sales-strategy")
+async def phase3_sales_strategy(strategy_data: Dict[str, Any]):
+    """
+    Phase 3: Advanced sales strategy
+
+    Request body:
+    {
+        "action": "analyze_deal" | "handle_objection" | "plan_campaign" | "qualify",
+        "deal_data": {...},
+        "prospect_data": {...},
+        "stakeholders": [...]
+    }
+    """
+    return await process_with_agent('phase3_sales_strategist', strategy_data)
+
+
+@app.post("/phase3/marketing-campaign")
+async def phase3_marketing_campaign(campaign_data: Dict[str, Any]):
+    """
+    Phase 3: Marketing campaign planning
+
+    Request body:
+    {
+        "campaign_type": "awareness" | "consideration" | "conversion",
+        "goal": "Generate 500 qualified leads",
+        "target_audience": {...},
+        "budget": 15000,
+        "duration_days": 30,
+        "channels": ["email", "social_media", "content"]
+    }
+    """
+    return await process_with_agent('phase3_marketing_campaign', campaign_data)
+
+
+@app.post("/phase3/customer-success")
+async def phase3_customer_success(cs_data: Dict[str, Any]):
+    """
+    Phase 3: Customer success management
+
+    Request body:
+    {
+        "action": "health_check" | "onboard" | "intervention" | "expansion_opportunity",
+        "customer_id": "cust_001",
+        "customer_data": {...},
+        "usage_data": {...},
+        "account_data": {...}
+    }
+    """
+    return await process_with_agent('phase3_customer_success', cs_data)
+
+
+@app.post("/phase3/analytics")
+async def phase3_analytics(analytics_data: Dict[str, Any]):
+    """
+    Phase 3: Analytics and reporting
+
+    Request body:
+    {
+        "report_type": "agent_performance" | "customer_journey" | "roi" | "executive_summary",
+        "time_period": "daily" | "weekly" | "monthly" | "quarterly",
+        "filters": {...}
+    }
+    """
+    return await process_with_agent('phase3_analytics', analytics_data)
 
 
 if __name__ == "__main__":
