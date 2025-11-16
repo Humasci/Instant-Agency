@@ -14,6 +14,10 @@ import os
 from sales.qualification.agent import SalesQualificationAgent
 from marketing.prospecting.agent import MarketingProspectingAgent
 
+# Import Phase 1 agents
+from phase1_prospect_agent import Phase1ProspectAgent
+from phase1_faq_chatbot import Phase1FAQChatbot
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Instant Agency - AI Agent Service",
@@ -38,9 +42,16 @@ agents = {}
 async def startup_event():
     """Initialize all agents on startup"""
     try:
+        # Existing agents
         agents['sales_qualification'] = SalesQualificationAgent()
         agents['marketing_prospecting'] = MarketingProspectingAgent()
+
+        # Phase 1 agents
+        agents['phase1_prospect'] = Phase1ProspectAgent()
+        agents['phase1_faq'] = Phase1FAQChatbot()
+
         print("✓ All agents initialized successfully")
+        print(f"  Loaded agents: {', '.join(agents.keys())}")
     except Exception as e:
         print(f"✗ Agent initialization failed: {e}")
 
@@ -137,6 +148,39 @@ async def qualify_lead(lead_data: Dict[str, Any]):
 async def research_prospect(prospect_data: Dict[str, Any]):
     """Research a prospect"""
     return await process_with_agent('marketing_prospecting', prospect_data)
+
+
+# Phase 1 endpoints
+@app.post("/phase1/qualify-lead")
+async def phase1_qualify_lead(lead_data: Dict[str, Any]):
+    """
+    Phase 1: Qualify a lead using sentiment analysis
+
+    Request body:
+    {
+        "lead_name": "John Smith",
+        "lead_email": "john@example.com",
+        "company": "Acme Corp",
+        "industry": "Technology",
+        "lead_message": "I'm interested in your product..."
+    }
+    """
+    return await process_with_agent('phase1_prospect', lead_data)
+
+
+@app.post("/phase1/faq")
+async def phase1_faq(question_data: Dict[str, Any]):
+    """
+    Phase 1: Answer FAQ question
+
+    Request body:
+    {
+        "question": "What is Instant Agency?",
+        "user_id": "user_123",
+        "context": "Optional context"
+    }
+    """
+    return await process_with_agent('phase1_faq', question_data)
 
 
 # Generic agent execution endpoint
