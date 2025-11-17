@@ -1,0 +1,373 @@
+{
+  "name": "Customer Success - Health Monitoring & Intervention",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Schedule - Daily 10am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "query",
+        "collection": "people",
+        "filters": {
+          "conditions": [
+            {
+              "attribute": "tags",
+              "operator": "contains",
+              "value": "customer"
+            }
+          ]
+        }
+      },
+      "name": "Attio - Get All Customers",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [450, 400],
+      "credentials": {
+        "attioApi": {
+          "id": "3",
+          "name": "Attio API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "name": "Loop Over Customers",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase3/customer-success",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"action\": \"health_check\",\n  \"customer_id\": \"{{$json.id}}\",\n  \"customer_data\": {\n    \"name\": \"{{$json.name}}\",\n    \"email\": \"{{$json.email}}\",\n    \"company\": \"{{$json.company}}\",\n    \"account_value\": {{$json.account_value || 0}},\n    \"contract_start\": \"{{$json.contract_start}}\",\n    \"last_interaction\": \"{{$json.last_interaction}}\"\n  },\n  \"usage_data\": {\n    \"logins_30d\": {{$json.logins_30d || 0}},\n    \"feature_adoption\": {{$json.feature_adoption || 50}},\n    \"support_tickets_30d\": {{$json.support_tickets || 0}}\n  }\n}"
+      },
+      "name": "AI - Calculate Health Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.health_score}}",
+              "operation": "smaller",
+              "value2": 50
+            }
+          ]
+        }
+      },
+      "name": "IF At-Risk (Score < 50)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.health_score}}",
+              "operation": "larger",
+              "value2": 80
+            }
+          ]
+        }
+      },
+      "name": "IF Healthy (Score > 80)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 600]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "parentObject": "people",
+        "parentRecordId": "={{$json.customer_id}}",
+        "title": "⚠️ Customer Health Alert",
+        "content": "=Customer health score dropped to {{$json.health_score}}/100.\n\n**Risk Factors:**\n{{$json.risk_factors.join('\\n')}}\n\n**Recommended Actions:**\n{{$json.intervention_plan.actions.join('\\n')}}\n\n**Priority:** {{$json.intervention_plan.priority}}",
+        "format": "plaintext"
+      },
+      "name": "Attio - Create Alert Note",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "content": "Reach out to {{$json.customer_data.name}} - Health score at {{$json.health_score}}",
+        "deadline": "={{$now.plus(2, 'days')}}",
+        "linkedRecords": [
+          {
+            "object": "people",
+            "recordId": "={{$json.customer_id}}"
+          }
+        ]
+      },
+      "name": "Attio - Create Task",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "fromEmail": "success@six3.agency",
+        "toEmail": "cs-team@six3.agency",
+        "subject": "⚠️ AT-RISK CUSTOMER: {{$json.customer_data.name}}",
+        "emailType": "html",
+        "message": "=<h2>Customer Health Alert</h2>\n<p><strong>Customer:</strong> {{$json.customer_data.name}}</p>\n<p><strong>Company:</strong> {{$json.customer_data.company}}</p>\n<p><strong>Health Score:</strong> {{$json.health_score}}/100 🔴</p>\n<p><strong>Account Value:</strong> ${{$json.customer_data.account_value}}</p>\n\n<h3>Risk Factors:</h3>\n<ul>\n{{$json.risk_factors.map(r => '<li>' + r + '</li>').join('')}}\n</ul>\n\n<h3>Recommended Actions:</h3>\n<ol>\n{{$json.intervention_plan.actions.map(a => '<li>' + a + '</li>').join('')}}\n</ol>\n\n<p><a href=\"https://app.attio.com/workspaces/{{$json.customer_id}}\">View in Attio CRM</a></p>"
+      },
+      "name": "Email - Alert CS Team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 500]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataType": "person",
+        "personId": "={{$json.customer_id}}",
+        "updateFields": {
+          "fields": [
+            {
+              "attribute": "tags",
+              "value": "customer,healthy,upsell_opportunity"
+            }
+          ]
+        }
+      },
+      "name": "Attio - Tag for Upsell",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [1250, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase3/customer-success",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"action\": \"expansion_opportunity\",\n  \"customer_id\": \"{{$json.customer_id}}\",\n  \"customer_data\": {{$json.customer_data}},\n  \"usage_data\": {{$json.usage_data}}\n}"
+      },
+      "name": "AI - Identify Upsell",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 700]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "sheetName": "Customer Health",
+        "key": "Customer ID",
+        "keyValue": "={{$json.customer_id}}",
+        "values": {
+          "values": [
+            {
+              "column": "Last Check",
+              "value": "={{$now}}"
+            },
+            {
+              "column": "Health Score",
+              "value": "={{$json.health_score}}"
+            },
+            {
+              "column": "Status",
+              "value": "={{$json.health_score < 50 ? 'at-risk' : $json.health_score > 80 ? 'healthy' : 'stable'}}"
+            }
+          ]
+        }
+      },
+      "name": "Google Sheets - Update Tracking",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1450, 400]
+    }
+  ],
+  "connections": {
+    "Schedule - Daily 10am": {
+      "main": [
+        [
+          {
+            "node": "Attio - Get All Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attio - Get All Customers": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Customers": {
+      "main": [
+        [
+          {
+            "node": "AI - Calculate Health Score",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          null
+        ]
+      ]
+    },
+    "AI - Calculate Health Score": {
+      "main": [
+        [
+          {
+            "node": "IF At-Risk (Score < 50)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Healthy (Score > 80)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF At-Risk (Score < 50)": {
+      "main": [
+        [
+          {
+            "node": "Attio - Create Alert Note",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Attio - Create Task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email - Alert CS Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Healthy (Score > 80)": {
+      "main": [
+        [
+          {
+            "node": "Attio - Tag for Upsell",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI - Identify Upsell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attio - Create Alert Note": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attio - Create Task": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email - Alert CS Team": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attio - Tag for Upsell": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Identify Upsell": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Tracking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Tracking": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["customer-success", "health-monitoring", "retention"],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

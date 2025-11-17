@@ -1,0 +1,291 @@
+{
+  "name": "Phase 1 - Lead Qualification & Outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger - Daily 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "id": "schedule-trigger-1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM leads WHERE status = 'new' AND processed_at IS NULL LIMIT 50",
+        "options": {}
+      },
+      "name": "Fetch New Leads from DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "id": "postgres-1",
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.HUGGINGFACE_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"inputs\": \"{{$json.lead_message}}\"}",
+        "options": {}
+      },
+      "name": "HF Sentiment Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 300],
+      "id": "http-request-1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{$json[0].label}}",
+              "rightValue": "POSITIVE",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition-2",
+              "leftValue": "={{$json[0].score}}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Check If Qualified Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "id": "if-1"
+    },
+    {
+      "parameters": {
+        "url": "http://suitecrm:8080/service/v4_1/rest.php",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"method\": \"set_entry\", \"input_type\": \"JSON\", \"module_name\": \"Leads\", \"name_value_list\": {\"first_name\": {\"name\": \"first_name\", \"value\": \"{{$json.first_name}}\"}, \"last_name\": {\"name\": \"last_name\", \"value\": \"{{$json.last_name}}\"}, \"email1\": {\"name\": \"email1\", \"value\": \"{{$json.email}}\"}, \"status\": {\"name\": \"status\", \"value\": \"Qualified\"}, \"lead_source\": {\"name\": \"lead_source\", \"value\": \"AI Qualification\"}, \"description\": {\"name\": \"description\", \"value\": \"Sentiment Score: {{$json[0].score}}\\nMessage: {{$json.lead_message}}\"}}}",
+        "options": {}
+      },
+      "name": "Add to CRM as Qualified",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 250],
+      "id": "http-request-2"
+    },
+    {
+      "parameters": {
+        "url": "http://agent-service:8000/api/v1/agents/marketing/generate-outreach",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"prospect_name\": \"{{$json.first_name}} {{$json.last_name}}\", \"company\": \"{{$json.company}}\", \"lead_message\": \"{{$json.lead_message}}\"}",
+        "options": {}
+      },
+      "name": "Generate Personalized Outreach",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 250],
+      "id": "http-request-3"
+    },
+    {
+      "parameters": {
+        "fromEmail": "sales@six3.agency",
+        "toEmail": "={{$json.email}}",
+        "subject": "={{$json.email_subject}}",
+        "emailType": "html",
+        "message": "={{$json.email_body}}",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "ccList": "",
+          "bccList": "",
+          "replyTo": "sales@six3.agency",
+          "senderName": "Instant Agency Sales Team"
+        }
+      },
+      "name": "Send Outreach Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1450, 250],
+      "id": "email-send-1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE leads SET status = 'qualified', processed_at = NOW(), sentiment_score = {{$json[0].score}} WHERE id = {{$json.id}}",
+        "options": {}
+      },
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1650, 250],
+      "id": "postgres-2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE leads SET status = 'unqualified', processed_at = NOW(), sentiment_score = {{$json[0].score}} WHERE id = {{$json.id}}",
+        "options": {}
+      },
+      "name": "Mark as Unqualified",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1050, 350],
+      "id": "postgres-3"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger - Daily 9 AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch New Leads from DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch New Leads from DB": {
+      "main": [
+        [
+          {
+            "node": "HF Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HF Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Check If Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Add to CRM as Qualified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark as Unqualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to CRM as Qualified": {
+      "main": [
+        [
+          {
+            "node": "Generate Personalized Outreach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Personalized Outreach": {
+      "main": [
+        [
+          {
+            "node": "Send Outreach Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Outreach Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-11-16T00:00:00.000Z",
+      "updatedAt": "2025-11-16T00:00:00.000Z",
+      "id": "1",
+      "name": "Phase 1"
+    },
+    {
+      "createdAt": "2025-11-16T00:00:00.000Z",
+      "updatedAt": "2025-11-16T00:00:00.000Z",
+      "id": "2",
+      "name": "Marketing"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "@six3.agency-dev"
+  }
+}

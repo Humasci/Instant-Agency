@@ -1,10 +1,10 @@
-# Instant Agency - AI-Powered Virtual Agent Agency
+# SIX3 Agency - AI-Powered Virtual Agent Agency
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
-Instant Agency is a fully autonomous, AI-driven virtual agent agency that automates marketing, sales, content creation, machine learning operations, and customer success. Built entirely on open-source technologies, it provides a coordinated, scalable team of AI agents that handle every business stage—from lead generation to customer support.
+SIX3 Agency is a fully autonomous, AI-driven virtual agent agency that automates marketing, sales, content creation, machine learning operations, and customer success. Built entirely on open-source technologies, it provides a coordinated, scalable team of AI agents that handle every business stage—from lead generation to customer support.
 
 ## Core Objectives
 

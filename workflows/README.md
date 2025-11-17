@@ -1,4 +1,4 @@
-# Instant Agency - Workflow Templates
+# SIX3 Agency - Workflow Templates
 
 This directory contains n8n workflow templates for each department.
 

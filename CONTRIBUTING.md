@@ -1,6 +1,6 @@
-# Contributing to Instant Agency
+# Contributing to SIX3 Agency
 
-Thank you for your interest in contributing to Instant Agency! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to SIX3 Agency! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -199,4 +199,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-Thank you for contributing to Instant Agency! 🚀
+Thank you for contributing to SIX3 Agency! 🚀

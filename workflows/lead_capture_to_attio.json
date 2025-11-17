@@ -1,0 +1,217 @@
+{
+  "name": "Lead Capture to Attio CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "lead-capture",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Receive Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "lead-capture-webhook"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase1/qualify-and-create-in-crm",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "lead_name",
+              "value": "={{$json.name || $json.firstName + ' ' + $json.lastName}}"
+            },
+            {
+              "name": "lead_email",
+              "value": "={{$json.email}}"
+            },
+            {
+              "name": "company",
+              "value": "={{$json.company}}"
+            },
+            {
+              "name": "industry",
+              "value": "={{$json.industry || 'General'}}"
+            },
+            {
+              "name": "lead_message",
+              "value": "={{$json.message}}"
+            },
+            {
+              "name": "phone",
+              "value": "={{$json.phone}}"
+            },
+            {
+              "name": "job_title",
+              "value": "={{$json.jobTitle}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "AI Agent - Qualify Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.qualification.qualification_status}}",
+              "operation": "equals",
+              "value2": "hot"
+            }
+          ]
+        }
+      },
+      "name": "IF Hot Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.N8N_WEBHOOK_URL}}/webhook/send-sales-notification",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "lead_name",
+              "value": "={{$json.qualification.lead_info.name}}"
+            },
+            {
+              "name": "lead_email",
+              "value": "={{$json.qualification.lead_info.email}}"
+            },
+            {
+              "name": "qualification_score",
+              "value": "={{$json.qualification.qualification_score}}"
+            },
+            {
+              "name": "attio_record_id",
+              "value": "={{$json.crm_record.id}}"
+            }
+          ]
+        }
+      },
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "name": "Response - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Lead captured and qualified successfully"
+            },
+            {
+              "name": "status",
+              "value": "={{$json.qualification.qualification_status}}"
+            },
+            {
+              "name": "score",
+              "value": "={{$json.qualification.qualification_score}}"
+            },
+            {
+              "name": "crm_id",
+              "value": "={{$json.crm_record.id}}"
+            }
+          ]
+        }
+      },
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [850, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Lead": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Qualify Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Qualify Lead": {
+      "main": [
+        [
+          {
+            "node": "IF Hot Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Notify Sales Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Sales Team": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "meta": {
+    "instanceId": "your-instance-id"
+  }
+}

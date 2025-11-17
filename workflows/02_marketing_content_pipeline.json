@@ -1,0 +1,278 @@
+{
+  "name": "Marketing - Content Generation & Distribution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "name": "Schedule - Every Monday 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "query",
+        "sheetName": "Content Ideas",
+        "filters": {
+          "conditions": [
+            {
+              "column": "Status",
+              "condition": "equals",
+              "value": "approved"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "name": "Google Sheets - Get Next Topic",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [450, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase2/write-content",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"topic\": \"{{$json.Topic}}\",\n  \"content_type\": \"blog_post\",\n  \"audience\": \"{{$json.Audience}}\",\n  \"tone\": \"professional\",\n  \"word_count\": 800,\n  \"keywords\": {{$json.Keywords}},\n  \"key_points\": {{$json.KeyPoints}}\n}"
+      },
+      "name": "AI - Generate Blog Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase2/create-social-posts",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": \"{{$json.content}}\",\n  \"topic\": \"{{$json.metadata.topic}}\",\n  \"platforms\": [\"linkedin\", \"twitter\", \"facebook\"],\n  \"target_audience\": \"business professionals\",\n  \"cta\": \"Read more\",\n  \"link\": \"{{$json.metadata.blog_url}}\"\n}"
+      },
+      "name": "AI - Generate Social Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "workspace": "={{$env.WORDPRESS_WORKSPACE}}",
+        "title": "={{$json.content.title}}",
+        "content": "={{$json.content.body}}",
+        "status": "draft",
+        "author": "AI Content Generator",
+        "categories": ["AI", "Automation"]
+      },
+      "name": "WordPress - Save as Draft",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "credentials": {
+        "wordpressApi": {
+          "id": "4",
+          "name": "WordPress"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{$json.social_posts.linkedin.text}}",
+        "linkText": "Read full article",
+        "linkUrl": "={{$json.metadata.blog_url}}"
+      },
+      "name": "LinkedIn - Post",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [1050, 450],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "5",
+          "name": "LinkedIn"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{$json.social_posts.twitter.text}}",
+        "additionalFields": {
+          "attachments": "={{$json.metadata.featured_image}}"
+        }
+      },
+      "name": "Twitter - Tweet",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [1050, 550],
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "6",
+          "name": "Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "sheetName": "Content Ideas",
+        "rowId": "={{$json.rowId}}",
+        "values": {
+          "values": [
+            {
+              "column": "Status",
+              "value": "published"
+            },
+            {
+              "column": "Published Date",
+              "value": "={{$now}}"
+            },
+            {
+              "column": "WordPress URL",
+              "value": "={{$json.wordpress_url}}"
+            }
+          ]
+        }
+      },
+      "name": "Google Sheets - Mark Published",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "fromEmail": "marketing@six3.agency",
+        "toEmail": "team@six3.agency",
+        "subject": "📝 New Content Published: {{$json.content.title}}",
+        "emailType": "html",
+        "message": "=<h2>Content Published Successfully!</h2>\n<p><strong>Title:</strong> {{$json.content.title}}</p>\n<p><strong>WordPress:</strong> <a href=\"{{$json.wordpress_url}}\">View Draft</a></p>\n<p><strong>LinkedIn:</strong> Posted ✓</p>\n<p><strong>Twitter:</strong> Posted ✓</p>\n<p><strong>Performance:</strong> Track in <a href=\"https://app.metabase.com\">Metabase</a></p>"
+      },
+      "name": "Email - Notify Team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1450, 400]
+    }
+  ],
+  "connections": {
+    "Schedule - Every Monday 9am": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Get Next Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Get Next Topic": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Social Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Social Posts": {
+      "main": [
+        [
+          {
+            "node": "WordPress - Save as Draft",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "LinkedIn - Post",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Twitter - Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WordPress - Save as Draft": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Mark Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn - Post": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Mark Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter - Tweet": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Mark Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Mark Published": {
+      "main": [
+        [
+          {
+            "node": "Email - Notify Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["marketing", "content-generation", "social-media"],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
