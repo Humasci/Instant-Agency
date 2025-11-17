@@ -1,0 +1,324 @@
+{
+  "name": "Sales - Lead Qualification & CRM",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sales-lead-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Lead Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "webhookId": "sales-lead-intake"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase1/qualify-and-create-in-crm",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_name\": \"{{$json.firstName}} {{$json.lastName}}\",\n  \"lead_email\": \"{{$json.email}}\",\n  \"company\": \"{{$json.company}}\",\n  \"industry\": \"{{$json.industry || 'General'}}\",\n  \"lead_message\": \"{{$json.message}}\",\n  \"phone\": \"{{$json.phone}}\",\n  \"job_title\": \"{{$json.jobTitle}}\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "name": "AI - Qualify Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.qualification.qualification_status}}",
+              "operation": "equals",
+              "value2": "hot"
+            }
+          ]
+        }
+      },
+      "name": "IF Hot Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.qualification.qualification_status}}",
+              "operation": "equals",
+              "value2": "warm"
+            }
+          ]
+        }
+      },
+      "name": "IF Warm Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.AGENT_API_URL}}/phase2/generate-sales-pitch",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prospect_name\": \"{{$json.qualification.lead_info.name}}\",\n  \"company\": \"{{$json.qualification.lead_info.company}}\",\n  \"industry\": \"{{$json.qualification.lead_info.industry}}\",\n  \"pain_points\": \"{{$json.qualification.sentiment.keywords}}\"\n}"
+      },
+      "name": "AI - Generate Sales Pitch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "fromEmail": "sales@instant-agency.ai",
+        "toEmail": "={{$json.qualification.lead_info.email}}",
+        "subject": "Great to connect, {{$json.qualification.lead_info.name}}!",
+        "emailType": "html",
+        "message": "={{$json.sales_pitch.pitch}}"
+      },
+      "name": "Email - Send Sales Pitch",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "credentials": {
+        "smtp": {
+          "id": "1",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "fromEmail": "sales@instant-agency.ai",
+        "toEmail": "sales-team@instant-agency.ai",
+        "subject": "🔥 HOT LEAD: {{$json.qualification.lead_info.name}}",
+        "emailType": "html",
+        "message": "=<h2>Hot Lead Alert!</h2>\n<p><strong>Name:</strong> {{$json.qualification.lead_info.name}}</p>\n<p><strong>Company:</strong> {{$json.qualification.lead_info.company}}</p>\n<p><strong>Email:</strong> {{$json.qualification.lead_info.email}}</p>\n<p><strong>Score:</strong> {{$json.qualification.qualification_score}}/10</p>\n<p><strong>Sentiment:</strong> {{$json.qualification.sentiment.label}}</p>\n<p><strong>Message:</strong> {{$json.qualification.lead_info.message}}</p>\n<p><strong>Attio CRM:</strong> <a href=\"https://app.attio.com/workspaces/{{$json.crm_record.id}}\">View in CRM</a></p>"
+      },
+      "name": "Email - Notify Sales Team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [850, 200],
+      "credentials": {
+        "smtp": {
+          "id": "1",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "={{$env.GOOGLE_SHEET_ID}}",
+        "sheetName": "Warm Leads",
+        "values": {
+          "values": [
+            {
+              "column": "Timestamp",
+              "value": "={{$now}}"
+            },
+            {
+              "column": "Name",
+              "value": "={{$json.qualification.lead_info.name}}"
+            },
+            {
+              "column": "Email",
+              "value": "={{$json.qualification.lead_info.email}}"
+            },
+            {
+              "column": "Company",
+              "value": "={{$json.qualification.lead_info.company}}"
+            },
+            {
+              "column": "Score",
+              "value": "={{$json.qualification.qualification_score}}"
+            },
+            {
+              "column": "Status",
+              "value": "warm"
+            },
+            {
+              "column": "CRM ID",
+              "value": "={{$json.crm_record.id}}"
+            }
+          ]
+        }
+      },
+      "name": "Google Sheets - Add to Nurture List",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [850, 600],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Thank you! We'll be in touch soon.\",\n  \"status\": \"{{$json.qualification.qualification_status}}\",\n  \"score\": {{$json.qualification.qualification_score}}\n}",
+        "options": {}
+      },
+      "name": "Response - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataType": "person",
+        "personId": "={{$json.crm_record.id}}",
+        "updateFields": {
+          "fields": [
+            {
+              "attribute": "tags",
+              "value": "hot_lead,contacted"
+            }
+          ]
+        }
+      },
+      "name": "Attio - Tag as Hot & Contacted",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [1050, 200],
+      "credentials": {
+        "attioApi": {
+          "id": "3",
+          "name": "Attio API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Lead Form": {
+      "main": [
+        [
+          {
+            "node": "AI - Qualify Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Qualify Lead": {
+      "main": [
+        [
+          {
+            "node": "IF Hot Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Warm Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Email - Notify Sales Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI - Generate Sales Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Warm Lead": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Add to Nurture List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Sales Pitch": {
+      "main": [
+        [
+          {
+            "node": "Email - Send Sales Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email - Send Sales Pitch": {
+      "main": [
+        [
+          {
+            "node": "Attio - Tag as Hot & Contacted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email - Notify Sales Team": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Add to Nurture List": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attio - Tag as Hot & Contacted": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["sales", "lead-qualification", "crm"],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

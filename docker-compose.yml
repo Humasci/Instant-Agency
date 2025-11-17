@@ -64,6 +64,10 @@ services:
       - N8N_EXECUTION_MODE=${N8N_EXECUTION_MODE:-regular}
       - EXECUTIONS_TIMEOUT=${EXECUTIONS_TIMEOUT:-3600}
       - EXECUTIONS_TIMEOUT_MAX=${EXECUTIONS_TIMEOUT_MAX:-7200}
+      # Agent API URL (accessible from n8n container)
+      - AGENT_API_URL=${AGENT_API_URL:-http://agent-service:8000}
+      # Attio CRM API key
+      - ATTIO_API_KEY=${ATTIO_API_KEY}
     ports:
       - "5678:5678"
     volumes:
@@ -74,32 +78,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - instant-agency-network
-
-  # SuiteCRM
-  suitecrm:
-    image: bitnami/suitecrm:latest
-    container_name: instant-agency-crm
-    restart: unless-stopped
-    environment:
-      - SUITECRM_DATABASE_HOST=postgres
-      - SUITECRM_DATABASE_PORT_NUMBER=5432
-      - SUITECRM_DATABASE_NAME=${CRM_DB_NAME:-suitecrm}
-      - SUITECRM_DATABASE_USER=${POSTGRES_USER:-instant_agency}
-      - SUITECRM_DATABASE_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-      - SUITECRM_USERNAME=${CRM_USERNAME:-admin}
-      - SUITECRM_PASSWORD=${CRM_PASSWORD:-changeme}
-      - SUITECRM_EMAIL=${CRM_EMAIL:-admin@instant-agency.ai}
-      - SUITECRM_HOST=${CRM_HOST:-localhost:8080}
-    ports:
-      - "8080:8080"
-      - "8443:8443"
-    volumes:
-      - suitecrm_data:/bitnami/suitecrm
-    depends_on:
-      postgres:
-        condition: service_healthy
+      agent-service:
+        condition: service_started
     networks:
       - instant-agency-network
 
@@ -125,22 +105,6 @@ services:
     networks:
       - instant-agency-network
 
-  # Chroma Vector Database
-  chroma:
-    image: ghcr.io/chroma-core/chroma:latest
-    container_name: instant-agency-chroma
-    restart: unless-stopped
-    environment:
-      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=${CHROMA_AUTH_PROVIDER:-chromadb.auth.token.TokenAuthServerProvider}
-      - CHROMA_SERVER_AUTH_CREDENTIALS=${CHROMA_AUTH_TOKEN:-changeme}
-      - CHROMA_SERVER_AUTH_TOKEN_TRANSPORT_HEADER=${CHROMA_AUTH_HEADER:-X-Chroma-Token}
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/chroma
-    networks:
-      - instant-agency-network
-
   # AI Agent Service
   agent-service:
     build:
@@ -149,28 +113,50 @@ services:
     container_name: instant-agency-agents
     restart: unless-stopped
     environment:
+      # Hugging Face API
       - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+
+      # Attio CRM
+      - ATTIO_API_KEY=${ATTIO_API_KEY}
+
+      # Database
       - POSTGRES_HOST=postgres
       - POSTGRES_DB=${POSTGRES_DB:-instant_agency}
       - POSTGRES_USER=${POSTGRES_USER:-instant_agency}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+
+      # Redis
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
-      - CHROMA_HOST=chroma
-      - CHROMA_PORT=8000
+
+      # Phase 4 External APIs (optional)
+      - DID_API_KEY=${DID_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - AZURE_SPEECH_KEY=${AZURE_SPEECH_KEY}
+      - AZURE_SPEECH_REGION=${AZURE_SPEECH_REGION}
+
+      # Service config
+      - AGENT_SERVICE_PORT=8000
       - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "8000:8000"
     volumes:
       - ./agents:/app/agents
-      - ./models:/app/models
+      - ./integrations:/app/integrations
       - agent_logs:/app/logs
     depends_on:
       - postgres
       - redis
-      - chroma
     networks:
       - instant-agency-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # Prometheus Monitoring
+  # Prometheus Monitoring (optional - can be disabled)
   prometheus:
     image: prom/prometheus:latest
     container_name: instant-agency-prometheus
@@ -178,8 +164,6 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - "9090:9090"
     volumes:
@@ -187,8 +171,10 @@ services:
       - prometheus_data:/prometheus
     networks:
       - instant-agency-network
+    profiles:
+      - monitoring
 
-  # Grafana Dashboards
+  # Grafana Dashboards (optional - can be disabled)
   grafana:
     image: grafana/grafana:latest
     container_name: instant-agency-grafana
@@ -208,6 +194,8 @@ services:
       - postgres
     networks:
       - instant-agency-network
+    profiles:
+      - monitoring
 
 networks:
   instant-agency-network:
@@ -220,11 +208,7 @@ volumes:
     driver: local
   n8n_data:
     driver: local
-  suitecrm_data:
-    driver: local
   metabase_data:
-    driver: local
-  chroma_data:
     driver: local
   agent_logs:
     driver: local
