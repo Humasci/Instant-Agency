@@ -48,8 +48,8 @@ from integrations.crm.attio_integration import AttioCRMIntegration
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Instant Agency - AI Agent Service",
-    description="REST API for AI agents",
+    title="SIX3 Agency - AI Agent Service",
+    description="REST API for AI agents powering https://six3.agency",
     version="1.0.0"
 )
 

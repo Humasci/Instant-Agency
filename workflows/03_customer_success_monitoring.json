@@ -133,8 +133,8 @@
     {
       "parameters": {
         "operation": "send",
-        "fromEmail": "success@instant-agency.ai",
-        "toEmail": "cs-team@instant-agency.ai",
+        "fromEmail": "success@six3.agency",
+        "toEmail": "cs-team@six3.agency",
         "subject": "⚠️ AT-RISK CUSTOMER: {{$json.customer_data.name}}",
         "emailType": "html",
         "message": "=<h2>Customer Health Alert</h2>\n<p><strong>Customer:</strong> {{$json.customer_data.name}}</p>\n<p><strong>Company:</strong> {{$json.customer_data.company}}</p>\n<p><strong>Health Score:</strong> {{$json.health_score}}/100 🔴</p>\n<p><strong>Account Value:</strong> ${{$json.customer_data.account_value}}</p>\n\n<h3>Risk Factors:</h3>\n<ul>\n{{$json.risk_factors.map(r => '<li>' + r + '</li>').join('')}}\n</ul>\n\n<h3>Recommended Actions:</h3>\n<ol>\n{{$json.intervention_plan.actions.map(a => '<li>' + a + '</li>').join('')}}\n</ol>\n\n<p><a href=\"https://app.attio.com/workspaces/{{$json.customer_id}}\">View in Attio CRM</a></p>"

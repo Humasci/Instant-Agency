@@ -135,7 +135,7 @@
     },
     {
       "parameters": {
-        "fromEmail": "sales@instant-agency.ai",
+        "fromEmail": "sales@six3.agency",
         "toEmail": "={{$json.email}}",
         "subject": "={{$json.email_subject}}",
         "emailType": "html",
@@ -144,7 +144,7 @@
           "allowUnauthorizedCerts": false,
           "ccList": "",
           "bccList": "",
-          "replyTo": "sales@instant-agency.ai",
+          "replyTo": "sales@six3.agency",
           "senderName": "Instant Agency Sales Team"
         }
       },
@@ -286,6 +286,6 @@
   ],
   "meta": {
     "templateCredsSetupCompleted": false,
-    "instanceId": "instant-agency-dev"
+    "instanceId": "@six3.agency-dev"
   }
 }

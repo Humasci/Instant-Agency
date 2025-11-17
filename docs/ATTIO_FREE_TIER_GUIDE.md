@@ -183,7 +183,7 @@ Total: 2,000 calls ✅
 ```bash
 # 1. In Attio, go to Settings → Developers
 # 2. Click "Create API Key"
-# 3. Name it: "Instant Agency AI Agents"
+# 3. Name it: "SIX3 Agency AI Agents"
 # 4. Copy the key (starts with "sk_")
 ```
 

@@ -1,6 +1,6 @@
 # Agent Prompt Templates
 
-This directory contains reusable prompt templates for all AI agents in the Instant Agency system.
+This directory contains reusable prompt templates for all AI agents in the SIX3 Agency system.
 
 ## Directory Structure
 

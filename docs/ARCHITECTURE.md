@@ -1,4 +1,4 @@
-# Instant Agency - System Architecture
+# SIX3 Agency - System Architecture
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -11,7 +11,7 @@
 
 ## Overview
 
-Instant Agency follows a microservices-based architecture with event-driven communication between components. The system is designed for:
+SIX3 Agency follows a microservices-based architecture with event-driven communication between components. The system is designed for:
 
 - **Modularity**: Each component can be developed, deployed, and scaled independently
 - **Resilience**: Failures in one component don't cascade to others
@@ -38,7 +38,7 @@ n8n:
   persistence: postgres
   execution_mode: queue
   workers: 4
-  webhook_url: https://workflows.instant-agency.ai
+  webhook_url: https://workflows.six3.agency
 ```
 
 ### 2. AI Agent Layer
@@ -615,4 +615,4 @@ See [DIGITAL_AVATARS.md](DIGITAL_AVATARS.md) for complete implementation guide.
 
 **Document Version**: 1.0
 **Last Updated**: November 2025
-**Maintained By**: Instant Agency Team
+**Maintained By**: SIX3 Agency Team

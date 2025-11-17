@@ -280,14 +280,14 @@
     },
     {
       "parameters": {
-        "fromEmail": "sarah.williams@instant-agency.ai",
+        "fromEmail": "sarah.williams@six3.agency",
         "toEmail": "={{$json.contact.email}}",
         "subject": "=Great connecting with you today!",
         "emailType": "html",
         "message": "=Hi {{$json.contact.first_name}},\n\nThank you for taking the time to speak with me today! I enjoyed learning about {{$json.contact.company}} and how we might help with {{$json.call_summary.key_pain_points}}.\n\n**Key Takeaways from our call:**\n{{$json.call_summary.key_points}}\n\n**Next Steps:**\n{{$json.call_summary.next_steps}}\n\n{{$json.call_summary.personalized_closing}}\n\nBest regards,\nSarah Williams\nSenior Sales Consultant\nInstant Agency",
         "options": {
           "senderName": "Sarah Williams",
-          "replyTo": "sales@instant-agency.ai"
+          "replyTo": "sales@six3.agency"
         }
       },
       "name": "Send Follow-Up Email",
@@ -467,6 +467,6 @@
   ],
   "meta": {
     "templateCredsSetupCompleted": false,
-    "instanceId": "instant-agency-production"
+    "instanceId": "@six3.agency-production"
   }
 }

@@ -232,7 +232,7 @@ curl -X POST http://localhost:8000/phase4/voice-conversation \
   -H "Content-Type: application/json" \
   -d '{
     "action": "synthesize",
-    "text": "Welcome to Instant Agency! How can I help you today?",
+    "text": "Welcome to SIX3 Agency! How can I help you today?",
     "voice": "professional",
     "provider": "elevenlabs",
     "language": "en"
@@ -391,7 +391,7 @@ Response:
   "greeting_audio": "base64_audio_data",
   "avatar_video_id": "greeting_session_123",
   "video_enabled": true,
-  "websocket_url": "wss://realtime.instant-agency.ai/session/session_123",
+  "websocket_url": "wss://realtime.six3.agency/session/session_123",
   "status": "active"
 }
 ```

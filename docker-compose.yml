@@ -4,11 +4,11 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: instant-agency-postgres
+    container_name: six3-agency-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-instant_agency}
-      POSTGRES_USER: ${POSTGRES_USER:-instant_agency}
+      POSTGRES_DB: ${POSTGRES_DB:-six3_agency}
+      POSTGRES_USER: ${POSTGRES_USER:-six3_agency}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -16,17 +16,17 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-instant_agency}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-six3_agency}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - instant-agency-network
+      - six3-agency-network
 
   # Redis Cache & Queue
   redis:
     image: redis:7-alpine
-    container_name: instant-agency-redis
+    container_name: six3-agency-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD:-changeme}
     volumes:
@@ -39,19 +39,19 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - instant-agency-network
+      - six3-agency-network
 
   # n8n Workflow Automation
   n8n:
     image: n8nio/n8n:latest
-    container_name: instant-agency-n8n
+    container_name: six3-agency-n8n
     restart: unless-stopped
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-instant_agency}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER:-instant_agency}
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-six3_agency}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-six3_agency}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-changeme}
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
@@ -81,18 +81,18 @@ services:
       agent-service:
         condition: service_started
     networks:
-      - instant-agency-network
+      - six3-agency-network
 
   # Metabase Analytics
   metabase:
     image: metabase/metabase:latest
-    container_name: instant-agency-metabase
+    container_name: six3-agency-metabase
     restart: unless-stopped
     environment:
       - MB_DB_TYPE=postgres
       - MB_DB_DBNAME=${METABASE_DB:-metabase}
       - MB_DB_PORT=5432
-      - MB_DB_USER=${POSTGRES_USER:-instant_agency}
+      - MB_DB_USER=${POSTGRES_USER:-six3_agency}
       - MB_DB_PASS=${POSTGRES_PASSWORD:-changeme}
       - MB_DB_HOST=postgres
     ports:
@@ -103,14 +103,14 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - instant-agency-network
+      - six3-agency-network
 
   # AI Agent Service
   agent-service:
     build:
       context: ./agents
       dockerfile: Dockerfile
-    container_name: instant-agency-agents
+    container_name: six3-agency-agents
     restart: unless-stopped
     environment:
       # Hugging Face API
@@ -148,7 +148,7 @@ services:
       - postgres
       - redis
     networks:
-      - instant-agency-network
+      - six3-agency-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -159,7 +159,7 @@ services:
   # Prometheus Monitoring (optional - can be disabled)
   prometheus:
     image: prom/prometheus:latest
-    container_name: instant-agency-prometheus
+    container_name: six3-agency-prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -170,14 +170,14 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
-      - instant-agency-network
+      - six3-agency-network
     profiles:
       - monitoring
 
   # Grafana Dashboards (optional - can be disabled)
   grafana:
     image: grafana/grafana:latest
-    container_name: instant-agency-grafana
+    container_name: six3-agency-grafana
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
@@ -193,12 +193,12 @@ services:
       - prometheus
       - postgres
     networks:
-      - instant-agency-network
+      - six3-agency-network
     profiles:
       - monitoring
 
 networks:
-  instant-agency-network:
+  six3-agency-network:
     driver: bridge
 
 volumes:

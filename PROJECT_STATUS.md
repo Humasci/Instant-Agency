@@ -1,4 +1,4 @@
-# Instant Agency - Project Status
+# SIX3 Agency - Project Status
 
 **Last Updated**: November 15, 2025
 **Version**: 0.1.0-alpha
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document tracks the current status of the Instant Agency project implementation.
+This document tracks the current status of the SIX3 Agency project implementation.
 
 ## Completed Components ✅
 
@@ -294,6 +294,6 @@ This document tracks the current status of the Instant Agency project implementa
 
 ---
 
-**Project Maintainer**: Instant Agency Team
+**Project Maintainer**: SIX3 Agency Team
 **License**: MIT
 **Started**: November 2025

@@ -1,4 +1,4 @@
-# Instant Agency - Detailed Implementation Blueprint
+# SIX3 Agency - Detailed Implementation Blueprint
 
 **Version**: 2.0
 **Last Updated**: November 2025
@@ -18,7 +18,7 @@
 
 ## Overview
 
-This blueprint provides granular, actionable implementation details for building the Instant Agency AI-powered virtual agent system. Each phase includes:
+This blueprint provides granular, actionable implementation details for building the SIX3 Agency AI-powered virtual agent system. Each phase includes:
 
 - **Goals**: What to achieve
 - **Tech Stack & Models**: Specific Hugging Face models and technologies
@@ -156,7 +156,7 @@ This blueprint provides granular, actionable implementation details for building
     },
     {
       "parameters": {
-        "fromEmail": "sales@instant-agency.ai",
+        "fromEmail": "sales@six3.agency",
         "toEmail": "={{$json.lead_email}}",
         "subject": "Thank you for your interest!",
         "text": "={{$json.personalized_message}}",
@@ -261,7 +261,7 @@ Analyze the following lead information and determine their level of interest:
 """
 
 FAQ_CHATBOT_PROMPT = """
-You are a helpful AI assistant for Instant Agency.
+You are a helpful AI assistant for SIX3 Agency.
 
 Answer the following customer question professionally and concisely:
 
@@ -516,7 +516,7 @@ suggest escalating to a human representative.
 
 ```python
 SALES_PITCH_PROMPT = """
-You are an expert B2B sales professional for Instant Agency, an AI-powered virtual agent platform.
+You are an expert B2B sales professional for SIX3 Agency, an AI-powered virtual agent platform.
 
 Generate a personalized sales email pitch for the following prospect:
 
@@ -751,7 +751,7 @@ Transform the following blog post into a LinkedIn post:
       "name": "Human Approval Gate",
       "type": "n8n-nodes-base.humanApproval",
       "parameters": {
-        "approvers": ["sales-team@instant-agency.ai"],
+        "approvers": ["sales-team@six3.agency"],
         "timeout": 3600
       },
       "position": [1050, 300]
@@ -1044,7 +1044,7 @@ print("✅ Fine-tuning complete!")
 
 ```python
 VOICE_CALL_AGENT_PROMPT = """
-You are a professional AI sales representative for Instant Agency conducting a
+You are a professional AI sales representative for SIX3 Agency conducting a
 voice call with a prospective client.
 
 **Call Context:**
@@ -1188,7 +1188,7 @@ memory:
 workflows:
   n8n:
     url: "http://n8n:5678"
-    webhook_base: "https://workflows.instant-agency.ai"
+    webhook_base: "https://workflows.six3.agency"
 ```
 
 ### Deployment

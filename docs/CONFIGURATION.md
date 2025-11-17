@@ -1,4 +1,4 @@
-# Instant Agency - Configuration Guide
+# SIX3 Agency - Configuration Guide
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Instant Agency uses a layered configuration approach:
+SIX3 Agency uses a layered configuration approach:
 - **Environment variables** (`.env`): Infrastructure and secrets
 - **YAML files**: Agent behaviors and workflows
 - **Database settings**: Runtime configurations and user preferences
@@ -49,7 +49,7 @@ N8N_QUEUE_BULL_REDIS_PORT=6379
 N8N_QUEUE_BULL_REDIS_PASSWORD=redis_password
 
 # Webhooks
-WEBHOOK_URL=https://workflows.instant-agency.ai
+WEBHOOK_URL=https://workflows.six3.agency
 
 # Timezone
 GENERIC_TIMEZONE=America/New_York
@@ -127,13 +127,13 @@ EMAIL_PROVIDER=sendgrid               # sendgrid | mailgun | smtp | gmail
 
 # SendGrid
 SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxx
-SENDGRID_FROM_EMAIL=noreply@instant-agency.ai
-SENDGRID_FROM_NAME=Instant Agency
+SENDGRID_FROM_EMAIL=noreply@six3.agency
+SENDGRID_FROM_NAME=SIX3 Agency
 
 # Mailgun
 MAILGUN_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxx
-MAILGUN_DOMAIN=mg.instant-agency.ai
-MAILGUN_FROM_EMAIL=noreply@instant-agency.ai
+MAILGUN_DOMAIN=mg.six3.agency
+MAILGUN_FROM_EMAIL=noreply@six3.agency
 
 # SMTP (Generic)
 SMTP_HOST=smtp.gmail.com

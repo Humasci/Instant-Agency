@@ -251,8 +251,8 @@ curl -X POST http://localhost:8000/phase2/personalize-email \
 {
   "success": true,
   "data": {
-    "subject": "Instant Agency Pricing Options for Innovation Startup",
-    "body": "Hi Michael,\n\nThank you for your interest in Instant Agency...",
+    "subject": "SIX3 Agency Pricing Options for Innovation Startup",
+    "body": "Hi Michael,\n\nThank you for your interest in SIX3 Agency...",
     "personalization_score": 88,
     "intent": "pricing",
     "personalization_elements": [
@@ -293,7 +293,7 @@ curl -X POST http://localhost:8000/phase2/create-social-posts \
     "platforms": ["linkedin", "twitter", "facebook"],
     "target_audience": "small business owners",
     "cta": "Start your free trial",
-    "link": "https://instant-agency.ai/trial"
+    "link": "https://six3.agency/trial"
   }'
 ```
 
@@ -394,7 +394,7 @@ social_response = requests.post(
         'platforms': ['linkedin', 'twitter'],
         'target_audience': 'SaaS founders',
         'cta': 'Read the full article',
-        'link': 'https://blog.instant-agency.ai/ai-sales-automation'
+        'link': 'https://blog.six3.agency/ai-sales-automation'
     }
 )
 

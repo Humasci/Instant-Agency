@@ -155,8 +155,8 @@
     {
       "parameters": {
         "operation": "send",
-        "fromEmail": "marketing@instant-agency.ai",
-        "toEmail": "team@instant-agency.ai",
+        "fromEmail": "marketing@six3.agency",
+        "toEmail": "team@six3.agency",
         "subject": "📝 New Content Published: {{$json.content.title}}",
         "emailType": "html",
         "message": "=<h2>Content Published Successfully!</h2>\n<p><strong>Title:</strong> {{$json.content.title}}</p>\n<p><strong>WordPress:</strong> <a href=\"{{$json.wordpress_url}}\">View Draft</a></p>\n<p><strong>LinkedIn:</strong> Posted ✓</p>\n<p><strong>Twitter:</strong> Posted ✓</p>\n<p><strong>Performance:</strong> Track in <a href=\"https://app.metabase.com\">Metabase</a></p>"

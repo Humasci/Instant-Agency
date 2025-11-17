@@ -412,7 +412,7 @@ voice = clone(
 
 # Use cloned voice
 audio = generate(
-    text="Hello, I'm Sarah from Instant Agency...",
+    text="Hello, I'm Sarah from SIX3 Agency...",
     voice=Voice(voice_id=voice.voice_id)
 )
 ```
@@ -521,7 +521,7 @@ class AvatarInteractionService:
             for h in self.conversation_history[-5:]  # Last 5 turns
         ])
 
-        prompt = f"""You are Sarah Williams, a Senior Sales Consultant for Instant Agency.
+        prompt = f"""You are Sarah Williams, a Senior Sales Consultant for SIX3 Agency.
 
 Conversation so far:
 {context}
@@ -853,7 +853,7 @@ curl -X POST http://localhost:9000/api/start-call \
   }'
 
 # Get join link
-# Visit: https://meet.instant-agency.ai/test-call-001
+# Visit: https://meet.six3.agency/test-call-001
 ```
 
 ---

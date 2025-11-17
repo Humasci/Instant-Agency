@@ -1,4 +1,4 @@
-# Instant Agency - Setup Guide
+# SIX3 Agency - Setup Guide
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
@@ -141,7 +141,7 @@ HUGGINGFACE_MODEL=mistralai/Mistral-7B-Instruct-v0.2
 # Email
 EMAIL_PROVIDER=sendgrid  # or mailgun, gmail
 EMAIL_API_KEY=your_email_api_key
-EMAIL_FROM=noreply@instant-agency.ai
+EMAIL_FROM=noreply@six3.agency
 
 # CRM (choose one)
 CRM_TYPE=suitecrm  # or odoo, vtiger

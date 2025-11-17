@@ -79,7 +79,7 @@
     {
       "parameters": {
         "operation": "send",
-        "fromEmail": "sales@instant-agency.ai",
+        "fromEmail": "sales@six3.agency",
         "toEmail": "={{$json.qualification.lead_info.email}}",
         "subject": "Great to connect, {{$json.qualification.lead_info.name}}!",
         "emailType": "html",
@@ -99,8 +99,8 @@
     {
       "parameters": {
         "operation": "send",
-        "fromEmail": "sales@instant-agency.ai",
-        "toEmail": "sales-team@instant-agency.ai",
+        "fromEmail": "sales@six3.agency",
+        "toEmail": "sales-team@six3.agency",
         "subject": "🔥 HOT LEAD: {{$json.qualification.lead_info.name}}",
         "emailType": "html",
         "message": "=<h2>Hot Lead Alert!</h2>\n<p><strong>Name:</strong> {{$json.qualification.lead_info.name}}</p>\n<p><strong>Company:</strong> {{$json.qualification.lead_info.company}}</p>\n<p><strong>Email:</strong> {{$json.qualification.lead_info.email}}</p>\n<p><strong>Score:</strong> {{$json.qualification.qualification_score}}/10</p>\n<p><strong>Sentiment:</strong> {{$json.qualification.sentiment.label}}</p>\n<p><strong>Message:</strong> {{$json.qualification.lead_info.message}}</p>\n<p><strong>Attio CRM:</strong> <a href=\"https://app.attio.com/workspaces/{{$json.crm_record.id}}\">View in CRM</a></p>"

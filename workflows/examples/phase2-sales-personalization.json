@@ -13,7 +13,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [250, 300],
-      "webhookId": "instant-agency-new-lead",
+      "webhookId": "@six3.agency-new-lead",
       "id": "webhook-1"
     },
     {
@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "fromEmail": "={{$json.sales_rep_email || 'sales@instant-agency.ai'}}",
+        "fromEmail": "={{$json.sales_rep_email || 'sales@six3.agency'}}",
         "toEmail": "={{$json.prospect_email}}",
         "subject": "={{$json.email_subject}}",
         "emailType": "html",
@@ -41,8 +41,8 @@
         "options": {
           "allowUnauthorizedCerts": false,
           "ccList": "",
-          "bccList": "tracking@instant-agency.ai",
-          "replyTo": "={{$json.sales_rep_email || 'sales@instant-agency.ai'}}",
+          "bccList": "tracking@six3.agency",
+          "replyTo": "={{$json.sales_rep_email || 'sales@six3.agency'}}",
           "senderName": "={{$json.sales_rep_name || 'Instant Agency Sales Team'}}",
           "attachments": ""
         }
@@ -181,7 +181,7 @@
           "mode": "list",
           "cachedResultName": "#sales-hot-leads"
         },
-        "text": "=🔥 **Hot Lead Alert!**\n\n**Prospect:** {{$json.prospect_name}}\n**Company:** {{$json.company}}\n**Sentiment:** {{$json.sentiment}} ({{$json.sentiment_score}})\n**Intent:** {{$json.intent}}\n**Reply:** \"{{$json.reply_text.substring(0, 200)}}...\"\n\n**Action Needed:** Schedule discovery call ASAP\n**CRM Link:** https://crm.instant-agency.ai/leads/{{$json.lead_id}}",
+        "text": "=🔥 **Hot Lead Alert!**\n\n**Prospect:** {{$json.prospect_name}}\n**Company:** {{$json.company}}\n**Sentiment:** {{$json.sentiment}} ({{$json.sentiment_score}})\n**Intent:** {{$json.intent}}\n**Reply:** \"{{$json.reply_text.substring(0, 200)}}...\"\n\n**Action Needed:** Schedule discovery call ASAP\n**CRM Link:** https://crm.@six3.agency.ai/leads/{{$json.lead_id}}",
         "otherOptions": {}
       },
       "name": "Notify Sales Team - Hot Lead",
@@ -207,13 +207,13 @@
     },
     {
       "parameters": {
-        "fromEmail": "sales@instant-agency.ai",
+        "fromEmail": "sales@six3.agency",
         "toEmail": "={{$json.prospect_email}}",
         "subject": "=Re: {{$json.original_subject}}",
         "emailType": "html",
         "message": "={{$json.chatbot_response}}",
         "options": {
-          "replyTo": "sales@instant-agency.ai"
+          "replyTo": "sales@six3.agency"
         }
       },
       "name": "Send Auto-Response Email",
@@ -376,6 +376,6 @@
   ],
   "meta": {
     "templateCredsSetupCompleted": false,
-    "instanceId": "instant-agency-dev"
+    "instanceId": "@six3.agency-dev"
   }
 }

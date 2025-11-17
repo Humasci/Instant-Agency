@@ -93,7 +93,7 @@
         "to": "={{$json.email}}",
         "subject": "Thanks for your interest!",
         "emailType": "html",
-        "message": "=<p>Hi {{$json.name}},</p>\n<p>Thank you for your interest in Instant Agency. We've received your message and will get back to you within 24 hours.</p>\n<p>In the meantime, check out our resources:</p>\n<ul>\n  <li><a href=\"https://instant-agency.ai/blog\">Blog</a></li>\n  <li><a href=\"https://instant-agency.ai/case-studies\">Case Studies</a></li>\n  <li><a href=\"https://instant-agency.ai/demo\">Product Demo</a></li>\n</ul>\n<p>Best regards,<br>The Instant Agency Team</p>"
+        "message": "=<p>Hi {{$json.name}},</p>\n<p>Thank you for your interest in Instant Agency. We've received your message and will get back to you within 24 hours.</p>\n<p>In the meantime, check out our resources:</p>\n<ul>\n  <li><a href=\"https://@six3.agency.ai/blog\">Blog</a></li>\n  <li><a href=\"https://@six3.agency.ai/case-studies\">Case Studies</a></li>\n  <li><a href=\"https://@six3.agency.ai/demo\">Product Demo</a></li>\n</ul>\n<p>Best regards,<br>The Instant Agency Team</p>"
       },
       "name": "Send Welcome Email",
       "type": "n8n-nodes-base.emailSend",
@@ -137,7 +137,7 @@
     },
     {
       "parameters": {
-        "to": "sales@instant-agency.ai",
+        "to": "sales@six3.agency",
         "subject": "🔥 Hot Lead: {{$json.name}} from {{$json.company}}",
         "emailType": "html",
         "message": "=<h2>High-Quality Lead Received</h2>\n<p><strong>Name:</strong> {{$json.name}}<br>\n<strong>Company:</strong> {{$json.company}}<br>\n<strong>Email:</strong> {{$json.email}}<br>\n<strong>Phone:</strong> {{$json.phone}}<br>\n<strong>Qualification Score:</strong> {{$json.data.overall_score}}/10</p>\n<p><strong>Message:</strong><br>{{$json.message}}</p>\n<p><a href=\"{{$env.CRM_URL}}/leads/{{$json.id}}\">View in CRM</a></p>"
@@ -276,7 +276,7 @@
   "versionId": "1",
   "id": "1",
   "meta": {
-    "instanceId": "instant-agency"
+    "instanceId": "@six3.agency"
   },
   "tags": [
     {

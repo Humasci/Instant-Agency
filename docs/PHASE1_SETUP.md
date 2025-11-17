@@ -113,7 +113,7 @@ curl -X POST http://localhost:8000/phase1/qualify-lead \
 curl -X POST http://localhost:8000/phase1/faq \
   -H "Content-Type: application/json" \
   -d '{
-    "question": "What is Instant Agency?",
+    "question": "What is SIX3 Agency?",
     "user_id": "test_user"
   }'
 ```
@@ -197,7 +197,7 @@ This tests both agents directly and via API endpoints.
 **Request Example:**
 ```json
 {
-  "question": "How much does Instant Agency cost?",
+  "question": "How much does SIX3 Agency cost?",
   "user_id": "user_123",
   "context": "Looking at Professional plan"
 }
@@ -209,7 +209,7 @@ This tests both agents directly and via API endpoints.
   "success": true,
   "agent": "phase1_faq",
   "data": {
-    "question": "How much does Instant Agency cost?",
+    "question": "How much does SIX3 Agency cost?",
     "answer": "We offer flexible pricing starting at $499/month for the Starter plan...",
     "confidence": 0.95,
     "source": "knowledge_base",

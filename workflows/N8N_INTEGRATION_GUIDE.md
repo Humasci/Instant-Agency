@@ -143,7 +143,7 @@ POST /phase1/qualify-and-create-in-crm
 POST /phase1/faq
 
 {
-  "question": "What is Instant Agency?",
+  "question": "What is SIX3 Agency?",
   "user_id": "visitor_123"
 }
 ```
