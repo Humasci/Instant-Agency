@@ -41,6 +41,11 @@ from phase4_multilingual_agent import Phase4MultilingualAgent
 from phase4_realtime_conversation_agent import Phase4RealTimeConversationAgent
 from phase4_advanced_personalization_agent import Phase4AdvancedPersonalizationAgent
 
+# Import CRM integrations
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from integrations.crm.attio_integration import AttioCRMIntegration
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Instant Agency - AI Agent Service",
@@ -226,6 +231,98 @@ async def phase1_faq(question_data: Dict[str, Any]):
     }
     """
     return await process_with_agent('phase1_faq', question_data)
+
+
+@app.post("/phase1/qualify-and-create-in-crm")
+async def qualify_and_create_in_crm(lead_data: Dict[str, Any]):
+    """
+    Phase 1: Qualify a lead AND automatically create in Attio CRM
+
+    Perfect for n8n workflows: webhook → this endpoint → lead in CRM
+
+    Request body:
+    {
+        "lead_name": "John Smith",
+        "lead_email": "john@example.com",
+        "company": "Acme Corp",
+        "industry": "Technology",
+        "lead_message": "I'm interested in your product...",
+        "phone": "+1-555-1234" (optional),
+        "job_title": "CEO" (optional)
+    }
+
+    Returns:
+    {
+        "success": true,
+        "qualification": {...},  # AI qualification result
+        "crm_record": {...}      # Created Attio record
+    }
+    """
+    try:
+        # Step 1: Qualify the lead using AI
+        agent = agents.get('phase1_prospect')
+        if not agent:
+            raise HTTPException(status_code=500, detail="Prospect agent not initialized")
+
+        qualification_result = agent.process(lead_data)
+
+        if not qualification_result.get('success'):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Lead qualification failed: {qualification_result.get('error')}"
+            )
+
+        # Step 2: Create in Attio CRM
+        crm = AttioCRMIntegration()
+        crm_record = crm.create_lead_from_agent(qualification_result)
+
+        if not crm_record:
+            # Log error but don't fail - qualification still succeeded
+            return {
+                "success": True,
+                "qualification": qualification_result,
+                "crm_record": None,
+                "crm_error": "Failed to create CRM record - check ATTIO_API_KEY is set"
+            }
+
+        # Step 3: Create a note in CRM with AI analysis
+        if crm_record:
+            crm.create_note({
+                'parent_object': 'people',
+                'parent_record_id': crm_record.get('id'),
+                'title': 'AI Qualification Analysis',
+                'content': f"""
+Lead qualified by AI agent:
+
+Qualification Score: {qualification_result.get('qualification_score')}/10
+Status: {qualification_result.get('qualification_status')}
+Sentiment: {qualification_result.get('sentiment', {}).get('label')}
+
+Next Actions:
+{chr(10).join('- ' + action for action in qualification_result.get('next_actions', []))}
+
+Original Message:
+{lead_data.get('lead_message', '')}
+                """.strip(),
+                'format': 'plaintext'
+            })
+
+        return {
+            "success": True,
+            "agent": "phase1_prospect",
+            "qualification": qualification_result,
+            "crm_record": {
+                "id": crm_record.get('id'),
+                "created": True,
+                "platform": "Attio"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing lead: {str(e)}"
+        )
 
 
 # Phase 2 endpoints
