@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/content-writer/generate",
+        "url": "https://api.six3.agency/agents/content-writer/generate",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -56,7 +56,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/email-personalizer/create",
+        "url": "https://api.six3.agency/agents/email-personalizer/create",
         "options": {
           "headers": {
             "Content-Type": "application/json"

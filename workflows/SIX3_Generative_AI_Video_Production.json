@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/digital-avatar/analyze-request",
+        "url": "https://api.six3.agency/agents/digital-avatar/analyze-request",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -54,7 +54,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/digital-avatar/create-avatar",
+        "url": "https://api.six3.agency/agents/digital-avatar/create-avatar",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -74,7 +74,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/voice-conversation/generate-audio",
+        "url": "https://api.six3.agency/agents/voice-conversation/generate-audio",
         "options": {
           "headers": {
             "Content-Type": "application/json"

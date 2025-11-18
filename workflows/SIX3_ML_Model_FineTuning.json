@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/data-processing/analyze-dataset",
+        "url": "https://api.six3.agency/agents/data-processing/analyze-dataset",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -55,7 +55,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/data-processing/enhance-dataset",
+        "url": "https://api.six3.agency/agents/data-processing/enhance-dataset",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -75,7 +75,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/model-training/select-architecture",
+        "url": "https://api.six3.agency/agents/model-training/select-architecture",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -95,7 +95,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/model-training/fine-tune",
+        "url": "https://api.six3.agency/agents/model-training/fine-tune",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -115,7 +115,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/performance-evaluation/validate-model", 
+        "url": "https://api.six3.agency/agents/performance-evaluation/validate-model", 
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -152,7 +152,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/deployment-orchestrator/deploy-model",
+        "url": "https://api.six3.agency/agents/deployment-orchestrator/deploy-model",
         "options": {
           "headers": {
             "Content-Type": "application/json"

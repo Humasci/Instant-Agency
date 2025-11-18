@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/digital-avatar/analyze-requirements",
+        "url": "https://api.six3.agency/agents/digital-avatar/analyze-requirements",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -54,7 +54,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/voice-conversation/clone-voice",
+        "url": "https://api.six3.agency/agents/voice-conversation/clone-voice",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -84,7 +84,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/digital-avatar/create-avatar",
+        "url": "https://api.six3.agency/agents/digital-avatar/create-avatar",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -104,7 +104,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/video-content-generator/produce",
+        "url": "https://api.six3.agency/agents/video-content-generator/produce",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -141,7 +141,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/ugc-campaign-manager/create-campaign",
+        "url": "https://api.six3.agency/agents/ugc-campaign-manager/create-campaign",
         "options": {
           "headers": {
             "Content-Type": "application/json"

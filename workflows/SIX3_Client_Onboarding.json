@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/rag-research/analyze-client",
+        "url": "https://api.six3.agency/agents/rag-research/analyze-client",
         "options": {
           "headers": {
             "Content-Type": "application/json"

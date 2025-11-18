@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/prospect-research/process",
+        "url": "https://api.six3.agency/agents/prospect-research/process",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -63,7 +63,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/sales-pitch/generate",
+        "url": "https://api.six3.agency/agents/sales-pitch/generate",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -86,7 +86,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/email-personalizer/create",
+        "url": "https://api.six3.agency/agents/email-personalizer/create",
         "options": {
           "headers": {
             "Content-Type": "application/json"

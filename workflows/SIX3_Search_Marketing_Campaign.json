@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/campaign-strategy/analyze",
+        "url": "https://api.six3.agency/agents/campaign-strategy/analyze",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -37,7 +37,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/competitor-analysis/research",
+        "url": "https://api.six3.agency/agents/competitor-analysis/research",
         "options": {
           "headers": {
             "Content-Type": "application/json"
@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:8000/agents/bid-optimization/create-campaigns",
+        "url": "https://api.six3.agency/agents/bid-optimization/create-campaigns",
         "options": {
           "headers": {
             "Content-Type": "application/json"
