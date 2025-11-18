@@ -1,0 +1,272 @@
+{
+  "name": "SIX3 Search Marketing Campaign Optimizer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "search-marketing-campaign",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-search-marketing",
+      "name": "Webhook - Campaign Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "six3-search-marketing"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/campaign-strategy/analyze",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_data\": $json,\n  \"service_type\": \"search_marketing\",\n  \"analysis_depth\": \"full\",\n  \"platforms\": $json.platforms || [\"google_ads\", \"meta_ads\"]\n}) }}"
+      },
+      "id": "campaign-analysis",
+      "name": "Campaign Strategy Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/competitor-analysis/research",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"industry\": $json.industry,\n  \"target_keywords\": $json.keywords,\n  \"competitors\": $json.competitors || [],\n  \"analysis_type\": \"search_marketing\"\n}) }}"
+      },
+      "id": "competitor-research",
+      "name": "Competitor Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 450]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Combine campaign strategy and competitor data\nconst campaignData = $input.first().json;\nconst competitorData = $input.last().json;\n\nconst optimizedStrategy = {\n  campaign_id: 'camp_' + Date.now(),\n  client: campaignData.client_info,\n  strategy: {\n    recommended_platforms: campaignData.recommended_platforms,\n    budget_allocation: campaignData.budget_allocation,\n    keyword_strategy: campaignData.keyword_strategy,\n    competitor_insights: competitorData.insights\n  },\n  optimization_recommendations: {\n    bid_adjustments: campaignData.bid_recommendations,\n    audience_targeting: campaignData.audience_strategy,\n    competitive_advantages: competitorData.opportunities\n  },\n  expected_performance: {\n    estimated_ctr: campaignData.estimated_ctr,\n    projected_roas: campaignData.projected_roas,\n    monthly_impressions: campaignData.impression_forecast\n  }\n};\n\nreturn { json: optimizedStrategy };"
+      },
+      "id": "strategy-optimization",
+      "name": "Strategy Optimization",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 375]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/bid-optimization/create-campaigns",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"strategy\": $json.strategy,\n  \"optimization_data\": $json.optimization_recommendations,\n  \"platforms\": $json.strategy.recommended_platforms,\n  \"auto_optimization\": true\n}) }}"
+      },
+      "id": "campaign-creation",
+      "name": "AI Campaign Creation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 375]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.auto_launch }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "launch-decision",
+      "name": "Auto-Launch Decision",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1120, 375]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Launch campaigns automatically\nconst campaignData = $json;\n\n// Simulate campaign launch across platforms\nconst launchedCampaigns = campaignData.campaigns.map(campaign => ({\n  ...campaign,\n  status: 'live',\n  launched_at: new Date().toISOString(),\n  initial_bid_strategy: 'ai_optimized',\n  monitoring_enabled: true\n}));\n\nreturn {\n  json: {\n    status: 'campaigns_launched',\n    campaigns: launchedCampaigns,\n    total_campaigns: launchedCampaigns.length,\n    estimated_daily_spend: campaignData.daily_budget,\n    optimization_schedule: '4x_daily',\n    next_review: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString()\n  }\n};"
+      },
+      "id": "auto-launch",
+      "name": "Auto-Launch Campaigns",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 275]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Queue for manual review\nconst campaignData = $json;\n\nreturn {\n  json: {\n    status: 'pending_review',\n    campaigns: campaignData.campaigns,\n    review_required: true,\n    review_url: `https://dashboard.six3.agency/campaigns/review/${campaignData.campaign_id}`,\n    estimated_review_time: '2-4 hours',\n    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()\n  }\n};"
+      },
+      "id": "manual-review",
+      "name": "Queue for Review",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 475]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Aggregate results and create response\nconst results = $input.all();\nconst campaignResult = results[0].json;\n\nconst response = {\n  success: true,\n  service: 'Search Marketing & Paid Media',\n  campaign_status: campaignResult.status,\n  summary: {\n    total_campaigns: campaignResult.campaigns?.length || campaignResult.total_campaigns,\n    platforms_used: campaignResult.campaigns?.map(c => c.platform) || [],\n    optimization_type: 'AI-Driven',\n    performance_tracking: 'Real-time'\n  },\n  next_steps: campaignResult.status === 'campaigns_launched' \n    ? ['Monitor performance', 'Automated optimization active', 'Weekly performance review']\n    : ['Await manual review', 'Campaign refinement', 'Launch approval'],\n  dashboard_url: 'https://dashboard.six3.agency/search-marketing',\n  estimated_results: {\n    time_to_impact: '24-48 hours',\n    optimization_frequency: '4x daily',\n    reporting_schedule: 'Daily + Weekly'\n  }\n};\n\nreturn { json: response };"
+      },
+      "id": "final-response",
+      "name": "Service Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1560, 375]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Campaign Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1780, 375]
+    }
+  ],
+  "connections": {
+    "Webhook - Campaign Request": {
+      "main": [
+        [
+          {
+            "node": "Campaign Strategy Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Competitor Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Strategy Analysis": {
+      "main": [
+        [
+          {
+            "node": "Strategy Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Competitor Research": {
+      "main": [
+        [
+          {
+            "node": "Strategy Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strategy Optimization": {
+      "main": [
+        [
+          {
+            "node": "AI Campaign Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Campaign Creation": {
+      "main": [
+        [
+          {
+            "node": "Auto-Launch Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Launch Decision": {
+      "main": [
+        [
+          {
+            "node": "Auto-Launch Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Launch Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Service Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue for Review": {
+      "main": [
+        [
+          {
+            "node": "Service Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Response": {
+      "main": [
+        [
+          {
+            "node": "Campaign Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "Search Marketing",
+    "Paid Media",
+    "AI Optimization"
+  ]
+}

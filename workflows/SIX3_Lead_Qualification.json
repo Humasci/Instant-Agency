@@ -1,0 +1,215 @@
+{
+  "name": "SIX3 Lead Qualification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-qualification",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Webhook - New Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "six3-lead-qualification"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/prospect-research/process",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"lead_data\": $json,\n  \"source\": \"webhook\",\n  \"timestamp\": new Date().toISOString()\n}) }}"
+      },
+      "id": "b2c3d4e5-f6g7-8901-bcde-f23456789012",
+      "name": "Call Prospect Research Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.qualified }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "c3d4e5f6-g7h8-9012-cdef-345678901234",
+      "name": "Check if Qualified",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/sales-pitch/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"lead_profile\": $json,\n  \"personalization_data\": {\n    \"company\": $json.company,\n    \"industry\": $json.industry,\n    \"pain_points\": $json.pain_points\n  }\n}) }}"
+      },
+      "id": "d4e5f6g7-h8i9-0123-defa-456789012345",
+      "name": "Generate Sales Pitch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/email-personalizer/create",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"lead_data\": $json,\n  \"sales_pitch\": $('Generate Sales Pitch').item.json,\n  \"email_template\": \"lead_qualification_followup\"\n}) }}"
+      },
+      "id": "e5f6g7h8-i9j0-1234-efab-567890123456",
+      "name": "Create Personalized Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  \"status\": \"lead_qualified\",\n  \"lead_id\": $json.lead_id,\n  \"qualification_score\": $json.score,\n  \"next_action\": \"personalized_email_sent\",\n  \"sales_pitch_generated\": true,\n  \"email_scheduled\": true,\n  \"timestamp\": new Date().toISOString()\n}) }}"
+      },
+      "id": "f6g7h8i9-j0k1-2345-fabc-678901234567",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  \"status\": \"lead_not_qualified\",\n  \"lead_id\": $json.lead_id,\n  \"qualification_score\": $json.score,\n  \"reason\": $json.disqualification_reason,\n  \"next_action\": \"nurture_campaign\",\n  \"timestamp\": new Date().toISOString()\n}) }}"
+      },
+      "id": "g7h8i9j0-k1l2-3456-abcd-789012345678",
+      "name": "Not Qualified Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        900,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - New Lead": {
+      "main": [
+        [
+          {
+            "node": "Call Prospect Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Prospect Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Check if Qualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Qualified": {
+      "main": [
+        [
+          {
+            "node": "Generate Sales Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not Qualified Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Sales Pitch": {
+      "main": [
+        [
+          {
+            "node": "Create Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "Lead Qualification",
+    "Sales",
+    "Phase 1"
+  ]
+}

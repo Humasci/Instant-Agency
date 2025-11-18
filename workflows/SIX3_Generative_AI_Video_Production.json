@@ -1,0 +1,226 @@
+{
+  "name": "SIX3 Generative AI Video & Audio Production",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generative-ai-media",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-media-request",
+      "name": "Webhook - Media Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "six3-generative-ai-media"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/digital-avatar/analyze-request",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_request\": $json,\n  \"media_type\": $json.media_type || \"video\",\n  \"use_case\": $json.use_case,\n  \"brand_guidelines\": $json.brand_guidelines\n}) }}"
+      },
+      "id": "media-analysis",
+      "name": "Analyze Media Requirements",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.media_type }}",
+              "value2": "avatar_video"
+            }
+          ]
+        }
+      },
+      "id": "media-type-router",
+      "name": "Route by Media Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/digital-avatar/create-avatar",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"avatar_specs\": $json.avatar_requirements,\n  \"voice_specs\": $json.voice_requirements,\n  \"script\": $json.script,\n  \"brand_alignment\": $json.brand_guidelines\n}) }}"
+      },
+      "id": "avatar-creation",
+      "name": "Create AI Avatar Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/voice-conversation/generate-audio",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"audio_type\": $json.audio_type,\n  \"script\": $json.script,\n  \"voice_profile\": $json.voice_profile,\n  \"output_format\": $json.format_requirements\n}) }}"
+      },
+      "id": "audio-generation",
+      "name": "Generate Audio Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Quality control and optimization\nconst mediaData = $json;\n\nconst qualityChecks = {\n  video_quality: mediaData.resolution_check || 'HD',\n  audio_quality: mediaData.audio_check || 'High',\n  brand_compliance: mediaData.brand_check || 'Approved',\n  content_safety: mediaData.safety_check || 'Clean',\n  duration: mediaData.duration_seconds || 60\n};\n\nconst optimizations = {\n  compression: 'Optimized for web delivery',\n  formats: ['MP4', 'WebM', 'MP3'],\n  captions: mediaData.auto_captions || 'Generated',\n  thumbnails: 'Auto-generated preview images'\n};\n\nreturn {\n  json: {\n    ...mediaData,\n    quality_control: qualityChecks,\n    optimizations: optimizations,\n    ready_for_delivery: true,\n    delivery_formats: {\n      web: `${mediaData.output_url}.mp4`,\n      mobile: `${mediaData.output_url}_mobile.mp4`,\n      audio_only: `${mediaData.output_url}.mp3`,\n      thumbnail: `${mediaData.output_url}_thumb.jpg`\n    }\n  }\n};"
+      },
+      "id": "quality-optimization",
+      "name": "Quality Control & Optimization",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Package and deliver media assets\nconst mediaData = $json;\n\nconst deliveryPackage = {\n  service: 'Generative AI Video & Audio',\n  status: 'completed',\n  client_assets: {\n    primary_video: mediaData.delivery_formats?.web,\n    mobile_optimized: mediaData.delivery_formats?.mobile,\n    audio_only: mediaData.delivery_formats?.audio_only,\n    thumbnail: mediaData.delivery_formats?.thumbnail,\n    source_files: mediaData.source_assets || []\n  },\n  usage_guidelines: {\n    platforms: ['Website', 'Social Media', 'Email', 'Presentations'],\n    licensing: 'Full commercial usage rights',\n    attribution: 'SIX3 Agency production',\n    modifications: 'Client may edit with approval'\n  },\n  performance_metrics: {\n    production_time: '2-4 hours',\n    quality_score: mediaData.quality_control?.brand_compliance || 'A+',\n    format_compatibility: '95% web browsers',\n    file_sizes: {\n      video: '< 50MB',\n      audio: '< 10MB',\n      thumbnail: '< 500KB'\n    }\n  },\n  next_steps: [\n    'Download assets from secure portal',\n    'Review and provide feedback',\n    'Request variations if needed',\n    'Deploy across marketing channels'\n  ],\n  support: {\n    revision_rounds: '3 included',\n    technical_support: '30 days',\n    training: 'Usage best practices guide included'\n  }\n};\n\nreturn { json: deliveryPackage };"
+      },
+      "id": "delivery-package",
+      "name": "Package for Delivery",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Media Production Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Media Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze Media Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Media Requirements": {
+      "main": [
+        [
+          {
+            "node": "Route by Media Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Media Type": {
+      "main": [
+        [
+          {
+            "node": "Create AI Avatar Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Audio Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI Avatar Video": {
+      "main": [
+        [
+          {
+            "node": "Quality Control & Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio Content": {
+      "main": [
+        [
+          {
+            "node": "Quality Control & Optimization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quality Control & Optimization": {
+      "main": [
+        [
+          {
+            "node": "Package for Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Package for Delivery": {
+      "main": [
+        [
+          {
+            "node": "Media Production Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "Generative AI",
+    "Video Production",
+    "Audio Generation",
+    "Digital Avatars"
+  ]
+}

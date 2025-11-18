@@ -1,0 +1,355 @@
+{
+  "name": "SIX3 ML Model Fine-Tuning Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST", 
+        "path": "ml-model-tuning",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-ml-request",
+      "name": "Webhook - ML Project",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "six3-ml-tuning"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/data-processing/analyze-dataset",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"project_type\": $json.project_type,\n  \"data_sources\": $json.data_sources,\n  \"business_objectives\": $json.objectives,\n  \"industry\": $json.industry,\n  \"data_privacy_requirements\": $json.privacy_requirements,\n  \"performance_targets\": $json.targets\n}) }}"
+      },
+      "id": "data-analysis",
+      "name": "Data Analysis & Validation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.data_quality_score }}",
+              "operation": "larger",
+              "value2": "0.8"
+            }
+          ]
+        }
+      },
+      "id": "data-quality-check",
+      "name": "Data Quality Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/data-processing/enhance-dataset",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"dataset_issues\": $json.quality_issues,\n  \"enhancement_strategies\": $json.recommended_improvements,\n  \"augmentation_needed\": $json.requires_augmentation,\n  \"cleaning_operations\": $json.cleaning_plan\n}) }}"
+      },
+      "id": "data-enhancement",
+      "name": "Data Enhancement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/model-training/select-architecture",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"problem_type\": $json.problem_type,\n  \"data_characteristics\": $json.data_analysis,\n  \"performance_requirements\": $json.performance_targets,\n  \"computational_constraints\": $json.compute_budget,\n  \"deployment_environment\": $json.deployment_specs\n}) }}"
+      },
+      "id": "architecture-selection",
+      "name": "Model Architecture Selection",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/model-training/fine-tune",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"base_model\": $json.selected_architecture,\n  \"training_data\": $json.processed_dataset,\n  \"hyperparameters\": $json.optimized_hyperparams,\n  \"training_strategy\": $json.training_plan,\n  \"validation_split\": 0.2,\n  \"early_stopping\": true,\n  \"model_versioning\": true\n}) }}"
+      },
+      "id": "model-training",
+      "name": "Model Fine-Tuning",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/performance-evaluation/validate-model", 
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"model_id\": $json.model_id,\n  \"validation_tests\": $json.validation_suite,\n  \"performance_benchmarks\": $json.benchmark_tests,\n  \"business_metrics\": $json.business_validation,\n  \"bias_detection\": true,\n  \"explainability_analysis\": true\n}) }}"
+      },
+      "id": "model-validation",
+      "name": "Model Validation & Testing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.performance_meets_targets }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "performance-gate",
+      "name": "Performance Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/deployment-orchestrator/deploy-model",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"model_id\": $json.model_id,\n  \"deployment_environment\": $json.target_environment || \"production\",\n  \"scaling_config\": $json.scaling_requirements,\n  \"monitoring_setup\": $json.monitoring_config,\n  \"rollback_strategy\": $json.rollback_plan,\n  \"api_configuration\": $json.api_specs\n}) }}"
+      },
+      "id": "model-deployment",
+      "name": "Model Deployment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Handle model iteration for improvement\nconst modelData = $json;\n\nconst iterationPlan = {\n  iteration_required: true,\n  current_performance: modelData.validation_scores,\n  target_performance: modelData.performance_targets,\n  improvement_strategies: [\n    'Hyperparameter optimization',\n    'Data augmentation',\n    'Architecture refinement',\n    'Feature engineering'\n  ],\n  estimated_improvement_time: '3-5 days',\n  iteration_number: (modelData.iteration_count || 0) + 1,\n  max_iterations: 3\n};\n\nreturn { json: iterationPlan };"
+      },
+      "id": "model-iteration",
+      "name": "Model Iteration Planning",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1780, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Create comprehensive project response\nconst results = $input.all();\nconst finalResult = results[0].json;\n\nconst response = {\n  success: true,\n  service: 'Fine-Tuning ML Models',\n  project_status: finalResult.deployment_status || 'iteration_planned',\n  model_details: {\n    model_id: finalResult.model_id,\n    architecture: finalResult.selected_architecture?.name,\n    performance_metrics: finalResult.validation_scores,\n    training_duration: finalResult.training_time,\n    model_size: finalResult.model_size_mb\n  },\n  deployment_info: finalResult.deployment_status ? {\n    endpoint_url: finalResult.api_endpoint,\n    deployment_environment: finalResult.environment,\n    scaling_configuration: finalResult.scaling_config,\n    monitoring_dashboard: finalResult.monitoring_url\n  } : null,\n  data_security: {\n    data_encryption: 'AES-256 + TLS 1.3',\n    privacy_compliance: 'SOC 2 + GDPR',\n    data_retention: 'Auto-purge after training',\n    access_controls: 'Role-based + MFA'\n  },\n  performance_summary: {\n    accuracy_improvement: finalResult.improvement_percentage || 'In Progress',\n    inference_speed: finalResult.inference_latency || 'Optimizing',\n    cost_efficiency: finalResult.cost_per_prediction || 'Calculating',\n    business_impact: finalResult.business_metrics || 'Pending Deployment'\n  },\n  next_steps: finalResult.deployment_status ? [\n    'Monitor model performance',\n    'Gradual traffic ramp-up', \n    'Performance optimization',\n    'Monthly model maintenance'\n  ] : [\n    'Continue model iteration',\n    'Performance improvement cycle',\n    'Validation testing',\n    'Deployment preparation'\n  ],\n  support_package: {\n    monitoring_included: '24/7 automated monitoring',\n    maintenance_schedule: 'Monthly performance reviews',\n    update_policy: 'Continuous improvement',\n    support_tier: 'Enterprise ML Support'\n  }\n};\n\nreturn { json: response };"
+      },
+      "id": "final-ml-response",
+      "name": "ML Project Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Tuning Response",
+      "type": "n8n-nodes-base.respondToWebhook", 
+      "typeVersion": 1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - ML Project": {
+      "main": [
+        [
+          {
+            "node": "Data Analysis & Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Analysis & Validation": {
+      "main": [
+        [
+          {
+            "node": "Data Quality Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Quality Gate": {
+      "main": [
+        [
+          {
+            "node": "Model Architecture Selection",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Data Enhancement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Enhancement": {
+      "main": [
+        [
+          {
+            "node": "Model Architecture Selection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Architecture Selection": {
+      "main": [
+        [
+          {
+            "node": "Model Fine-Tuning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Fine-Tuning": {
+      "main": [
+        [
+          {
+            "node": "Model Validation & Testing", 
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Validation & Testing": {
+      "main": [
+        [
+          {
+            "node": "Performance Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Performance Gate": {
+      "main": [
+        [
+          {
+            "node": "Model Deployment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Model Iteration Planning",
+            "type": "main", 
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Deployment": {
+      "main": [
+        [
+          {
+            "node": "ML Project Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Iteration Planning": {
+      "main": [
+        [
+          {
+            "node": "ML Project Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ML Project Response": {
+      "main": [
+        [
+          {
+            "node": "Tuning Response", 
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "ML Model",
+    "Fine-Tuning",
+    "Data Science",
+    "MLOps"
+  ]
+}

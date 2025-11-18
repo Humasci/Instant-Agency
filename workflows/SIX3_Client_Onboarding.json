@@ -1,0 +1,336 @@
+{
+  "name": "SIX3 Client Onboarding & Service Delivery",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "client-onboarding",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-onboarding",
+      "name": "Webhook - New Client",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "six3-client-onboarding"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/rag-research/analyze-client",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_data\": $json,\n  \"services_requested\": $json.services || [],\n  \"industry_analysis\": true,\n  \"competitor_research\": true\n}) }}"
+      },
+      "id": "client-research",
+      "name": "Client & Industry Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Route to appropriate service workflows\nconst clientData = $json;\nconst services = clientData.services_requested || [];\n\nconst serviceRouting = {\n  search_marketing: services.includes('search_marketing'),\n  generative_ai_media: services.includes('generative_ai_media'),\n  ml_model_tuning: services.includes('ml_model_tuning')\n};\n\nconst onboardingPlan = {\n  client_id: clientData.client_id || `client_${Date.now()}`,\n  services: services,\n  routing: serviceRouting,\n  priority: clientData.priority || 'standard',\n  timeline: {\n    kickoff: 'Week 1',\n    discovery: 'Weeks 1-2',\n    strategy: 'Week 3',\n    implementation: 'Weeks 4-8',\n    optimization: 'Weeks 9-12'\n  },\n  team_assignments: {\n    account_manager: 'Primary contact',\n    technical_lead: 'Service implementation',\n    strategist: 'Campaign planning',\n    success_manager: 'Ongoing optimization'\n  }\n};\n\nreturn { json: { ...clientData, onboarding_plan: onboardingPlan } };"
+      },
+      "id": "service-routing",
+      "name": "Service Routing & Planning",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.onboarding_plan.routing.search_marketing }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "search-marketing-check",
+      "name": "Search Marketing Service?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.onboarding_plan.routing.generative_ai_media }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "ai-media-check",
+      "name": "AI Media Service?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 350]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.onboarding_plan.routing.ml_model_tuning }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "ml-tuning-check",
+      "name": "ML Model Tuning Service?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/webhook/search-marketing-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_id\": $json.client_id,\n  \"industry\": $json.industry_analysis.industry,\n  \"competitors\": $json.industry_analysis.competitors,\n  \"budget\": $json.marketing_budget,\n  \"platforms\": $json.preferred_platforms || [\"google_ads\", \"meta_ads\"],\n  \"auto_launch\": false\n}) }}"
+      },
+      "id": "trigger-search-marketing",
+      "name": "Initialize Search Marketing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 150]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/webhook/generative-ai-media",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_id\": $json.client_id,\n  \"media_type\": $json.media_requirements.type || \"avatar_video\",\n  \"use_case\": $json.media_requirements.use_case,\n  \"brand_guidelines\": $json.brand_guidelines,\n  \"timeline\": $json.media_requirements.timeline || \"2_weeks\"\n}) }}"
+      },
+      "id": "trigger-ai-media",
+      "name": "Initialize AI Media Production",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/webhook/ml-model-finetuning",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"client_id\": $json.client_id,\n  \"model_type\": $json.ml_requirements.model_type || \"language_model\",\n  \"data_source\": $json.ml_requirements.data_source,\n  \"objectives\": $json.ml_requirements.objectives,\n  \"timeline\": $json.ml_requirements.timeline || \"4_weeks\"\n}) }}"
+      },
+      "id": "trigger-ml-tuning",
+      "name": "Initialize ML Model Tuning",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 450]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Aggregate all service initialization results\nconst inputs = $input.all();\nconst clientData = inputs[0].json;\n\nconst serviceResults = {};\nconst serviceTimelines = [];\nconst teamContacts = [];\n\n// Process each service result\ninputs.slice(1).forEach((input, index) => {\n  if (input.json.success) {\n    const serviceName = input.json.service || `service_${index + 1}`;\n    serviceResults[serviceName] = {\n      status: 'initialized',\n      timeline: input.json.timeline || 'TBD',\n      next_steps: input.json.next_steps || [],\n      assigned_team: input.json.team_assignments || {}\n    };\n  }\n});\n\nconst onboardingComplete = {\n  success: true,\n  client_id: clientData.client_id,\n  onboarding_status: 'complete',\n  services_initialized: Object.keys(serviceResults),\n  service_details: serviceResults,\n  overall_timeline: {\n    start_date: new Date().toISOString().split('T')[0],\n    kickoff_meeting: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],\n    first_deliverables: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],\n    monthly_reviews: 'First Friday of each month'\n  },\n  team_contacts: {\n    account_manager: 'account@six3.agency',\n    technical_lead: 'tech@six3.agency',\n    success_manager: 'success@six3.agency'\n  },\n  client_portal: {\n    url: `https://portal.six3.agency/clients/${clientData.client_id}`,\n    login_instructions: 'Credentials sent via secure email',\n    features: ['Progress tracking', 'Asset library', 'Communication hub', 'Performance dashboards']\n  },\n  next_actions: [\n    'Schedule kickoff meeting',\n    'Complete technical setup',\n    'Begin discovery phase',\n    'Establish communication cadence'\n  ]\n};\n\nreturn { json: onboardingComplete };"
+      },
+      "id": "onboarding-completion",
+      "name": "Complete Onboarding",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Onboarding Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - New Client": {
+      "main": [
+        [
+          {
+            "node": "Client & Industry Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client & Industry Research": {
+      "main": [
+        [
+          {
+            "node": "Service Routing & Planning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Routing & Planning": {
+      "main": [
+        [
+          {
+            "node": "Search Marketing Service?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Media Service?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ML Model Tuning Service?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Marketing Service?": {
+      "main": [
+        [
+          {
+            "node": "Initialize Search Marketing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Media Service?": {
+      "main": [
+        [
+          {
+            "node": "Initialize AI Media Production",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ML Model Tuning Service?": {
+      "main": [
+        [
+          {
+            "node": "Initialize ML Model Tuning",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Search Marketing": {
+      "main": [
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize AI Media Production": {
+      "main": [
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize ML Model Tuning": {
+      "main": [
+        [
+          {
+            "node": "Complete Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Onboarding": {
+      "main": [
+        [
+          {
+            "node": "Onboarding Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "Client Onboarding",
+    "Service Delivery",
+    "Workflow Orchestration"
+  ]
+}

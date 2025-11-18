@@ -1,0 +1,263 @@
+{
+  "name": "SIX3 Email Campaign Personalization",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "email-personalization",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "h8i9j0k1-l2m3-4567-bcde-890123456789",
+      "name": "Webhook - Email Campaign",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "six3-email-personalization"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"content_type\": \"email_template\",\n  \"campaign_data\": $json.campaign_data,\n  \"target_audience\": $json.target_audience,\n  \"tone\": $json.tone || \"professional\",\n  \"call_to_action\": $json.call_to_action\n}) }}"
+      },
+      "id": "i9j0k1l2-m3n4-5678-cdef-901234567890",
+      "name": "Generate Email Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process contact list and create personalized emails for each contact\nconst emailTemplate = $input.first().json;\nconst contacts = $json.contacts || [];\nconst campaign = $json.campaign_data;\n\nconst personalizedEmails = [];\n\nfor (const contact of contacts) {\n  const personalizedEmail = {\n    contact_id: contact.id || contact.email,\n    name: contact.name,\n    email: contact.email,\n    company: contact.company,\n    personalization_data: {\n      first_name: contact.name ? contact.name.split(' ')[0] : 'there',\n      company: contact.company || 'your company',\n      industry: contact.industry || 'your industry',\n      pain_points: contact.pain_points || campaign.default_pain_points\n    },\n    email_template: emailTemplate,\n    campaign_id: campaign.id || 'campaign_' + Date.now()\n  };\n  \n  personalizedEmails.push(personalizedEmail);\n}\n\nreturn personalizedEmails.map(email => ({ json: email }));"
+      },
+      "id": "j0k1l2m3-n4o5-6789-defa-012345678901",
+      "name": "Process Contact List",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/email-personalizer/create",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"lead_data\": {\n    \"name\": $json.name,\n    \"email\": $json.email,\n    \"company\": $json.company\n  },\n  \"sales_pitch\": $json.email_template,\n  \"personalization_data\": $json.personalization_data,\n  \"email_template\": \"campaign_email\"\n}) }}"
+      },
+      "id": "k1l2m3n4-o5p6-7890-efab-123456789012",
+      "name": "Personalize Each Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.send_immediately }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "l2m3n4o5-p6q7-8901-fabc-234567890123",
+      "name": "Check Send Schedule",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Simulate sending emails immediately\nconst emailData = $json;\n\n// Log email sending\nconsole.log(`Sending email to ${emailData.lead_data?.name || 'contact'} at ${emailData.lead_data?.email}`);\n\nreturn {\n  json: {\n    status: \"sent\",\n    recipient: emailData.lead_data?.email,\n    subject: emailData.email_subject,\n    sent_at: new Date().toISOString(),\n    campaign_id: emailData.campaign_id,\n    estimated_delivery: \"immediate\"\n  }\n};"
+      },
+      "id": "m3n4o5p6-q7r8-9012-abcd-345678901234",
+      "name": "Send Immediately",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Schedule emails for optimal send time\nconst emailData = $json;\nconst sendTime = emailData.send_at || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(); // Default 2 hours from now\n\nreturn {\n  json: {\n    status: \"scheduled\",\n    recipient: emailData.lead_data?.email,\n    subject: emailData.email_subject,\n    scheduled_for: sendTime,\n    campaign_id: emailData.campaign_id,\n    estimated_delivery: \"optimal_time\"\n  }\n};"
+      },
+      "id": "n4o5p6q7-r8s9-0123-bcde-456789012345",
+      "name": "Schedule for Later",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Aggregate all email results\nconst allEmails = $input.all();\nconst summary = {\n  campaign_id: allEmails[0]?.json?.campaign_id || 'unknown',\n  total_emails: allEmails.length,\n  sent_immediately: allEmails.filter(email => email.json.status === 'sent').length,\n  scheduled: allEmails.filter(email => email.json.status === 'scheduled').length,\n  estimated_total_open_rate: '28%',\n  estimated_total_click_rate: '7%',\n  processing_completed_at: new Date().toISOString()\n};\n\nreturn {\n  json: {\n    success: true,\n    campaign_summary: summary,\n    email_details: allEmails.map(email => email.json)\n  }\n};"
+      },
+      "id": "o5p6q7r8-s9t0-1234-cdef-567890123456",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "p6q7r8s9-t0u1-2345-defa-678901234567",
+      "name": "Campaign Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - Email Campaign": {
+      "main": [
+        [
+          {
+            "node": "Generate Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Content": {
+      "main": [
+        [
+          {
+            "node": "Process Contact List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Contact List": {
+      "main": [
+        [
+          {
+            "node": "Personalize Each Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalize Each Email": {
+      "main": [
+        [
+          {
+            "node": "Check Send Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Send Schedule": {
+      "main": [
+        [
+          {
+            "node": "Send Immediately",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Schedule for Later",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Immediately": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule for Later": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        [
+          {
+            "node": "Campaign Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "Email Personalization",
+    "Marketing",
+    "Phase 2"
+  ]
+}

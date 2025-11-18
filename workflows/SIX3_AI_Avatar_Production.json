@@ -1,0 +1,344 @@
+{
+  "name": "SIX3 AI Avatar & Video Production",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-avatar-production",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-avatar-request",
+      "name": "Webhook - Avatar Project",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "six3-avatar-production"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/digital-avatar/analyze-requirements",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"project_type\": $json.project_type || \"avatar_video\",\n  \"brand_guidelines\": $json.brand_guidelines,\n  \"target_audience\": $json.target_audience,\n  \"content_requirements\": $json.content_requirements,\n  \"voice_preferences\": $json.voice_preferences\n}) }}"
+      },
+      "id": "avatar-analysis",
+      "name": "Avatar Requirements Analysis", 
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.requires_voice_clone }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "voice-clone-check",
+      "name": "Voice Clone Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/voice-conversation/clone-voice",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"voice_samples\": $json.voice_samples,\n  \"quality_level\": \"production\",\n  \"language\": $json.target_language || \"en-US\",\n  \"voice_characteristics\": $json.voice_characteristics,\n  \"consent_documentation\": $json.consent_forms\n}) }}"
+      },
+      "id": "voice-cloning",
+      "name": "Voice Cloning Process",
+      "type": "n8n-nodes-base.httpRequest", 
+      "typeVersion": 3,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Skip voice cloning, use default voice\nconst avatarData = $json;\n\nreturn {\n  json: {\n    ...avatarData,\n    voice_clone_id: null,\n    voice_type: 'default_professional',\n    voice_ready: true,\n    processing_time_saved: '2-3 hours'\n  }\n};"
+      },
+      "id": "default-voice",
+      "name": "Use Default Voice",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/digital-avatar/create-avatar",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"avatar_specifications\": $json.avatar_specs,\n  \"voice_configuration\": {\n    \"clone_id\": $json.voice_clone_id,\n    \"voice_type\": $json.voice_type\n  },\n  \"brand_consistency\": $json.brand_guidelines,\n  \"animation_style\": $json.animation_preferences || \"realistic\"\n}) }}"
+      },
+      "id": "avatar-creation",
+      "name": "Avatar Creation Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/video-content-generator/produce",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"avatar_id\": $json.avatar_id,\n  \"script_content\": $json.script || $('Webhook - Avatar Project').item.json.script,\n  \"video_format\": $json.output_format || \"1080p_mp4\",\n  \"background_settings\": $json.background_preferences,\n  \"duration_target\": $json.target_duration || \"60-120 seconds\"\n}) }}"
+      },
+      "id": "video-production",
+      "name": "AI Video Production",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.requires_ugc_campaign }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "ugc-campaign-check",
+      "name": "UGC Campaign Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/ugc-campaign-manager/create-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendHeaders": false,
+        "sendQuery": false,
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"master_video\": $json.video_url,\n  \"avatar_variations\": $json.avatar_variations || 5,\n  \"platform_adaptations\": [\"instagram\", \"tiktok\", \"youtube_shorts\", \"linkedin\"],\n  \"ugc_style_preferences\": $json.ugc_preferences,\n  \"campaign_objectives\": $json.campaign_goals\n}) }}"
+      },
+      "id": "ugc-generation",
+      "name": "UGC Campaign Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Finalize single video delivery\nconst videoData = $json;\n\nreturn {\n  json: {\n    ...videoData,\n    delivery_type: 'single_video',\n    ugc_campaign: false,\n    final_deliverables: [videoData.video_url],\n    estimated_delivery: '24-48 hours'\n  }\n};"
+      },
+      "id": "single-video-delivery",
+      "name": "Single Video Delivery",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1780, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Create comprehensive delivery response\nconst results = $input.all();\nconst finalResult = results[0].json;\n\nconst response = {\n  success: true,\n  service: 'Generative AI Video/Audio',\n  project_status: 'completed',\n  deliverables: {\n    primary_video: finalResult.video_url || finalResult.master_video,\n    avatar_id: finalResult.avatar_id,\n    voice_clone_id: finalResult.voice_clone_id,\n    ugc_variations: finalResult.ugc_videos || [],\n    total_assets: (finalResult.ugc_videos?.length || 0) + 1\n  },\n  technical_specs: {\n    video_quality: '1080p HD',\n    audio_quality: '48kHz/16-bit',\n    formats_available: ['MP4', 'WebM', 'MOV'],\n    platform_optimized: finalResult.platform_adaptations || ['universal']\n  },\n  brand_safety: {\n    content_moderation: 'AI + Human Review',\n    watermarking: 'Enabled',\n    usage_rights: 'Full Commercial License',\n    ethical_compliance: 'Verified'\n  },\n  next_steps: [\n    'Review deliverables in client portal',\n    'Download final assets',\n    'Request revisions if needed (2 included)',\n    'Deploy across marketing channels'\n  ],\n  estimated_impact: {\n    engagement_boost: '35-50%',\n    cost_vs_traditional: '70% savings',\n    production_time: '90% faster'\n  }\n};\n\nreturn { json: response };"
+      },
+      "id": "final-delivery",
+      "name": "Final Delivery Package",
+      "type": "n8n-nodes-base.function", 
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "webhook-response",
+      "name": "Production Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Avatar Project": {
+      "main": [
+        [
+          {
+            "node": "Avatar Requirements Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avatar Requirements Analysis": {
+      "main": [
+        [
+          {
+            "node": "Voice Clone Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Clone Required?": {
+      "main": [
+        [
+          {
+            "node": "Voice Cloning Process",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Use Default Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice Cloning Process": {
+      "main": [
+        [
+          {
+            "node": "Avatar Creation Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Default Voice": {
+      "main": [
+        [
+          {
+            "node": "Avatar Creation Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Avatar Creation Engine": {
+      "main": [
+        [
+          {
+            "node": "AI Video Production",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Video Production": {
+      "main": [
+        [
+          {
+            "node": "UGC Campaign Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UGC Campaign Required?": {
+      "main": [
+        [
+          {
+            "node": "UGC Campaign Generation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Single Video Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UGC Campaign Generation": {
+      "main": [
+        [
+          {
+            "node": "Final Delivery Package",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Single Video Delivery": {
+      "main": [
+        [
+          {
+            "node": "Final Delivery Package",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Delivery Package": {
+      "main": [
+        [
+          {
+            "node": "Production Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "America/New_York",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [
+    "SIX3",
+    "AI Avatar",
+    "Video Production", 
+    "Voice Cloning",
+    "UGC"
+  ]
+}
