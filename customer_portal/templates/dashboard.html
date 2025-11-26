@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SIX3 Agency Customer Portal{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header bg-light py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-1">
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                    Welcome back, {{ user.first_name }}!
+                </h2>
+                <p class="text-muted mb-0">Here's what's happening with your SIX3 Agency services</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex gap-2 justify-content-end">
+                    <a href="/support/new" class="btn btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>New Ticket
+                    </a>
+                    <a href="/chat" class="btn btn-primary">
+                        <i class="fas fa-robot me-1"></i>AI Assistant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Key Metrics -->
+<section class="metrics-section py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon mb-2">
+                            <i class="fas fa-heartbeat fa-2x text-success"></i>
+                        </div>
+                        <h3 class="mb-1" id="health-score">{{ metrics.health_score }}%</h3>
+                        <p class="text-muted mb-0">Health Score</p>
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up"></i>
+                            +{{ metrics.health_change }}% vs last week
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon mb-2">
+                            <i class="fas fa-chart-line fa-2x text-primary"></i>
+                        </div>
+                        <h3 class="mb-1" id="active-campaigns">{{ metrics.active_campaigns }}</h3>
+                        <p class="text-muted mb-0">Active Campaigns</p>
+                        <small class="text-info">
+                            <i class="fas fa-play"></i>
+                            {{ metrics.campaigns_this_month }} this month
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon mb-2">
+                            <i class="fas fa-users fa-2x text-warning"></i>
+                        </div>
+                        <h3 class="mb-1" id="leads-generated">{{ metrics.leads_generated }}</h3>
+                        <p class="text-muted mb-0">Leads Generated</p>
+                        <small class="text-warning">
+                            <i class="fas fa-calendar"></i>
+                            Last 30 days
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon mb-2">
+                            <i class="fas fa-dollar-sign fa-2x text-danger"></i>
+                        </div>
+                        <h3 class="mb-1" id="conversion-rate">{{ metrics.conversion_rate }}%</h3>
+                        <p class="text-muted mb-0">Conversion Rate</p>
+                        <small class="text-danger">
+                            <i class="fas fa-target"></i>
+                            Goal: {{ metrics.conversion_goal }}%
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Charts and Analytics -->
+<section class="analytics-section py-4">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Performance Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-area text-primary me-2"></i>
+                                Performance Trends
+                            </h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="period" id="week" checked>
+                                <label class="btn btn-outline-primary" for="week">7D</label>
+                                
+                                <input type="radio" class="btn-check" name="period" id="month">
+                                <label class="btn btn-outline-primary" for="month">30D</label>
+                                
+                                <input type="radio" class="btn-check" name="period" id="quarter">
+                                <label class="btn btn-outline-primary" for="quarter">90D</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clock text-success me-2"></i>
+                            Recent Activity
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="activity-feed">
+                            {% for activity in recent_activity %}
+                            <div class="activity-item p-3 border-bottom">
+                                <div class="d-flex align-items-start">
+                                    <div class="activity-icon me-3">
+                                        <i class="fas {{ activity.icon }} text-{{ activity.color }}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="mb-1">{{ activity.description }}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ activity.time_ago }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="p-3">
+                            <a href="/activity" class="btn btn-sm btn-outline-primary w-100">
+                                View All Activity
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Status & Quick Actions -->
+<section class="services-section py-4">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Service Status -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cogs text-info me-2"></i>
+                            Service Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for service in services %}
+                        <div class="service-item d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <i class="fas {{ service.icon }} text-{{ service.status_color }} me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">{{ service.name }}</h6>
+                                    <small class="text-muted">{{ service.description }}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-{{ service.status_color }}-subtle text-{{ service.status_color }}">
+                                {{ service.status }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt text-warning me-2"></i>
+                            Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <a href="/chat" class="quick-action-card card border h-100 text-decoration-none">
+                                    <div class="card-body text-center p-3">
+                                        <i class="fas fa-robot fa-2x text-primary mb-2"></i>
+                                        <h6 class="mb-0">Chat with AI</h6>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/support/new" class="quick-action-card card border h-100 text-decoration-none">
+                                    <div class="card-body text-center p-3">
+                                        <i class="fas fa-headset fa-2x text-success mb-2"></i>
+                                        <h6 class="mb-0">Get Support</h6>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/knowledge-base" class="quick-action-card card border h-100 text-decoration-none">
+                                    <div class="card-body text-center p-3">
+                                        <i class="fas fa-book fa-2x text-info mb-2"></i>
+                                        <h6 class="mb-0">Browse Docs</h6>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/settings" class="quick-action-card card border h-100 text-decoration-none">
+                                    <div class="card-body text-center p-3">
+                                        <i class="fas fa-cog fa-2x text-warning mb-2"></i>
+                                        <h6 class="mb-0">Settings</h6>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Notifications & Alerts -->
+{% if notifications %}
+<section class="notifications-section py-4">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell text-primary me-2"></i>
+                    Notifications & Alerts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% for notification in notifications %}
+                <div class="alert alert-{{ notification.type }} alert-dismissible" role="alert">
+                    <i class="fas {{ notification.icon }} me-2"></i>
+                    <strong>{{ notification.title }}:</strong> {{ notification.message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels | safe }},
+        datasets: [
+            {
+                label: 'Leads',
+                data: {{ chart_leads | safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Conversions',
+                data: {{ chart_conversions | safe }},
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Health Score',
+                data: {{ chart_health | safe }},
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1,
+                yAxisID: 'y1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        }
+    }
+});
+
+// Auto-refresh metrics every 5 minutes
+setInterval(() => {
+    fetch('/api/metrics')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('health-score').textContent = data.health_score + '%';
+            document.getElementById('active-campaigns').textContent = data.active_campaigns;
+            document.getElementById('leads-generated').textContent = data.leads_generated;
+            document.getElementById('conversion-rate').textContent = data.conversion_rate + '%';
+        })
+        .catch(error => console.log('Metrics update failed:', error));
+}, 300000);
+
+// Quick action hover effects
+document.querySelectorAll('.quick-action-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.classList.add('shadow-sm');
+        this.style.transform = 'translateY(-2px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.classList.remove('shadow-sm');
+        this.style.transform = 'translateY(0)';
+    });
+});
+</script>
+{% endblock %}

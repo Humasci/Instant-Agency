@@ -1,7 +1,7 @@
 # SIX3 Agency Service Delivery Guide
 
 ## Overview
-This guide outlines the complete service delivery process for SIX3 Agency's three core AI-powered marketing services.
+This guide outlines the complete service delivery process for SIX3 Agency's four core AI-powered services.
 
 ## 🎯 Core Services
 
@@ -50,9 +50,9 @@ This guide outlines the complete service delivery process for SIX3 Agency's thre
 - Market share growth
 
 #### Budget Requirements
-- Minimum monthly ad spend: $5,000
-- Management fee: 15-20% of ad spend
-- Setup fee: $2,500 (one-time)
+- Minimum monthly ad spend: $1,500
+- Management fee: Flat fee £1000 for budgets lower than $2000. £1500 for ad spend between $2001 and $10000. £2700 for above $10001 to $50000 and £5000 for $50001 and above.
+
 
 ---
 
@@ -105,9 +105,9 @@ This guide outlines the complete service delivery process for SIX3 Agency's thre
 - Revision rounds: 3 included
 
 #### Investment Levels
-- **Starter Package**: $2,500 (1-2 videos, basic customization)
-- **Professional Package**: $5,000 (3-5 videos, full customization)
-- **Enterprise Package**: $10,000+ (unlimited revisions, full production)
+- **Starter Package**: $1,500 (1-2 videos, basic customization)
+- **Professional Package**: $3,000 (3-5 videos, full customization)
+- **Enterprise Package**: $7,000+ (unlimited revisions, full production)
 
 ---
 
@@ -167,9 +167,99 @@ This guide outlines the complete service delivery process for SIX3 Agency's thre
 - User adoption rates
 
 #### Investment Requirements
-- **Basic Fine-tuning**: $10,000-15,000 (2-4 weeks)
-- **Advanced Development**: $20,000-35,000 (4-8 weeks)
+- **Basic Fine-tuning**: $5,000-10,000 (2-4 weeks)
+- **Advanced Development**: $15,000-35,000 (4-8 weeks)
 - **Enterprise Solution**: $50,000+ (8+ weeks, ongoing support)
+
+---
+
+### 4. AI Agent Creation & Workflow Automation
+**Custom AI systems and automated workflows tailored to client business processes**
+
+#### Service Capabilities
+- Custom AI agent development (call screening, lead qualification, customer support)
+- Business process automation and workflow orchestration
+- Legacy system integration and modernization
+- Real-time analytics and performance dashboards
+- Multi-department workflow coordination
+- Compliance and audit trail automation
+
+#### Development Process
+1. **Discovery & Strategy** (Weeks 1-2)
+   - Business process audit and mapping
+   - AI opportunity assessment and ROI calculation
+   - Technical requirements gathering
+   - Solution architecture design
+   - Project scoping and timeline planning
+
+2. **AI Agent Development** (Weeks 3-6)
+   - Custom agent persona and capability design
+   - Conversation flows and decision trees
+   - Integration connector development
+   - Workflow automation scripting
+   - Testing environment setup
+
+3. **Integration & Testing** (Weeks 7-8)
+   - Production environment deployment
+   - System integration testing
+   - User acceptance testing with client teams
+   - Performance optimization
+   - Security audit and compliance review
+
+4. **Deployment & Training** (Weeks 9-10)
+   - Live system deployment and cutover
+   - Team training and documentation
+   - Change management support
+   - Performance monitoring setup
+   - 30-day optimization period
+
+5. **Optimization & Scale** (Weeks 11-12)
+   - Performance analytics review
+   - Optimization recommendations
+   - Additional agent development (if needed)
+   - Scaling strategy implementation
+   - Ongoing support plan establishment
+
+#### Solution Types
+- **Call Center Automation**: AI phone screening, lead qualification, appointment scheduling
+- **Lead Management Systems**: Lead scoring, routing, and automated follow-up workflows
+- **Customer Service Automation**: 24/7 support chatbots, ticket routing, knowledge base integration
+- **Sales Process Automation**: CRM integration, pipeline management, proposal generation
+- **Operations Automation**: Inventory management, order processing, vendor coordination
+
+#### Industry Specializations
+- **Legal Firms**: Client intake, case management, billing automation
+- **Healthcare**: Patient scheduling, insurance verification, care plan coordination
+- **Real Estate**: Lead nurturing, property matching, transaction management
+- **E-commerce**: Customer service, inventory management, order fulfillment
+- **Manufacturing**: Supply chain optimization, quality control, maintenance scheduling
+
+#### Success Metrics
+- 30-60% reduction in manual processing time
+- 40-80% improvement in response times
+- 25-50% increase in lead conversion rates
+- 20-40% reduction in operational costs
+- 90%+ customer satisfaction scores
+- 200-500% ROI within 12 months
+
+#### Investment Tiers
+- **Starter Package**: $5,000-15,000 (1-2 agents, 4-6 weeks)
+- **Professional Package**: $15,000-35,000 (3-5 agents, 6-8 weeks)
+- **Enterprise Package**: $35,000-100,000+ (6+ agents, 8-12 weeks)
+- **Ongoing Support**: $2,000-10,000/month (optimization, new features, priority support)
+
+#### Example Client Outcomes
+**Law Firm Case Study:**
+- 60% reduction in intake administration time
+- 40% increase in qualified leads
+- $150K annual savings in staff costs
+- 25% improvement in client satisfaction
+
+**Real Estate Agency Case Study:**
+- 45% increase in lead conversion
+- 70% reduction in manual follow-up tasks
+- $200K increase in annual revenue
+- 24/7 availability for client inquiries
 
 ---
 

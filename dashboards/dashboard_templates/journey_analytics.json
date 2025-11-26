@@ -1,0 +1,473 @@
+{
+  "name": "Journey Analytics Dashboard",
+  "description": "End-to-end customer journey performance and optimization",
+  "parameters": [
+    {
+      "id": "time_period",
+      "name": "Time Period", 
+      "type": "date/range",
+      "default": "past30days"
+    },
+    {
+      "id": "journey_filter",
+      "name": "Journey Type",
+      "type": "category",
+      "values_source_type": "card",
+      "values_source_config": {
+        "card_id": null,
+        "value_field": "journey_name"
+      }
+    },
+    {
+      "id": "department_filter",
+      "name": "Department",
+      "type": "category",
+      "values": ["Sales", "Marketing", "Customer Success", "Support"]
+    }
+  ],
+  "cards": [
+    {
+      "name": "Active Journeys",
+      "description": "Number of customer journeys currently in progress",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COUNT(*) as active_journeys\nFROM journey_executions \nWHERE status = 'in_progress'\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\n  AND created_at >= [[{{time_period}}]]",
+          "template-tags": {
+            "time_period": {
+              "id": "time_period",
+              "name": "time_period",
+              "display-name": "Time Period",
+              "type": "dimension"
+            },
+            "journey_filter": {
+              "id": "journey_filter",
+              "name": "journey_filter",
+              "display-name": "Journey Filter",
+              "type": "dimension"
+            }
+          }
+        }
+      },
+      "display": "scalar"
+    },
+    {
+      "name": "Journey Completion Rate",
+      "description": "Percentage of journeys that complete successfully",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    ROUND(\n        (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100.0 / \n         NULLIF(COUNT(*), 0))::numeric, 1\n    ) as completion_rate\nFROM journey_executions \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})"
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.suffix": "%"
+      }
+    },
+    {
+      "name": "Average Journey Duration",
+      "description": "Average time to complete customer journeys",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    ROUND(AVG(EXTRACT(EPOCH FROM (completed_at - started_at))/3600)::numeric, 1) as avg_hours\nFROM journey_executions \nWHERE status = 'completed' \n  AND completed_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})"
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.suffix": " hrs"
+      }
+    },
+    {
+      "name": "Total Journey Value",
+      "description": "Total customer value generated from completed journeys",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COALESCE(SUM(customer_value_generated), 0) as total_value\nFROM journey_executions \nWHERE status = 'completed' \n  AND completed_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})"
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.prefix": "$",
+        "scalar.decimals": 0
+      }
+    },
+    {
+      "name": "Journey Performance by Type",
+      "description": "Success rate and duration by journey type",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    journey_name,\n    COUNT(*) as total_executions,\n    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed,\n    ROUND(\n        (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100.0 / \n         NULLIF(COUNT(*), 0))::numeric, 1\n    ) as success_rate,\n    ROUND(AVG(\n      CASE WHEN status = 'completed' THEN \n        EXTRACT(EPOCH FROM (completed_at - started_at))/3600 \n      END)::numeric, 1) as avg_duration_hours\nFROM journey_executions \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY journey_name\nORDER BY success_rate DESC"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "journey_name",
+            "display_name": "Journey Type"
+          },
+          {
+            "name": "total_executions",
+            "display_name": "Total"
+          },
+          {
+            "name": "completed",
+            "display_name": "Completed"
+          },
+          {
+            "name": "success_rate",
+            "display_name": "Success Rate (%)"
+          },
+          {
+            "name": "avg_duration_hours",
+            "display_name": "Avg Duration (hrs)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Department Handoff Success",
+      "description": "Cross-department handoff success rates",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    CONCAT(from_department, ' → ', to_department) as handoff,\n    COUNT(*) as total_handoffs,\n    COUNT(CASE WHEN handoff_status = 'success' THEN 1 END) as successful_handoffs,\n    ROUND(\n      (COUNT(CASE WHEN handoff_status = 'success' THEN 1 END) * 100.0 / \n       NULLIF(COUNT(*), 0))::numeric, 1\n    ) as success_rate,\n    ROUND(AVG(handoff_duration_minutes)::numeric, 1) as avg_handoff_time\nFROM journey_handoffs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{department_filter}} IS NULL OR from_department = {{department_filter}} OR to_department = {{department_filter}})\nGROUP BY from_department, to_department\nORDER BY success_rate DESC"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "handoff",
+            "display_name": "Handoff"
+          },
+          {
+            "name": "total_handoffs",
+            "display_name": "Total"
+          },
+          {
+            "name": "successful_handoffs",
+            "display_name": "Successful"
+          },
+          {
+            "name": "success_rate",
+            "display_name": "Success Rate (%)"
+          },
+          {
+            "name": "avg_handoff_time",
+            "display_name": "Avg Time (min)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Journey Stage Analysis",
+      "description": "Performance analysis by journey stage",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    current_step,\n    COUNT(*) as executions_at_stage,\n    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_from_stage,\n    COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_at_stage,\n    ROUND(\n      (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100.0 / \n       NULLIF(COUNT(*), 0))::numeric, 1\n    ) as completion_rate,\n    ROUND(AVG(\n      CASE WHEN step_started_at IS NOT NULL THEN \n        EXTRACT(EPOCH FROM (COALESCE(step_completed_at, NOW()) - step_started_at))/60\n      END)::numeric, 1) as avg_stage_duration_minutes\nFROM journey_executions \nWHERE created_at >= [[{{time_period}}]]\n  AND current_step IS NOT NULL\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY current_step\nORDER BY completion_rate DESC"
+        }
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["current_step"],
+        "graph.metrics": ["completion_rate", "avg_stage_duration_minutes"],
+        "series_settings": {
+          "completion_rate": {
+            "title": "Completion Rate (%)",
+            "color": "#88BF4D"
+          },
+          "avg_stage_duration_minutes": {
+            "title": "Avg Duration (min)",
+            "color": "#509EE3",
+            "axis": "right"
+          }
+        }
+      }
+    },
+    {
+      "name": "Journey Bottlenecks",
+      "description": "Stages where journeys most commonly get stuck",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    current_step,\n    journey_name,\n    COUNT(*) as stuck_count,\n    ROUND(AVG(EXTRACT(EPOCH FROM (NOW() - step_started_at))/3600)::numeric, 1) as avg_stuck_hours,\n    MIN(step_started_at) as oldest_stuck\nFROM journey_executions \nWHERE status = 'in_progress' \n  AND step_started_at < NOW() - INTERVAL '4 hours'\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY current_step, journey_name\nORDER BY stuck_count DESC\nLIMIT 10"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "current_step",
+            "display_name": "Stage"
+          },
+          {
+            "name": "journey_name",
+            "display_name": "Journey"
+          },
+          {
+            "name": "stuck_count",
+            "display_name": "Stuck Count"
+          },
+          {
+            "name": "avg_stuck_hours",
+            "display_name": "Avg Stuck Time (hrs)"
+          },
+          {
+            "name": "oldest_stuck",
+            "display_name": "Oldest Stuck"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Journey ROI Analysis",
+      "description": "Return on investment for different journey types",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    journey_name,\n    COUNT(*) as executions,\n    ROUND(AVG(customer_value_generated)::numeric, 0) as avg_value,\n    ROUND(SUM(customer_value_generated)::numeric, 0) as total_value,\n    ROUND(AVG(execution_cost)::numeric, 0) as avg_cost,\n    ROUND(SUM(execution_cost)::numeric, 0) as total_cost,\n    ROUND(\n        (SUM(customer_value_generated) - SUM(execution_cost)) / \n        NULLIF(SUM(execution_cost), 0)::numeric, 2\n    ) as roi_ratio\nFROM journey_executions \nWHERE status = 'completed' \n  AND created_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY journey_name\nORDER BY roi_ratio DESC"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "journey_name",
+            "display_name": "Journey"
+          },
+          {
+            "name": "executions",
+            "display_name": "Executions"
+          },
+          {
+            "name": "avg_value",
+            "display_name": "Avg Value ($)"
+          },
+          {
+            "name": "total_value",
+            "display_name": "Total Value ($)"
+          },
+          {
+            "name": "avg_cost",
+            "display_name": "Avg Cost ($)"
+          },
+          {
+            "name": "total_cost",
+            "display_name": "Total Cost ($)"
+          },
+          {
+            "name": "roi_ratio",
+            "display_name": "ROI Ratio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Journey Execution Timeline",
+      "description": "Journey execution volume and success over time",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    DATE_TRUNC('day', created_at) as date,\n    COUNT(*) as total_journeys,\n    COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_journeys,\n    COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_journeys,\n    COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_journeys,\n    ROUND(\n      (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100.0 / \n       NULLIF(COUNT(*), 0))::numeric, 1\n    ) as daily_success_rate\nFROM journey_executions \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY DATE_TRUNC('day', created_at)\nORDER BY date"
+        }
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["date"],
+        "graph.metrics": ["total_journeys", "completed_journeys", "daily_success_rate"],
+        "series_settings": {
+          "total_journeys": {
+            "title": "Total Journeys",
+            "color": "#509EE3"
+          },
+          "completed_journeys": {
+            "title": "Completed Journeys",
+            "color": "#88BF4D"
+          },
+          "daily_success_rate": {
+            "title": "Success Rate (%)",
+            "color": "#F9D71C",
+            "axis": "right"
+          }
+        }
+      }
+    },
+    {
+      "name": "Agent Orchestration Performance",
+      "description": "Performance of AI agents within journey orchestration",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    je.journey_name,\n    al.agent_name,\n    COUNT(*) as agent_invocations,\n    COUNT(CASE WHEN al.status = 'success' THEN 1 END) as successful_invocations,\n    ROUND(\n      (COUNT(CASE WHEN al.status = 'success' THEN 1 END) * 100.0 / \n       NULLIF(COUNT(*), 0))::numeric, 1\n    ) as agent_success_rate,\n    ROUND(AVG(al.response_time)::numeric, 2) as avg_response_time\nFROM journey_executions je\nJOIN agent_logs al ON al.journey_execution_id = je.id\nWHERE je.created_at >= [[{{time_period}}]]\n  AND ({{journey_filter}} IS NULL OR je.journey_name = {{journey_filter}})\nGROUP BY je.journey_name, al.agent_name\nORDER BY je.journey_name, agent_success_rate DESC"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "journey_name",
+            "display_name": "Journey"
+          },
+          {
+            "name": "agent_name", 
+            "display_name": "Agent"
+          },
+          {
+            "name": "agent_invocations",
+            "display_name": "Invocations"
+          },
+          {
+            "name": "successful_invocations",
+            "display_name": "Successful"
+          },
+          {
+            "name": "agent_success_rate",
+            "display_name": "Success Rate (%)"
+          },
+          {
+            "name": "avg_response_time",
+            "display_name": "Avg Response (ms)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Journey Optimization Opportunities",
+      "description": "Identified opportunities for journey optimization",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    journey_name,\n    current_step as bottleneck_stage,\n    COUNT(*) as frequency,\n    ROUND(AVG(EXTRACT(EPOCH FROM (NOW() - step_started_at))/3600)::numeric, 1) as avg_delay_hours,\n    'High delay at stage' as optimization_type,\n    CASE \n      WHEN AVG(EXTRACT(EPOCH FROM (NOW() - step_started_at))/3600) > 24 THEN 'Critical'\n      WHEN AVG(EXTRACT(EPOCH FROM (NOW() - step_started_at))/3600) > 8 THEN 'High'\n      ELSE 'Medium'\n    END as priority\nFROM journey_executions \nWHERE status = 'in_progress' \n  AND step_started_at < NOW() - INTERVAL '2 hours'\n  AND ({{journey_filter}} IS NULL OR journey_name = {{journey_filter}})\nGROUP BY journey_name, current_step\nHAVING COUNT(*) >= 3\nORDER BY \n  CASE priority\n    WHEN 'Critical' THEN 1\n    WHEN 'High' THEN 2\n    ELSE 3\n  END,\n  frequency DESC\nLIMIT 10"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "journey_name",
+            "display_name": "Journey"
+          },
+          {
+            "name": "bottleneck_stage",
+            "display_name": "Bottleneck Stage"
+          },
+          {
+            "name": "frequency",
+            "display_name": "Frequency"
+          },
+          {
+            "name": "avg_delay_hours",
+            "display_name": "Avg Delay (hrs)"
+          },
+          {
+            "name": "optimization_type",
+            "display_name": "Issue Type"
+          },
+          {
+            "name": "priority",
+            "display_name": "Priority"
+          }
+        ]
+      }
+    }
+  ],
+  "dashboard_cards": [
+    {
+      "card_index": 0,
+      "row": 0,
+      "col": 0,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 1,
+      "row": 0,
+      "col": 3,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 2,
+      "row": 0,
+      "col": 6,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 3,
+      "row": 0,
+      "col": 9,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 4,
+      "row": 4,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 8
+    },
+    {
+      "card_index": 5,
+      "row": 4,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 8
+    },
+    {
+      "card_index": 6,
+      "row": 12,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 8
+    },
+    {
+      "card_index": 7,
+      "row": 12,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 8
+    },
+    {
+      "card_index": 8,
+      "row": 20,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 8
+    },
+    {
+      "card_index": 9,
+      "row": 20,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 8
+    },
+    {
+      "card_index": 10,
+      "row": 28,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 8
+    },
+    {
+      "card_index": 11,
+      "row": 36,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 8
+    },
+    {
+      "card_index": 12,
+      "row": 36,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 8
+    }
+  ]
+}

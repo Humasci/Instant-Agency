@@ -1,0 +1,722 @@
+{
+  "name": "Phase 2 Email Campaign Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+      "name": "Weekly Email Campaign Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "resource": "record",
+        "objectType": "people",
+        "filters": {
+          "email_status": {
+            "equals": "subscribed"
+          },
+          "last_email_sent": {
+            "older_than": "7d"
+          }
+        }
+      },
+      "id": "2b3c4d5e-6f78-9012-3456-789abcdef012",
+      "name": "Get Subscribed Contacts",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Segment contacts based on their profile and behavior\nconst contacts = $input.all();\nconst segments = {\n  new_subscribers: [],\n  active_users: [],\n  enterprise_prospects: [],\n  small_business: []\n};\n\nfor (const contact of contacts) {\n  const data = contact.json;\n  \n  // Determine segment based on company size and engagement\n  if (data.created_at && new Date(data.created_at) > new Date(Date.now() - 30*24*60*60*1000)) {\n    segments.new_subscribers.push(data);\n  } else if (data.company_size && data.company_size === 'Enterprise') {\n    segments.enterprise_prospects.push(data);\n  } else if (data.engagement_score && data.engagement_score > 70) {\n    segments.active_users.push(data);\n  } else {\n    segments.small_business.push(data);\n  }\n}\n\n// Return segmented data\nreturn Object.entries(segments).map(([segment, contacts]) => ({\n  json: {\n    segment_name: segment,\n    contacts: contacts,\n    contact_count: contacts.length,\n    campaign_type: segment === 'new_subscribers' ? 'welcome_series' :\n                   segment === 'enterprise_prospects' ? 'enterprise_demo' :\n                   segment === 'active_users' ? 'feature_updates' : 'educational_content'\n  }\n}));"
+      },
+      "id": "3c4d5e6f-7890-1234-5678-90abcdef1234",
+      "name": "Segment Contacts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "={{ $json.segment_name }}",
+            "operations": [
+              {
+                "operation": {
+                  "type": "string",
+                  "operation": "equals",
+                  "rightValue": "new_subscribers"
+                },
+                "id": "branch1"
+              },
+              {
+                "operation": {
+                  "type": "string",
+                  "operation": "equals",
+                  "rightValue": "enterprise_prospects"
+                },
+                "id": "branch2"
+              },
+              {
+                "operation": {
+                  "type": "string",
+                  "operation": "equals",
+                  "rightValue": "active_users"
+                },
+                "id": "branch3"
+              },
+              {
+                "operation": {
+                  "type": "string",
+                  "operation": "equals",
+                  "rightValue": "small_business"
+                },
+                "id": "branch4"
+              }
+            ]
+          }
+        }
+      },
+      "id": "4d5e6f78-9012-3456-7890-abcdef123456",
+      "name": "Route by Segment",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/phase2/personalize-email",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipient_data",
+              "value": "={{ $json.contacts }}"
+            },
+            {
+              "name": "campaign_type",
+              "value": "welcome_series"
+            },
+            {
+              "name": "personalization_level",
+              "value": "high"
+            }
+          ]
+        }
+      },
+      "id": "5e6f7890-1234-5678-9012-3456789abcde",
+      "name": "Generate Welcome Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/phase2/personalize-email",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipient_data",
+              "value": "={{ $json.contacts }}"
+            },
+            {
+              "name": "campaign_type",
+              "value": "enterprise_demo"
+            },
+            {
+              "name": "personalization_level",
+              "value": "high"
+            },
+            {
+              "name": "include_roi_calculator",
+              "value": true
+            }
+          ]
+        }
+      },
+      "id": "6f789012-3456-7890-1234-56789abcdef0",
+      "name": "Generate Enterprise Demos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/phase2/personalize-email",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipient_data",
+              "value": "={{ $json.contacts }}"
+            },
+            {
+              "name": "campaign_type",
+              "value": "feature_updates"
+            },
+            {
+              "name": "personalization_level",
+              "value": "medium"
+            },
+            {
+              "name": "include_usage_analytics",
+              "value": true
+            }
+          ]
+        }
+      },
+      "id": "78901234-5678-9012-3456-789abcdef012",
+      "name": "Generate Feature Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/phase2/personalize-email",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipient_data",
+              "value": "={{ $json.contacts }}"
+            },
+            {
+              "name": "campaign_type",
+              "value": "educational_content"
+            },
+            {
+              "name": "personalization_level",
+              "value": "medium"
+            },
+            {
+              "name": "include_case_studies",
+              "value": true
+            }
+          ]
+        }
+      },
+      "id": "89012345-6789-0123-4567-89abcdef0123",
+      "name": "Generate Educational Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process AI-generated emails and prepare for SendGrid\nconst emailData = $input.first().json;\n\n// Extract personalized emails\nconst personalizedEmails = emailData.data?.personalized_emails || [];\n\n// Prepare for batch sending\nconst sendGridBatch = [];\n\nfor (const email of personalizedEmails) {\n  sendGridBatch.push({\n    to: email.recipient_email,\n    from: {\n      email: 'hello@six3.agency',\n      name: 'SIX3 Agency'\n    },\n    subject: email.subject,\n    html: email.html_content,\n    text: email.plain_text_content,\n    custom_args: {\n      campaign_type: emailData.campaign_type,\n      segment: email.segment,\n      contact_id: email.contact_id\n    },\n    tracking_settings: {\n      click_tracking: { enable: true },\n      open_tracking: { enable: true },\n      subscription_tracking: { enable: false }\n    }\n  });\n}\n\nreturn [{\n  json: {\n    batch_emails: sendGridBatch,\n    campaign_summary: {\n      total_emails: sendGridBatch.length,\n      campaign_type: emailData.campaign_type,\n      generated_at: new Date().toISOString()\n    }\n  }\n}];"
+      },
+      "id": "90123456-7890-1234-5678-9abcdef01234",
+      "name": "Prepare SendGrid Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendBulk",
+        "fromEmail": "hello@six3.agency",
+        "fromName": "SIX3 Agency",
+        "emails": "={{ $json.batch_emails }}",
+        "options": {
+          "sandbox": false,
+          "trackClicks": true,
+          "trackOpens": true
+        }
+      },
+      "id": "a0123456-7890-1234-5678-9abcdef01234",
+      "name": "Send via SendGrid",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log campaign metrics\nconst campaignData = $input.first().json;\nconst sendGridResponse = $input.last().json;\n\nconst metrics = {\n  campaign_id: `campaign_${Date.now()}`,\n  timestamp: new Date().toISOString(),\n  campaign_type: campaignData.campaign_summary.campaign_type,\n  emails_sent: campaignData.campaign_summary.total_emails,\n  sendgrid_status: sendGridResponse.status || 'sent',\n  segments_targeted: campaignData.segments || [],\n  next_campaign_scheduled: new Date(Date.now() + 7*24*60*60*1000).toISOString()\n};\n\nreturn [{ json: metrics }];"
+      },
+      "id": "b0123456-7890-1234-5678-9abcdef01234",
+      "name": "Log Campaign Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "campaign_metrics",
+        "columns": "campaign_id, timestamp, campaign_type, emails_sent, sendgrid_status, segments_targeted, next_campaign_scheduled",
+        "values": "={{ $json.campaign_id }}, {{ $json.timestamp }}, {{ $json.campaign_type }}, {{ $json.emails_sent }}, {{ $json.sendgrid_status }}, {{ JSON.stringify($json.segments_targeted) }}, {{ $json.next_campaign_scheduled }}"
+      },
+      "id": "c0123456-7890-1234-5678-9abcdef01234",
+      "name": "Store Metrics in Database",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        2000,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "objectType": "people",
+        "updateFields": {
+          "last_email_sent": "={{ new Date().toISOString() }}",
+          "email_campaign_count": "={{ $('Get Subscribed Contacts').item.json.email_campaign_count + 1 }}"
+        },
+        "filters": {
+          "email": "={{ $json.recipient_email }}"
+        }
+      },
+      "id": "d0123456-7890-1234-5678-9abcdef01234",
+      "name": "Update Contact Records",
+      "type": "n8n-nodes-base.attio",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "📧 Email Campaign Complete!\n\n**Campaign Type:** {{ $json.campaign_type }}\n**Emails Sent:** {{ $json.emails_sent }}\n**Status:** {{ $json.sendgrid_status }}\n**Time:** {{ $json.timestamp }}\n\nNext campaign scheduled for: {{ $json.next_campaign_scheduled }}"
+            },
+            {
+              "name": "channel",
+              "value": "#marketing"
+            },
+            {
+              "name": "username",
+              "value": "SIX3 Campaign Bot"
+            },
+            {
+              "name": "icon_emoji",
+              "value": ":email:"
+            }
+          ]
+        }
+      },
+      "id": "e0123456-7890-1234-5678-9abcdef01234",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10,14,17 * * *"
+            }
+          ]
+        }
+      },
+      "id": "f0123456-7890-1234-5678-9abcdef01234",
+      "name": "Follow-up Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        240,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "resource": "analytics",
+        "endpoint": "email_metrics",
+        "timeframe": "last_24_hours"
+      },
+      "id": "10123456-7890-1234-5678-9abcdef01234",
+      "name": "Check Email Analytics",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [
+        460,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Analyze email performance and trigger follow-ups\nconst analytics = $input.first().json;\n\n// Define engagement thresholds\nconst lowOpenRate = 0.15;\nconst lowClickRate = 0.02;\n\n// Check if follow-up is needed\nconst needsFollowUp = \n  analytics.open_rate < lowOpenRate || \n  analytics.click_rate < lowClickRate;\n\nif (needsFollowUp) {\n  return [{\n    json: {\n      trigger_followup: true,\n      reason: analytics.open_rate < lowOpenRate ? 'low_open_rate' : 'low_click_rate',\n      current_metrics: {\n        open_rate: analytics.open_rate,\n        click_rate: analytics.click_rate,\n        bounce_rate: analytics.bounce_rate\n      },\n      recommended_action: analytics.open_rate < lowOpenRate ? \n        'improve_subject_lines' : 'optimize_content_and_cta'\n    }\n  }];\n} else {\n  return [{\n    json: {\n      trigger_followup: false,\n      performance: 'satisfactory',\n      current_metrics: {\n        open_rate: analytics.open_rate,\n        click_rate: analytics.click_rate,\n        bounce_rate: analytics.bounce_rate\n      }\n    }\n  }];\n}"
+      },
+      "id": "20123456-7890-1234-5678-9abcdef01234",
+      "name": "Analyze Performance",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.trigger_followup }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "30123456-7890-1234-5678-9abcdef01234",
+      "name": "Should Send Follow-up?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/phase2/optimize-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "performance_data",
+              "value": "={{ $json.current_metrics }}"
+            },
+            {
+              "name": "optimization_focus",
+              "value": "={{ $json.recommended_action }}"
+            },
+            {
+              "name": "campaign_type",
+              "value": "follow_up"
+            }
+          ]
+        }
+      },
+      "id": "40123456-7890-1234-5678-9abcdef01234",
+      "name": "Generate Follow-up Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        620
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Email Campaign Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Subscribed Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Subscribed Contacts": {
+      "main": [
+        [
+          {
+            "node": "Segment Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Segment Contacts": {
+      "main": [
+        [
+          {
+            "node": "Route by Segment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Segment": {
+      "main": [
+        [
+          {
+            "node": "Generate Welcome Emails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Enterprise Demos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Feature Updates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Educational Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Welcome Emails": {
+      "main": [
+        [
+          {
+            "node": "Prepare SendGrid Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Enterprise Demos": {
+      "main": [
+        [
+          {
+            "node": "Prepare SendGrid Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Feature Updates": {
+      "main": [
+        [
+          {
+            "node": "Prepare SendGrid Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Educational Content": {
+      "main": [
+        [
+          {
+            "node": "Prepare SendGrid Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare SendGrid Batch": {
+      "main": [
+        [
+          {
+            "node": "Send via SendGrid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send via SendGrid": {
+      "main": [
+        [
+          {
+            "node": "Log Campaign Metrics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Contact Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Campaign Metrics": {
+      "main": [
+        [
+          {
+            "node": "Store Metrics in Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Email Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Email Analytics": {
+      "main": [
+        [
+          {
+            "node": "Analyze Performance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Performance": {
+      "main": [
+        [
+          {
+            "node": "Should Send Follow-up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Send Follow-up?": {
+      "main": [
+        [
+          {
+            "node": "Generate Follow-up Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-11-25T10:00:00.000Z",
+      "updatedAt": "2024-11-25T10:00:00.000Z",
+      "id": "email_campaigns",
+      "name": "Email Campaigns"
+    },
+    {
+      "createdAt": "2024-11-25T10:00:00.000Z",
+      "updatedAt": "2024-11-25T10:00:00.000Z",
+      "id": "phase2",
+      "name": "Phase 2"
+    },
+    {
+      "createdAt": "2024-11-25T10:00:00.000Z",
+      "updatedAt": "2024-11-25T10:00:00.000Z",
+      "id": "automation",
+      "name": "Marketing Automation"
+    }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "phase2_email_campaign_scheduler",
+  "versionId": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+  "triggerCount": 0,
+  "active": false
+}

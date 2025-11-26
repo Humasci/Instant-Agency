@@ -1,0 +1,746 @@
+{
+  "name": "Cold Email Campaign - Research to Conversion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cold-email-campaign",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "email-webhook-001",
+      "name": "Webhook - Start Email Campaign",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "cold-email-campaign"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/rag-research/search",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{$json.target_company}} {{$json.target_industry}} challenges opportunities recent news\",\n  \"search_depth\": \"deep\",\n  \"sources\": [\"company_website\", \"news\", \"industry_reports\", \"social_media\"],\n  \"max_results\": 15\n}"
+      },
+      "id": "email-research-002",
+      "name": "Step 1 - Deep Company Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase1/prospect-qualification/process",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_name\": \"{{$json.target_name}}\",\n  \"lead_email\": \"{{$json.target_email}}\",\n  \"company\": \"{{$json.target_company}}\",\n  \"industry\": \"{{$json.target_industry}}\",\n  \"job_title\": \"{{$json.target_title}}\",\n  \"qualification_mode\": \"cold_outreach\",\n  \"research_data\": {{JSON.stringify($json.research_results)}}\n}"
+      },
+      "id": "email-qualify-003",
+      "name": "Step 2 - Qualify Prospect",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.qualification_score}}",
+              "operation": "largerEqual",
+              "value2": 60
+            }
+          ]
+        }
+      },
+      "id": "email-qualified-004",
+      "name": "IF Qualified Prospect",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/email-personalizer/personalize",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient_info\": {\n    \"name\": \"{{$json.target_name}}\",\n    \"title\": \"{{$json.target_title}}\",\n    \"company\": \"{{$json.target_company}}\",\n    \"industry\": \"{{$json.target_industry}}\"\n  },\n  \"research_insights\": {{JSON.stringify($json.research_results)}},\n  \"email_template\": \"cold_outreach_initial\",\n  \"personalization_level\": \"high\",\n  \"call_to_action\": \"schedule_brief_call\",\n  \"value_proposition\": true\n}"
+      },
+      "id": "email-personalize-005",
+      "name": "Step 3 - Create Personalized Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/validate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{$json.target_email}}\",\n  \"check_deliverability\": true,\n  \"check_format\": true\n}"
+      },
+      "id": "email-validate-006",
+      "name": "Step 4 - Validate Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.is_valid && $json.is_deliverable}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "email-valid-007",
+      "name": "IF Email Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"name\": [{\n        \"first_name\": \"{{$json.target_name.split(' ')[0]}}\",\n        \"last_name\": \"{{$json.target_name.split(' ').slice(1).join(' ')}}\"\n      }],\n      \"email_addresses\": [{\n        \"email_address\": \"{{$json.target_email}}\"\n      }],\n      \"company_name\": [{\n        \"value\": \"{{$json.target_company}}\"\n      }],\n      \"job_title\": [{\n        \"value\": \"{{$json.target_title}}\"\n      }],\n      \"source\": [{\n        \"option\": \"cold_email\"\n      }],\n      \"lead_score\": [{\n        \"number\": {{$json.qualification_score}}\n      }],\n      \"outreach_status\": [{\n        \"option\": \"email_sequence_started\"\n      }]\n    }\n  }\n}"
+      },
+      "id": "email-crm-008",
+      "name": "Step 5 - Create CRM Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1780, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.target_email}}\",\n  \"subject\": \"{{$json.personalized_email.subject}}\",\n  \"html_content\": \"{{$json.personalized_email.html_content}}\",\n  \"text_content\": \"{{$json.personalized_email.text_content}}\",\n  \"campaign_type\": \"cold_outreach\",\n  \"sequence_step\": 1,\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"personalization_data\": {\n    \"name\": \"{{$json.target_name.split(' ')[0]}}\",\n    \"company\": \"{{$json.target_company}}\",\n    \"title\": \"{{$json.target_title}}\"\n  },\n  \"tracking_enabled\": true\n}"
+      },
+      "id": "email-send-009",
+      "name": "Step 6 - Send Initial Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2000, 100]
+    },
+    {
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "id": "email-wait-010",
+      "name": "Wait 48 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2220, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/check-engagement",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email_id\": \"{{$json.email_send_id}}\",\n  \"recipient_email\": \"{{$json.target_email}}\"\n}"
+      },
+      "id": "email-check-011",
+      "name": "Step 7 - Check Email Engagement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2440, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.opened || $json.clicked}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "email-engaged-012",
+      "name": "IF Email Engaged",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2660, 100]
+    },
+    {
+      "parameters": {
+        "amount": 72,
+        "unit": "hours"
+      },
+      "id": "email-wait2-013",
+      "name": "Wait 72 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2880, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/email-personalizer/personalize",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient_info\": {\n    \"name\": \"{{$json.target_name}}\",\n    \"title\": \"{{$json.target_title}}\",\n    \"company\": \"{{$json.target_company}}\"\n  },\n  \"email_template\": \"cold_outreach_follow_up_1\",\n  \"previous_email_data\": {\n    \"opened\": {{$json.opened}},\n    \"clicked\": {{$json.clicked}},\n    \"subject\": \"{{$json.personalized_email.subject}}\"\n  },\n  \"call_to_action\": \"specific_value_offer\",\n  \"sequence_step\": 2\n}"
+      },
+      "id": "email-followup1-014",
+      "name": "Step 8 - Create Follow-up 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3100, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.target_email}}\",\n  \"subject\": \"{{$json.followup_email.subject}}\",\n  \"html_content\": \"{{$json.followup_email.html_content}}\",\n  \"text_content\": \"{{$json.followup_email.text_content}}\",\n  \"campaign_type\": \"cold_outreach\",\n  \"sequence_step\": 2,\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"tracking_enabled\": true\n}"
+      },
+      "id": "email-send-followup1-015",
+      "name": "Step 9 - Send Follow-up 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3320, 0]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "days"
+      },
+      "id": "email-wait3-016",
+      "name": "Wait 5 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3540, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/check-engagement",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email_id\": \"{{$json.followup_send_id}}\",\n  \"recipient_email\": \"{{$json.target_email}}\"\n}"
+      },
+      "id": "email-check2-017",
+      "name": "Step 10 - Check Follow-up Engagement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3760, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.replied}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "email-replied-018",
+      "name": "IF Replied",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3980, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/intent-classifier/classify",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"{{$json.reply_content}}\",\n  \"context\": \"cold_email_response\"\n}"
+      },
+      "id": "email-classify-019",
+      "name": "Step 11 - Classify Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4200, -100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.intent}}",
+              "operation": "equals",
+              "value2": "interested"
+            }
+          ]
+        }
+      },
+      "id": "email-interested-020",
+      "name": "IF Interested",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [4420, -100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/journey-automation/start-journey",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"journey_name\": \"qualified_lead_nurturing\",\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"trigger_data\": {\n    \"source\": \"cold_email_response\",\n    \"interest_level\": \"high\",\n    \"response_content\": \"{{$json.reply_content}}\"\n  }\n}"
+      },
+      "id": "email-journey-021",
+      "name": "Step 12 - Start Sales Journey",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4640, -200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/email-personalizer/personalize",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient_info\": {\n    \"name\": \"{{$json.target_name}}\",\n    \"company\": \"{{$json.target_company}}\"\n  },\n  \"email_template\": \"cold_outreach_final_value\",\n  \"sequence_step\": 3,\n  \"call_to_action\": \"free_resource_offer\",\n  \"no_pressure_approach\": true\n}"
+      },
+      "id": "email-final-022",
+      "name": "Create Final Value Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3980, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.target_email}}\",\n  \"subject\": \"{{$json.final_email.subject}}\",\n  \"html_content\": \"{{$json.final_email.html_content}}\",\n  \"campaign_type\": \"cold_outreach\",\n  \"sequence_step\": 3,\n  \"lead_id\": \"{{$json.crm_record_id}}\"\n}"
+      },
+      "id": "email-send-final-023",
+      "name": "Send Final Value Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4200, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.target_email}}\",\n  \"template_name\": \"nurture_sequence_start\",\n  \"campaign_type\": \"nurture_sequence\",\n  \"lead_id\": \"{{$json.crm_record_id}}\"\n}"
+      },
+      "id": "email-nurture-024",
+      "name": "Start Nurture Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2880, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records/{{$json.crm_record_id}}",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"outreach_status\": [{\n        \"option\": \"qualified_lead\"\n      }],\n      \"lifecycle_stage\": [{\n        \"option\": \"opportunity\"\n      }],\n      \"lead_score\": [{\n        \"number\": {{($json.lead_score || 0) + 25}}\n      }]\n    }\n  }\n}"
+      },
+      "id": "email-update-crm-025",
+      "name": "Update CRM Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4640, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"cold_email_campaign_completed\",\n  \"outcome\": \"{{$json.final_outcome || 'sequence_completed'}}\",\n  \"target\": {\n    \"name\": \"{{$json.target_name}}\",\n    \"email\": \"{{$json.target_email}}\",\n    \"company\": \"{{$json.target_company}}\"\n  },\n  \"crm_record_id\": \"{{$json.crm_record_id}}\",\n  \"campaign_metrics\": {\n    \"emails_sent\": \"{{$json.emails_sent_count}}\",\n    \"opens\": \"{{$json.total_opens}}\",\n    \"clicks\": \"{{$json.total_clicks}}\",\n    \"replies\": \"{{$json.total_replies}}\",\n    \"qualified\": \"{{$json.qualified || false}}\",\n    \"journey_started\": \"{{$json.journey_started || false}}\"\n  }\n}"
+      },
+      "id": "email-complete-026",
+      "name": "Campaign Complete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [4860, -200]
+    }
+  ],
+  "connections": {
+    "Webhook - Start Email Campaign": {
+      "main": [
+        [
+          {
+            "node": "Step 1 - Deep Company Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 1 - Deep Company Research": {
+      "main": [
+        [
+          {
+            "node": "Step 2 - Qualify Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 2 - Qualify Prospect": {
+      "main": [
+        [
+          {
+            "node": "IF Qualified Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Qualified Prospect": {
+      "main": [
+        [
+          {
+            "node": "Step 3 - Create Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 3 - Create Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Step 4 - Validate Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 4 - Validate Email": {
+      "main": [
+        [
+          {
+            "node": "IF Email Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Email Valid": {
+      "main": [
+        [
+          {
+            "node": "Step 5 - Create CRM Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 5 - Create CRM Record": {
+      "main": [
+        [
+          {
+            "node": "Step 6 - Send Initial Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 6 - Send Initial Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 48 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 7 - Check Email Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 7 - Check Email Engagement": {
+      "main": [
+        [
+          {
+            "node": "IF Email Engaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Email Engaged": {
+      "main": [
+        [
+          {
+            "node": "Wait 72 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Nurture Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 72 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 8 - Create Follow-up 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 8 - Create Follow-up 1": {
+      "main": [
+        [
+          {
+            "node": "Step 9 - Send Follow-up 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 9 - Send Follow-up 1": {
+      "main": [
+        [
+          {
+            "node": "Wait 5 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5 Days": {
+      "main": [
+        [
+          {
+            "node": "Step 10 - Check Follow-up Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 10 - Check Follow-up Engagement": {
+      "main": [
+        [
+          {
+            "node": "IF Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Replied": {
+      "main": [
+        [
+          {
+            "node": "Step 11 - Classify Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Final Value Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 11 - Classify Response": {
+      "main": [
+        [
+          {
+            "node": "IF Interested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Interested": {
+      "main": [
+        [
+          {
+            "node": "Step 12 - Start Sales Journey",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update CRM Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 12 - Start Sales Journey": {
+      "main": [
+        [
+          {
+            "node": "Campaign Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Final Value Email": {
+      "main": [
+        [
+          {
+            "node": "Send Final Value Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CRM Status": {
+      "main": [
+        [
+          {
+            "node": "Campaign Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-11-25T19:00:00.000Z",
+      "updatedAt": "2024-11-25T19:00:00.000Z",
+      "id": "outreach",
+      "name": "Outreach"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-11-25T19:00:00.000Z",
+  "versionId": "1"
+}

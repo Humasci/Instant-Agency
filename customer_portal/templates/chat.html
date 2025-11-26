@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant - SIX3 Agency Customer Portal{% endblock %}
+
+{% block head %}
+<style>
+.chat-container {
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.message {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.assistant {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.message.user .message-content {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.assistant .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+    font-size: 18px;
+}
+
+.message.user .message-avatar {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    order: 1;
+}
+
+.message.assistant .message-avatar {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+    color: white;
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.typing-dots {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6c757d;
+    margin: 0 2px;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+.chat-input-area {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+.quick-actions {
+    margin-bottom: 15px;
+}
+
+.quick-action-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 2px;
+    border-radius: 20px;
+}
+
+.message-timestamp {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #007bff, #6f42c1);
+    color: white;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.chat-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.chat-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="chat-section py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">
+                                    <i class="fas fa-robot me-2"></i>
+                                    SIX3 AI Assistant
+                                </h4>
+                                <p class="mb-0 opacity-75">Powered by advanced AI • Available 24/7</p>
+                            </div>
+                            <div class="chat-stats">
+                                <div class="chat-stat">
+                                    <i class="fas fa-comments"></i>
+                                    <span>{{ session_count }} sessions</span>
+                                </div>
+                                <div class="chat-stat">
+                                    <i class="fas fa-clock"></i>
+                                    <span id="session-time">00:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Container -->
+                    <div class="chat-container">
+                        <!-- Chat Messages -->
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Welcome Message -->
+                            <div class="message assistant">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div>
+                                        Hello {{ user.first_name }}! 👋 I'm your SIX3 AI Assistant. I can help you with:
+                                        <ul class="mb-2 mt-2">
+                                            <li>Account questions and settings</li>
+                                            <li>Service performance insights</li>
+                                            <li>Workflow optimization tips</li>
+                                            <li>Technical troubleshooting</li>
+                                            <li>Best practices and tutorials</li>
+                                        </ul>
+                                        What would you like to know about today?
+                                    </div>
+                                    <div class="message-timestamp">
+                                        Just now
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Previous messages will be loaded here -->
+                            {% for message in chat_history %}
+                            <div class="message {{ 'user' if message.role == 'user' else 'assistant' }}">
+                                <div class="message-avatar">
+                                    {% if message.role == 'user' %}
+                                        <i class="fas fa-user"></i>
+                                    {% else %}
+                                        <i class="fas fa-robot"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="message-content">
+                                    <div>{{ message.content }}</div>
+                                    <div class="message-timestamp">
+                                        {{ message.created_at.strftime('%I:%M %p') }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            <!-- Typing Indicator -->
+                            <div class="typing-indicator" id="typing-indicator">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="typing-dots">
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="chat-input-area">
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <small class="text-muted">Quick actions:</small><br>
+                                <button class="btn btn-outline-primary quick-action-btn" onclick="sendQuickMessage('Show my dashboard metrics')">
+                                    📊 Dashboard Metrics
+                                </button>
+                                <button class="btn btn-outline-success quick-action-btn" onclick="sendQuickMessage('How do I create a new campaign?')">
+                                    🚀 Create Campaign
+                                </button>
+                                <button class="btn btn-outline-info quick-action-btn" onclick="sendQuickMessage('Explain my health score')">
+                                    💚 Health Score
+                                </button>
+                                <button class="btn btn-outline-warning quick-action-btn" onclick="sendQuickMessage('Show integration status')">
+                                    🔌 Integrations
+                                </button>
+                                <button class="btn btn-outline-danger quick-action-btn" onclick="sendQuickMessage('I need technical support')">
+                                    🆘 Tech Support
+                                </button>
+                            </div>
+                            
+                            <!-- Message Input -->
+                            <form id="chat-form" class="d-flex gap-2">
+                                <input type="text" id="message-input" class="form-control form-control-lg" 
+                                       placeholder="Type your message..." autocomplete="off" maxlength="1000">
+                                <button type="submit" class="btn btn-primary btn-lg" id="send-button">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                            
+                            <!-- Features Info -->
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    I can access your account data, service metrics, and knowledge base to provide personalized assistance.
+                                    <a href="/privacy" class="text-decoration-none">Privacy Policy</a>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Features -->
+                <div class="row mt-4 g-3">
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-brain fa-2x text-primary mb-2"></i>
+                        <h6>Intelligent</h6>
+                        <small class="text-muted">Learns from your data</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                        <h6>24/7 Available</h6>
+                        <small class="text-muted">Always ready to help</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+                        <h6>Secure</h6>
+                        <small class="text-muted">Enterprise-grade security</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <i class="fas fa-rocket fa-2x text-warning mb-2"></i>
+                        <h6>Fast Response</h6>
+                        <small class="text-muted">Instant answers</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let sessionStartTime = new Date();
+let sessionTimer;
+
+// Initialize chat
+document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+    startSessionTimer();
+    focusMessageInput();
+});
+
+// Session timer
+function startSessionTimer() {
+    sessionTimer = setInterval(() => {
+        const now = new Date();
+        const elapsed = Math.floor((now - sessionStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('session-time').textContent = `${minutes}:${seconds}`;
+    }, 1000);
+}
+
+// Chat form submission
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const input = document.getElementById('message-input');
+    const message = input.value.trim();
+    
+    if (message) {
+        sendMessage(message);
+        input.value = '';
+    }
+});
+
+// Send message function
+function sendMessage(message) {
+    // Add user message to chat
+    addMessage(message, 'user');
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Disable input while processing
+    setInputDisabled(true);
+    
+    // Send to API
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: message,
+            session_id: '{{ session_id }}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        addMessage(data.response, 'assistant');
+        setInputDisabled(false);
+        focusMessageInput();
+    })
+    .catch(error => {
+        hideTypingIndicator();
+        addMessage('Sorry, I encountered an error. Please try again or contact support.', 'assistant');
+        setInputDisabled(false);
+        focusMessageInput();
+        console.error('Chat error:', error);
+    });
+}
+
+// Add message to chat
+function addMessage(content, role) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-${role === 'user' ? 'user' : 'robot'}"></i>
+        </div>
+        <div class="message-content">
+            <div>${content}</div>
+            <div class="message-timestamp">${timestamp}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// Quick message function
+function sendQuickMessage(message) {
+    document.getElementById('message-input').value = message;
+    sendMessage(message);
+}
+
+// Utility functions
+function showTypingIndicator() {
+    document.getElementById('typing-indicator').style.display = 'flex';
+    scrollToBottom();
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typing-indicator').style.display = 'none';
+}
+
+function setInputDisabled(disabled) {
+    document.getElementById('message-input').disabled = disabled;
+    document.getElementById('send-button').disabled = disabled;
+}
+
+function focusMessageInput() {
+    document.getElementById('message-input').focus();
+}
+
+function scrollToBottom() {
+    const messagesContainer = document.getElementById('chat-messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Auto-resize input
+document.getElementById('message-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+    }
+});
+
+// Cleanup timer on page unload
+window.addEventListener('beforeunload', function() {
+    if (sessionTimer) {
+        clearInterval(sessionTimer);
+    }
+});
+
+// Auto-save chat session every 30 seconds
+setInterval(() => {
+    const messages = document.querySelectorAll('.message');
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.classList.contains('user')) {
+        fetch('/api/chat/save-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_id: '{{ session_id }}'
+            })
+        });
+    }
+}, 30000);
+</script>
+{% endblock %}

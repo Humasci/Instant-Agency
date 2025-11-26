@@ -1,0 +1,492 @@
+/* SIX3 Agency Customer Portal - Custom Styles */
+
+/* Color Variables */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6f42c1;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --purple-color: #6f42c1;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #007bff, #0056b3);
+    --gradient-secondary: linear-gradient(135deg, #6f42c1, #e83e8c);
+    --gradient-success: linear-gradient(135deg, #28a745, #20c997);
+    --gradient-hero: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.3s ease;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* Custom Bootstrap Overrides */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+}
+
+.btn-success {
+    background: var(--gradient-success);
+    border: none;
+}
+
+.btn-outline-primary:hover {
+    background: var(--gradient-primary);
+    border-color: transparent;
+}
+
+.card {
+    border-radius: 12px;
+    transition: all var(--transition-smooth);
+    border: 1px solid #e9ecef;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Navbar Enhancements */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    transition: all var(--transition-fast);
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    margin: 0 0.25rem;
+    border-radius: 6px;
+    transition: all var(--transition-fast);
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Hero Section */
+.hero-section {
+    background: var(--gradient-hero);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="500" cy="500" r="400" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="500" cy="500" r="300" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>') center/cover;
+    opacity: 0.3;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Feature Cards */
+.feature-icon i {
+    transition: all var(--transition-smooth);
+}
+
+.card:hover .feature-icon i {
+    transform: scale(1.1);
+}
+
+/* Dashboard Metrics */
+.metric-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    background: rgba(0, 123, 255, 0.1);
+    transition: all var(--transition-smooth);
+}
+
+.card:hover .metric-icon {
+    background: rgba(0, 123, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Activity Feed */
+.activity-feed {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    transition: all var(--transition-fast);
+}
+
+.activity-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+/* Quick Actions */
+.quick-action-card {
+    transition: all var(--transition-smooth);
+    cursor: pointer;
+}
+
+.quick-action-card:hover {
+    background: var(--gradient-primary);
+    color: white !important;
+    text-decoration: none;
+    transform: translateY(-3px) scale(1.02);
+}
+
+.quick-action-card:hover i {
+    color: white !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Service Status */
+.service-item {
+    transition: all var(--transition-fast);
+    padding: 0.75rem 0;
+}
+
+.service-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    border-radius: 8px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Badge Enhancements */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+    border-radius: 6px;
+}
+
+.bg-success-subtle {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.bg-primary-subtle {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+.bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.bg-info-subtle {
+    background-color: rgba(23, 162, 184, 0.1) !important;
+}
+
+.text-purple {
+    color: var(--purple-color) !important;
+}
+
+/* Form Enhancements */
+.form-floating > label {
+    color: #6c757d;
+}
+
+.form-floating > .form-control:focus ~ label {
+    color: var(--primary-color);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 1000;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Video Tutorials */
+.video-card {
+    transition: all var(--transition-smooth);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+}
+
+.video-thumbnail {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.play-overlay {
+    opacity: 0;
+    transition: all var(--transition-fast);
+}
+
+.video-card:hover .play-overlay {
+    opacity: 1;
+}
+
+.video-duration {
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* Category Cards */
+.category-card {
+    transition: all var(--transition-smooth);
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color) !important;
+}
+
+.category-card:hover h6 {
+    color: var(--primary-color) !important;
+}
+
+/* Article Items */
+.article-item {
+    transition: all var(--transition-fast);
+    border-radius: 8px;
+}
+
+.article-item:hover {
+    border-color: var(--primary-color) !important;
+    background-color: rgba(0, 123, 255, 0.02);
+    transform: translateX(5px);
+}
+
+/* Search Enhancements */
+.search-box .form-control {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.search-box .btn {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Notification Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    position: relative;
+    padding: 1rem 1.5rem;
+}
+
+.alert-primary {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+    color: var(--primary-color);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+    color: var(--success-color);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+    color: var(--danger-color);
+}
+
+/* Footer Enhancements */
+footer {
+    background: linear-gradient(135deg, #343a40, #495057) !important;
+}
+
+footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+footer a:hover {
+    color: white;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .quick-action-card {
+        margin-bottom: 1rem;
+    }
+    
+    .metric-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .chat-container {
+        height: 60vh;
+    }
+    
+    .message-content {
+        max-width: 90%;
+    }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1a1a1a;
+        --text-color: #e9ecef;
+        --card-bg: #2d3748;
+    }
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+/* Print styles */
+@media print {
+    .navbar, .footer, .btn, .quick-actions {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+    }
+}
+
+/* Accessibility improvements */
+.btn:focus,
+.form-control:focus,
+.nav-link:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid #000;
+    }
+    
+    .btn {
+        border: 2px solid;
+    }
+}

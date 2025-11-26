@@ -1,0 +1,804 @@
+{
+  "name": "Content-Driven Lead Generation - Publish to Convert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-lead-gen",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "content-webhook-001",
+      "name": "Webhook - Content Lead Gen Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "content-lead-gen"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/seo-optimizer/research",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"primary_keyword\": \"{{$json.target_keyword}}\",\n  \"industry\": \"{{$json.target_industry}}\",\n  \"content_type\": \"{{$json.content_type || 'blog_post'}}\",\n  \"competitor_analysis\": true,\n  \"search_volume_analysis\": true\n}"
+      },
+      "id": "content-seo-002",
+      "name": "Step 1 - SEO Keyword Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"{{$json.content_type || 'blog_post'}}\",\n  \"primary_keyword\": \"{{$json.target_keyword}}\",\n  \"secondary_keywords\": {{JSON.stringify($json.seo_research.related_keywords)}},\n  \"target_audience\": \"{{$json.target_audience}}\",\n  \"industry\": \"{{$json.target_industry}}\",\n  \"content_goals\": [\"lead_generation\", \"seo_ranking\", \"brand_authority\"],\n  \"word_count\": {{$json.word_count || 1500}},\n  \"tone\": \"{{$json.tone || 'professional_engaging'}}\",\n  \"include_cta\": true,\n  \"lead_magnet_offer\": \"{{$json.lead_magnet_title}}\"\n}"
+      },
+      "id": "content-writer-003",
+      "name": "Step 2 - Generate SEO Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/social-media/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"platforms\": [\"linkedin\", \"twitter\", \"facebook\"],\n  \"content_source\": {\n    \"type\": \"blog_post\",\n    \"title\": \"{{$json.blog_content.title}}\",\n    \"summary\": \"{{$json.blog_content.summary}}\",\n    \"key_points\": {{JSON.stringify($json.blog_content.key_points)}}\n  },\n  \"objective\": \"drive_traffic_to_content\",\n  \"include_hashtags\": true,\n  \"content_url\": \"{{$json.content_url}}\"\n}"
+      },
+      "id": "content-social-004",
+      "name": "Step 3 - Create Social Promotion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.CMS_API_URL}}/posts",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.CMS_API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{$json.blog_content.title}}\",\n  \"content\": \"{{$json.blog_content.html_content}}\",\n  \"excerpt\": \"{{$json.blog_content.summary}}\",\n  \"seo_title\": \"{{$json.blog_content.seo_title}}\",\n  \"meta_description\": \"{{$json.blog_content.meta_description}}\",\n  \"keywords\": {{JSON.stringify($json.blog_content.keywords)}},\n  \"status\": \"published\",\n  \"category\": \"{{$json.content_category}}\",\n  \"lead_magnet\": {\n    \"title\": \"{{$json.lead_magnet_title}}\",\n    \"description\": \"{{$json.lead_magnet_description}}\",\n    \"form_id\": \"{{$json.lead_form_id}}\"\n  }\n}"
+      },
+      "id": "content-publish-005",
+      "name": "Step 4 - Publish to Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      },
+      "id": "content-wait-006",
+      "name": "Wait 1 Hour",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/shares",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": {\n    \"contentEntities\": [{\n      \"entityLocation\": \"{{$json.published_url}}\",\n      \"thumbnails\": [{\n        \"resolvedUrl\": \"{{$json.featured_image_url}}\"\n      }]\n    }],\n    \"title\": \"{{$json.social_content.linkedin.title}}\",\n    \"description\": \"{{$json.social_content.linkedin.description}}\"\n  },\n  \"distribution\": {\n    \"linkedInDistributionTarget\": {\n      \"visibleToGuest\": true\n    }\n  },\n  \"text\": {\n    \"text\": \"{{$json.social_content.linkedin.post_text}}\"\n  }\n}"
+      },
+      "id": "content-linkedin-007",
+      "name": "Step 5 - Post to LinkedIn",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.TWITTER_API_URL}}/2/tweets",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.TWITTER_BEARER_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"{{$json.social_content.twitter.post_text}}\"\n}"
+      },
+      "id": "content-twitter-008",
+      "name": "Step 6 - Post to Twitter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "content-wait2-009",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ANALYTICS_API_URL}}/content-performance",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.ANALYTICS_API_TOKEN}}"
+          }
+        },
+        "qs": {
+          "url": "{{$json.published_url}}",
+          "timeframe": "24h"
+        }
+      },
+      "id": "content-analytics-010",
+      "name": "Step 7 - Check Content Performance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.CMS_API_URL}}/leads",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.CMS_API_TOKEN}}"
+          }
+        },
+        "qs": {
+          "source_url": "{{$json.published_url}}",
+          "timeframe": "24h"
+        }
+      },
+      "id": "content-leads-011",
+      "name": "Step 8 - Check Lead Captures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.new_leads_count}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "content-has-leads-012",
+      "name": "IF New Leads Captured",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2660, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "content-loop-leads-013",
+      "name": "Loop Through New Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [2880, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase1/prospect-qualification/process",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_name\": \"{{$json.name}}\",\n  \"lead_email\": \"{{$json.email}}\",\n  \"company\": \"{{$json.company}}\",\n  \"industry\": \"{{$json.industry}}\",\n  \"job_title\": \"{{$json.job_title}}\",\n  \"source\": \"content_download\",\n  \"content_engaged\": \"{{$json.downloaded_content}}\",\n  \"lead_magnet\": \"{{$json.lead_magnet_title}}\"\n}"
+      },
+      "id": "content-qualify-014",
+      "name": "Step 9 - Qualify Content Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3100, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.qualification_score}}",
+              "operation": "largerEqual",
+              "value2": 65
+            }
+          ]
+        }
+      },
+      "id": "content-qualified-015",
+      "name": "IF Qualified Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3320, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"name\": [{\n        \"first_name\": \"{{$json.name.split(' ')[0]}}\",\n        \"last_name\": \"{{$json.name.split(' ').slice(1).join(' ')}}\"\n      }],\n      \"email_addresses\": [{\n        \"email_address\": \"{{$json.email}}\"\n      }],\n      \"company_name\": [{\n        \"value\": \"{{$json.company}}\"\n      }],\n      \"job_title\": [{\n        \"value\": \"{{$json.job_title}}\"\n      }],\n      \"source\": [{\n        \"option\": \"content_marketing\"\n      }],\n      \"lead_score\": [{\n        \"number\": {{$json.qualification_score}}\n      }],\n      \"content_engagement\": [{\n        \"value\": \"{{$json.downloaded_content}}\"\n      }],\n      \"lifecycle_stage\": [{\n        \"option\": \"marketing_qualified_lead\"\n      }]\n    }\n  }\n}"
+      },
+      "id": "content-crm-016",
+      "name": "Step 10 - Add to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3540, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/email-personalizer/personalize",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient_info\": {\n    \"name\": \"{{$json.name}}\",\n    \"company\": \"{{$json.company}}\",\n    \"job_title\": \"{{$json.job_title}}\"\n  },\n  \"email_template\": \"content_follow_up\",\n  \"context\": {\n    \"downloaded_content\": \"{{$json.downloaded_content}}\",\n    \"content_topic\": \"{{$json.target_keyword}}\",\n    \"lead_score\": {{$json.qualification_score}}\n  },\n  \"call_to_action\": \"schedule_consultation\",\n  \"personalization_level\": \"high\"\n}"
+      },
+      "id": "content-email-017",
+      "name": "Step 11 - Create Follow-up Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3760, 100]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "hours"
+      },
+      "id": "content-email-wait-018",
+      "name": "Wait 2 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3980, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.email}}\",\n  \"subject\": \"{{$json.follow_up_email.subject}}\",\n  \"html_content\": \"{{$json.follow_up_email.html_content}}\",\n  \"text_content\": \"{{$json.follow_up_email.text_content}}\",\n  \"campaign_type\": \"content_follow_up\",\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"personalization_data\": {\n    \"name\": \"{{$json.name.split(' ')[0]}}\",\n    \"content_downloaded\": \"{{$json.downloaded_content}}\"\n  }\n}"
+      },
+      "id": "content-send-email-019",
+      "name": "Step 12 - Send Follow-up Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4200, 100]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "content-nurture-wait-020",
+      "name": "Wait 1 Week",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [4420, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/check-engagement",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email_id\": \"{{$json.email_send_id}}\",\n  \"recipient_email\": \"{{$json.email}}\"\n}"
+      },
+      "id": "content-check-engagement-021",
+      "name": "Step 13 - Check Email Engagement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4640, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.engaged}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "content-engaged-022",
+      "name": "IF Engaged",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [4860, 100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/journey-automation/start-journey",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"journey_name\": \"content_qualified_lead_nurturing\",\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"trigger_data\": {\n    \"source\": \"content_engagement\",\n    \"content_topic\": \"{{$json.target_keyword}}\",\n    \"engagement_level\": \"high\",\n    \"lead_score\": {{$json.qualification_score}}\n  }\n}"
+      },
+      "id": "content-journey-023",
+      "name": "Step 14 - Start Sales Journey",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [5080, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.email}}\",\n  \"template_name\": \"content_nurture_sequence\",\n  \"campaign_type\": \"nurture_sequence\",\n  \"lead_id\": \"{{$json.crm_record_id}}\"\n}"
+      },
+      "id": "content-nurture-024",
+      "name": "Start Long-term Nurture",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [5080, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.email}}\",\n  \"template_name\": \"content_unqualified_nurture\",\n  \"campaign_type\": \"nurture_sequence\",\n  \"lead_score\": {{$json.qualification_score}}\n}"
+      },
+      "id": "content-unqualified-nurture-025",
+      "name": "Start Unqualified Nurture",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3540, 300]
+    },
+    {
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "id": "content-boost-wait-026",
+      "name": "Wait 48 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2880, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.page_views}}",
+              "operation": "smaller",
+              "value2": 100
+            }
+          ]
+        }
+      },
+      "id": "content-low-traffic-027",
+      "name": "IF Low Traffic",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3100, 400]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.FACEBOOK_API_URL}}/ads",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.FACEBOOK_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"Content Boost - {{$json.blog_content.title}}\",\n  \"objective\": \"TRAFFIC\",\n  \"targeting\": {\n    \"interests\": {{JSON.stringify($json.target_interests)}},\n    \"job_titles\": {{JSON.stringify($json.target_job_titles)}}\n  },\n  \"creative\": {\n    \"title\": \"{{$json.social_content.facebook.title}}\",\n    \"body\": \"{{$json.social_content.facebook.description}}\",\n    \"image_url\": \"{{$json.featured_image_url}}\",\n    \"link_url\": \"{{$json.published_url}}\"\n  },\n  \"budget\": {{$json.boost_budget || 50}},\n  \"duration_days\": 3\n}"
+      },
+      "id": "content-boost-028",
+      "name": "Create Social Media Boost",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3320, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"content_lead_gen_completed\",\n  \"content_url\": \"{{$json.published_url}}\",\n  \"performance_metrics\": {\n    \"page_views\": \"{{$json.page_views}}\",\n    \"social_shares\": \"{{$json.social_shares}}\",\n    \"leads_captured\": \"{{$json.new_leads_count}}\",\n    \"qualified_leads\": \"{{$json.qualified_leads_count}}\",\n    \"journeys_started\": \"{{$json.journeys_started}}\"\n  },\n  \"content_details\": {\n    \"title\": \"{{$json.blog_content.title}}\",\n    \"target_keyword\": \"{{$json.target_keyword}}\",\n    \"word_count\": \"{{$json.blog_content.word_count}}\",\n    \"seo_score\": \"{{$json.seo_research.optimization_score}}\"\n  }\n}"
+      },
+      "id": "content-complete-029",
+      "name": "Content Campaign Complete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [5300, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Content Lead Gen Trigger": {
+      "main": [
+        [
+          {
+            "node": "Step 1 - SEO Keyword Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 1 - SEO Keyword Research": {
+      "main": [
+        [
+          {
+            "node": "Step 2 - Generate SEO Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 2 - Generate SEO Content": {
+      "main": [
+        [
+          {
+            "node": "Step 3 - Create Social Promotion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 3 - Create Social Promotion": {
+      "main": [
+        [
+          {
+            "node": "Step 4 - Publish to Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 4 - Publish to Website": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Hour": {
+      "main": [
+        [
+          {
+            "node": "Step 5 - Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 5 - Post to LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Step 6 - Post to Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 6 - Post to Twitter": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 7 - Check Content Performance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 7 - Check Content Performance": {
+      "main": [
+        [
+          {
+            "node": "Step 8 - Check Lead Captures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 8 - Check Lead Captures": {
+      "main": [
+        [
+          {
+            "node": "IF New Leads Captured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF New Leads Captured": {
+      "main": [
+        [
+          {
+            "node": "Loop Through New Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 48 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through New Leads": {
+      "main": [
+        [
+          {
+            "node": "Step 9 - Qualify Content Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 9 - Qualify Content Lead": {
+      "main": [
+        [
+          {
+            "node": "IF Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Step 10 - Add to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Unqualified Nurture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 10 - Add to CRM": {
+      "main": [
+        [
+          {
+            "node": "Step 11 - Create Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 11 - Create Follow-up Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 12 - Send Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 12 - Send Follow-up Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Week": {
+      "main": [
+        [
+          {
+            "node": "Step 13 - Check Email Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 13 - Check Email Engagement": {
+      "main": [
+        [
+          {
+            "node": "IF Engaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Engaged": {
+      "main": [
+        [
+          {
+            "node": "Step 14 - Start Sales Journey",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Long-term Nurture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 14 - Start Sales Journey": {
+      "main": [
+        [
+          {
+            "node": "Content Campaign Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48 Hours": {
+      "main": [
+        [
+          {
+            "node": "IF Low Traffic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Low Traffic": {
+      "main": [
+        [
+          {
+            "node": "Create Social Media Boost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-11-25T19:00:00.000Z",
+      "updatedAt": "2024-11-25T19:00:00.000Z",
+      "id": "content",
+      "name": "Content Marketing"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-11-25T19:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,340 @@
+{
+  "name": "Sales Pipeline Dashboard",
+  "description": "Sales performance and pipeline analytics",
+  "parameters": [
+    {
+      "id": "time_period",
+      "name": "Time Period",
+      "type": "date/range",
+      "default": "past30days"
+    },
+    {
+      "id": "pipeline_stage",
+      "name": "Pipeline Stage",
+      "type": "category",
+      "values": ["Discovery", "Qualification", "Proposal", "Negotiation", "Closing"]
+    },
+    {
+      "id": "lead_source",
+      "name": "Lead Source",
+      "type": "category",
+      "values_source_type": "card",
+      "values_source_config": {
+        "card_id": null,
+        "value_field": "source"
+      }
+    }
+  ],
+  "cards": [
+    {
+      "name": "Total Pipeline Value",
+      "description": "Total value of all opportunities in pipeline",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COALESCE(SUM(deal_value), 0) as total_pipeline\nFROM crm_data \nWHERE status NOT IN ('closed_won', 'closed_lost')\n  AND ({{pipeline_stage}} IS NULL OR pipeline_stage = {{pipeline_stage}})\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\n  AND created_at >= [[{{time_period}}]]",
+          "template-tags": {
+            "time_period": {
+              "id": "time_period",
+              "name": "time_period",
+              "display-name": "Time Period",
+              "type": "dimension"
+            },
+            "pipeline_stage": {
+              "id": "pipeline_stage",
+              "name": "pipeline_stage",
+              "display-name": "Pipeline Stage",
+              "type": "dimension"
+            },
+            "lead_source": {
+              "id": "lead_source",
+              "name": "lead_source",
+              "display-name": "Lead Source",
+              "type": "dimension"
+            }
+          }
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.prefix": "$",
+        "scalar.decimals": 0
+      }
+    },
+    {
+      "name": "Qualified Leads This Month",
+      "description": "Number of qualified leads generated this month",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COUNT(*) as qualified_leads\nFROM crm_data \nWHERE lead_score >= 70 \n  AND created_at >= DATE_TRUNC('month', NOW())\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})"
+        }
+      },
+      "display": "scalar"
+    },
+    {
+      "name": "Conversion Rate",
+      "description": "Lead to customer conversion rate",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    ROUND(\n        (COUNT(CASE WHEN status = 'closed_won' THEN 1 END) * 100.0 / \n         NULLIF(COUNT(*), 0))::numeric, 2\n    ) as conversion_rate\nFROM crm_data \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})"
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.suffix": "%"
+      }
+    },
+    {
+      "name": "Average Deal Size",
+      "description": "Average value of closed-won deals",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT ROUND(AVG(deal_value)::numeric, 0) as avg_deal_size\nFROM crm_data \nWHERE status = 'closed_won' \n  AND created_at >= [[{{time_period}}]]\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})"
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.prefix": "$"
+      }
+    },
+    {
+      "name": "Pipeline by Stage",
+      "description": "Distribution of deals across pipeline stages",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    pipeline_stage,\n    COUNT(*) as deal_count,\n    SUM(deal_value) as stage_value\nFROM crm_data \nWHERE status NOT IN ('closed_won', 'closed_lost')\n  AND created_at >= [[{{time_period}}]]\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\nGROUP BY pipeline_stage\nORDER BY \n  CASE pipeline_stage \n    WHEN 'Discovery' THEN 1\n    WHEN 'Qualification' THEN 2\n    WHEN 'Proposal' THEN 3\n    WHEN 'Negotiation' THEN 4\n    WHEN 'Closing' THEN 5\n    ELSE 6\n  END"
+        }
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["pipeline_stage"],
+        "graph.metrics": ["deal_count", "stage_value"],
+        "graph.y_axis.title_text": "Number of Deals / Value ($)"
+      }
+    },
+    {
+      "name": "Lead Sources Performance",
+      "description": "Lead quality and volume by source",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    source,\n    COUNT(*) as total_leads,\n    ROUND(AVG(lead_score)::numeric, 1) as avg_score,\n    COUNT(CASE WHEN status = 'closed_won' THEN 1 END) as won_deals,\n    ROUND(\n      (COUNT(CASE WHEN status = 'closed_won' THEN 1 END) * 100.0 / \n       NULLIF(COUNT(*), 0))::numeric, 1\n    ) as win_rate\nFROM crm_data \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\nGROUP BY source\nORDER BY avg_score DESC"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "source",
+            "display_name": "Lead Source"
+          },
+          {
+            "name": "total_leads",
+            "display_name": "Total Leads"
+          },
+          {
+            "name": "avg_score",
+            "display_name": "Avg Score"
+          },
+          {
+            "name": "won_deals",
+            "display_name": "Won Deals"
+          },
+          {
+            "name": "win_rate",
+            "display_name": "Win Rate (%)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Sales Velocity",
+      "description": "Revenue closed over time",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    DATE_TRUNC('week', closed_date) as week,\n    SUM(deal_value) as revenue,\n    COUNT(*) as deals_closed\nFROM crm_data \nWHERE status = 'closed_won' \n  AND closed_date >= [[{{time_period}}]]\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\nGROUP BY DATE_TRUNC('week', closed_date)\nORDER BY week"
+        }
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["week"],
+        "graph.metrics": ["revenue", "deals_closed"],
+        "graph.y_axis.title_text": "Revenue ($) / Deals Closed",
+        "series_settings": {
+          "revenue": {
+            "title": "Weekly Revenue",
+            "color": "#509EE3"
+          },
+          "deals_closed": {
+            "title": "Deals Closed",
+            "color": "#88BF4D",
+            "axis": "right"
+          }
+        }
+      }
+    },
+    {
+      "name": "Deal Aging Analysis",
+      "description": "Deals by age in current pipeline stage",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    pipeline_stage,\n    CASE \n      WHEN EXTRACT(days FROM (NOW() - stage_entered_at)) <= 7 THEN '0-7 days'\n      WHEN EXTRACT(days FROM (NOW() - stage_entered_at)) <= 14 THEN '8-14 days'\n      WHEN EXTRACT(days FROM (NOW() - stage_entered_at)) <= 30 THEN '15-30 days'\n      WHEN EXTRACT(days FROM (NOW() - stage_entered_at)) <= 60 THEN '31-60 days'\n      ELSE '60+ days'\n    END as age_bucket,\n    COUNT(*) as deal_count,\n    SUM(deal_value) as total_value\nFROM crm_data \nWHERE status NOT IN ('closed_won', 'closed_lost')\n  AND stage_entered_at IS NOT NULL\n  AND ({{pipeline_stage}} IS NULL OR pipeline_stage = {{pipeline_stage}})\nGROUP BY pipeline_stage, age_bucket\nORDER BY pipeline_stage, \n  CASE age_bucket\n    WHEN '0-7 days' THEN 1\n    WHEN '8-14 days' THEN 2\n    WHEN '15-30 days' THEN 3\n    WHEN '31-60 days' THEN 4\n    ELSE 5\n  END"
+        }
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["pipeline_stage", "age_bucket"],
+        "graph.metrics": ["deal_count"],
+        "graph.y_axis.title_text": "Number of Deals"
+      }
+    },
+    {
+      "name": "Sales Forecast",
+      "description": "Projected revenue based on current pipeline",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    pipeline_stage,\n    COUNT(*) as deal_count,\n    SUM(deal_value) as total_value,\n    ROUND(SUM(deal_value * win_probability / 100.0)::numeric, 0) as weighted_forecast\nFROM crm_data \nWHERE status NOT IN ('closed_won', 'closed_lost')\n  AND ({{pipeline_stage}} IS NULL OR pipeline_stage = {{pipeline_stage}})\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\nGROUP BY pipeline_stage\nORDER BY \n  CASE pipeline_stage \n    WHEN 'Discovery' THEN 1\n    WHEN 'Qualification' THEN 2\n    WHEN 'Proposal' THEN 3\n    WHEN 'Negotiation' THEN 4\n    WHEN 'Closing' THEN 5\n    ELSE 6\n  END"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "pipeline_stage",
+            "display_name": "Stage"
+          },
+          {
+            "name": "deal_count",
+            "display_name": "Deals"
+          },
+          {
+            "name": "total_value",
+            "display_name": "Total Value ($)"
+          },
+          {
+            "name": "weighted_forecast",
+            "display_name": "Forecast ($)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Top Opportunities",
+      "description": "Highest value deals in the pipeline",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    company_name,\n    pipeline_stage,\n    deal_value,\n    win_probability,\n    ROUND((deal_value * win_probability / 100.0)::numeric, 0) as weighted_value,\n    EXTRACT(days FROM (NOW() - created_at)) as days_in_pipeline\nFROM crm_data \nWHERE status NOT IN ('closed_won', 'closed_lost')\n  AND ({{pipeline_stage}} IS NULL OR pipeline_stage = {{pipeline_stage}})\n  AND ({{lead_source}} IS NULL OR source = {{lead_source}})\nORDER BY deal_value DESC\nLIMIT 10"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "company_name",
+            "display_name": "Company"
+          },
+          {
+            "name": "pipeline_stage",
+            "display_name": "Stage"
+          },
+          {
+            "name": "deal_value",
+            "display_name": "Value ($)"
+          },
+          {
+            "name": "win_probability",
+            "display_name": "Win %"
+          },
+          {
+            "name": "weighted_value",
+            "display_name": "Weighted ($)"
+          },
+          {
+            "name": "days_in_pipeline",
+            "display_name": "Days in Pipeline"
+          }
+        ]
+      }
+    }
+  ],
+  "dashboard_cards": [
+    {
+      "card_index": 0,
+      "row": 0,
+      "col": 0,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 1,
+      "row": 0,
+      "col": 3,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 2,
+      "row": 0,
+      "col": 6,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 3,
+      "row": 0,
+      "col": 9,
+      "size_x": 3,
+      "size_y": 4
+    },
+    {
+      "card_index": 4,
+      "row": 4,
+      "col": 0,
+      "size_x": 6,
+      "size_y": 8
+    },
+    {
+      "card_index": 5,
+      "row": 4,
+      "col": 6,
+      "size_x": 6,
+      "size_y": 8
+    },
+    {
+      "card_index": 6,
+      "row": 12,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 8
+    },
+    {
+      "card_index": 7,
+      "row": 20,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 8
+    },
+    {
+      "card_index": 8,
+      "row": 20,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 8
+    },
+    {
+      "card_index": 9,
+      "row": 28,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 8
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "name": "Agent Performance Dashboard",
+  "description": "Real-time monitoring of AI agent performance and metrics",
+  "parameters": [
+    {
+      "id": "time_period",
+      "name": "Time Period",
+      "type": "date/range",
+      "default": "past30days"
+    },
+    {
+      "id": "agent_filter",
+      "name": "Agent Filter",
+      "type": "category",
+      "values_source_type": "card",
+      "values_source_config": {
+        "card_id": null,
+        "value_field": "agent_name"
+      }
+    }
+  ],
+  "cards": [
+    {
+      "name": "Total Conversations",
+      "description": "Total number of conversations across all agents",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COUNT(*) as total_conversations\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})",
+          "template-tags": {
+            "time_period": {
+              "id": "time_period",
+              "name": "time_period",
+              "display-name": "Time Period",
+              "type": "dimension",
+              "widget-type": "date/range"
+            },
+            "agent_filter": {
+              "id": "agent_filter",
+              "name": "agent_filter",
+              "display-name": "Agent Filter",
+              "type": "dimension"
+            }
+          }
+        }
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "graph.dimensions": ["agent_name"],
+        "graph.metrics": ["total_conversations"]
+      }
+    },
+    {
+      "name": "Active Agents",
+      "description": "Number of agents that processed requests in the last 24 hours",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COUNT(DISTINCT agent_name) as active_agents\nFROM agent_logs \nWHERE created_at >= NOW() - INTERVAL '1 day'\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})"
+        }
+      },
+      "display": "scalar"
+    },
+    {
+      "name": "Agent Response Times",
+      "description": "Average response time by agent over selected period",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    agent_name,\n    ROUND(AVG(response_time)::numeric, 2) as avg_response_time\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\nGROUP BY agent_name\nORDER BY avg_response_time DESC"
+        }
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["agent_name"],
+        "graph.metrics": ["avg_response_time"],
+        "graph.y_axis.title_text": "Response Time (ms)",
+        "graph.colors": ["#509EE3"]
+      }
+    },
+    {
+      "name": "Success Rate by Agent",
+      "description": "Success rate percentage for each agent",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    agent_name,\n    ROUND((COUNT(CASE WHEN status = 'success' THEN 1 END) * 100.0 / COUNT(*))::numeric, 2) as success_rate\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\nGROUP BY agent_name\nORDER BY success_rate DESC"
+        }
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.dimensions": ["agent_name"],
+        "graph.metrics": ["success_rate"],
+        "graph.y_axis.title_text": "Success Rate (%)",
+        "graph.colors": ["#88BF4D"]
+      }
+    },
+    {
+      "name": "Agent Usage Over Time",
+      "description": "Agent usage trends over the selected time period",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    DATE_TRUNC('day', created_at) as date,\n    agent_name,\n    COUNT(*) as usage_count\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\nGROUP BY DATE_TRUNC('day', created_at), agent_name\nORDER BY date"
+        }
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["date"],
+        "series_settings": {
+          "usage_count": {
+            "title": "Usage Count"
+          }
+        },
+        "graph.x_axis.title_text": "Date",
+        "graph.y_axis.title_text": "Number of Requests"
+      }
+    },
+    {
+      "name": "Error Rate Trends",
+      "description": "Daily error rates across all agents",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    DATE_TRUNC('day', created_at) as date,\n    ROUND((COUNT(CASE WHEN status = 'error' THEN 1 END) * 100.0 / COUNT(*))::numeric, 2) as error_rate\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\nGROUP BY DATE_TRUNC('day', created_at)\nORDER BY date"
+        }
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["date"],
+        "graph.metrics": ["error_rate"],
+        "graph.y_axis.title_text": "Error Rate (%)",
+        "graph.colors": ["#EF8C8C"]
+      }
+    },
+    {
+      "name": "Top Error Messages",
+      "description": "Most common error messages and their frequency",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    error_message,\n    COUNT(*) as error_count,\n    ROUND((COUNT(*) * 100.0 / SUM(COUNT(*)) OVER ())::numeric, 2) as percentage\nFROM agent_logs \nWHERE status = 'error'\n  AND created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\n  AND error_message IS NOT NULL\nGROUP BY error_message\nORDER BY error_count DESC\nLIMIT 10"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "error_message",
+            "display_name": "Error Message"
+          },
+          {
+            "name": "error_count",
+            "display_name": "Count"
+          },
+          {
+            "name": "percentage",
+            "display_name": "Percentage"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Agent Performance Heatmap",
+      "description": "Hourly performance heatmap showing peak usage times",
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT \n    EXTRACT(hour FROM created_at) as hour,\n    EXTRACT(dow FROM created_at) as day_of_week,\n    COUNT(*) as request_count,\n    AVG(response_time) as avg_response_time\nFROM agent_logs \nWHERE created_at >= [[{{time_period}}]]\n  AND ({{agent_filter}} IS NULL OR agent_name = {{agent_filter}})\nGROUP BY EXTRACT(hour FROM created_at), EXTRACT(dow FROM created_at)\nORDER BY day_of_week, hour"
+        }
+      },
+      "display": "table",
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "hour",
+            "display_name": "Hour"
+          },
+          {
+            "name": "day_of_week",
+            "display_name": "Day of Week"
+          },
+          {
+            "name": "request_count",
+            "display_name": "Requests"
+          },
+          {
+            "name": "avg_response_time",
+            "display_name": "Avg Response Time (ms)"
+          }
+        ]
+      }
+    }
+  ],
+  "dashboard_cards": [
+    {
+      "card_index": 0,
+      "row": 0,
+      "col": 0,
+      "size_x": 6,
+      "size_y": 4
+    },
+    {
+      "card_index": 1,
+      "row": 0,
+      "col": 6,
+      "size_x": 6,
+      "size_y": 4
+    },
+    {
+      "card_index": 2,
+      "row": 4,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 6
+    },
+    {
+      "card_index": 3,
+      "row": 10,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 6
+    },
+    {
+      "card_index": 4,
+      "row": 16,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 8
+    },
+    {
+      "card_index": 5,
+      "row": 24,
+      "col": 0,
+      "size_x": 8,
+      "size_y": 6
+    },
+    {
+      "card_index": 6,
+      "row": 24,
+      "col": 8,
+      "size_x": 4,
+      "size_y": 6
+    },
+    {
+      "card_index": 7,
+      "row": 30,
+      "col": 0,
+      "size_x": 12,
+      "size_y": 8
+    }
+  ]
+}

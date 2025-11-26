@@ -1,0 +1,786 @@
+{
+  "name": "Complete Customer Lifecycle - Lead to Advocate",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-lifecycle-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "lifecycle-webhook-001",
+      "name": "Webhook - Lifecycle Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "customer-lifecycle-start"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase1/prospect-qualification/process",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          },
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_name\": \"{{$json.name || $json.firstName + ' ' + $json.lastName}}\",\n  \"lead_email\": \"{{$json.email}}\",\n  \"company\": \"{{$json.company}}\",\n  \"industry\": \"{{$json.industry}}\",\n  \"lead_message\": \"{{$json.message}}\",\n  \"phone\": \"{{$json.phone}}\",\n  \"job_title\": \"{{$json.jobTitle}}\",\n  \"source\": \"{{$json.source || 'website'}}\",\n  \"lifecycle_stage\": \"lead\"\n}"
+      },
+      "id": "lifecycle-qualify-002",
+      "name": "Stage 1 - Lead Qualification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.qualification_score}}",
+              "operation": "largerEqual",
+              "value2": 70
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-qualified-003",
+      "name": "IF Qualified Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"name\": [{\n        \"first_name\": \"{{$json.lead_name.split(' ')[0]}}\",\n        \"last_name\": \"{{$json.lead_name.split(' ')[1] || ''}}\"\n      }],\n      \"email_addresses\": [{\n        \"email_address\": \"{{$json.lead_email}}\"\n      }],\n      \"lifecycle_stage\": [{\n        \"option\": \"qualified_lead\"\n      }],\n      \"lead_score\": [{\n        \"number\": {{$json.qualification_score}}\n      }],\n      \"qualification_notes\": [{\n        \"content\": \"{{$json.qualification.qualification_reasoning}}\"\n      }]\n    }\n  }\n}"
+      },
+      "id": "lifecycle-crm-004",
+      "name": "Stage 2 - Create CRM Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/sales-pitch/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"company_name\": \"{{$json.company}}\",\n  \"industry\": \"{{$json.industry}}\",\n  \"pain_points\": {{JSON.stringify($json.qualification.pain_points)}},\n  \"lead_email\": \"{{$json.lead_email}}\",\n  \"personalization_level\": \"high\"\n}"
+      },
+      "id": "lifecycle-pitch-005",
+      "name": "Stage 3 - Generate Sales Pitch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.lead_email}}\",\n  \"subject\": \"{{$json.pitch_content.subject}}\",\n  \"html_content\": \"{{$json.pitch_content.email_content}}\",\n  \"campaign_type\": \"sales_outreach\",\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"personalization_data\": {\n    \"name\": \"{{$json.lead_name.split(' ')[0]}}\",\n    \"company\": \"{{$json.company}}\"\n  }\n}"
+      },
+      "id": "lifecycle-email-006",
+      "name": "Stage 4 - Send Personalized Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "lifecycle-wait-007",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records/{{$json.crm_record_id}}",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        }
+      },
+      "id": "lifecycle-check-008",
+      "name": "Stage 5 - Check Engagement",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.email_opened || $json.email_clicked || $json.meeting_booked}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-engaged-009",
+      "name": "IF Engaged",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/sales-strategist/analyze",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"company_info\": {\n    \"name\": \"{{$json.company}}\",\n    \"industry\": \"{{$json.industry}}\"\n  },\n  \"engagement_data\": {\n    \"email_opened\": {{$json.email_opened}},\n    \"email_clicked\": {{$json.email_clicked}},\n    \"meeting_booked\": {{$json.meeting_booked}}\n  },\n  \"qualification_data\": {{JSON.stringify($json.qualification)}}\n}"
+      },
+      "id": "lifecycle-strategy-010",
+      "name": "Stage 6 - Sales Strategy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2220, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.recommended_action}}",
+              "operation": "equals",
+              "value2": "schedule_demo"
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-demo-011",
+      "name": "IF Demo Recommended",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2440, 100]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.CALENDLY_API_URL}}/scheduled_events",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.CALENDLY_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"demo_call\",\n  \"invitee_email\": \"{{$json.lead_email}}\",\n  \"duration\": 30,\n  \"notes\": \"{{$json.demo_notes}}\"\n}"
+      },
+      "id": "lifecycle-calendar-012",
+      "name": "Stage 7 - Schedule Demo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2660, 0]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      },
+      "id": "lifecycle-demo-wait-013",
+      "name": "Wait for Demo",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2880, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase4/digital-avatar/conduct-demo",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"demo_type\": \"sales_presentation\",\n  \"personalization\": {\n    \"company\": \"{{$json.company}}\",\n    \"industry\": \"{{$json.industry}}\",\n    \"pain_points\": {{JSON.stringify($json.qualification.pain_points)}}\n  },\n  \"avatar_persona\": \"sarah_sales\"\n}"
+      },
+      "id": "lifecycle-avatar-014",
+      "name": "Stage 8 - AI Avatar Demo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3100, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.demo_score}}",
+              "operation": "largerEqual",
+              "value2": 7
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-demo-success-015",
+      "name": "IF Demo Successful",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3320, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/sales-strategist/generate-proposal",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead_id\": \"{{$json.crm_record_id}}\",\n  \"demo_feedback\": \"{{$json.demo_feedback}}\",\n  \"proposed_solution\": \"{{$json.recommended_solution}}\",\n  \"budget_range\": \"{{$json.estimated_budget}}\"\n}"
+      },
+      "id": "lifecycle-proposal-016",
+      "name": "Stage 9 - Generate Proposal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3540, -100]
+    },
+    {
+      "parameters": {
+        "amount": 72,
+        "unit": "hours"
+      },
+      "id": "lifecycle-proposal-wait-017",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3760, -100]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records/{{$json.crm_record_id}}",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        }
+      },
+      "id": "lifecycle-check-proposal-018",
+      "name": "Check Proposal Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3980, -100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.proposal_status}}",
+              "operation": "equals",
+              "value2": "accepted"
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-proposal-accepted-019",
+      "name": "IF Proposal Accepted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [4200, -100]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/journey-automation/start-journey",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"journey_name\": \"customer_onboarding\",\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"trigger_data\": {\n    \"contract_signed\": true,\n    \"service_type\": \"{{$json.selected_service}}\",\n    \"start_date\": \"{{new Date().toISOString()}}\"\n  }\n}"
+      },
+      "id": "lifecycle-onboarding-020",
+      "name": "Stage 10 - Start Onboarding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4420, -200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/customer-success/initialize",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"service_details\": {\n    \"type\": \"{{$json.selected_service}}\",\n    \"tier\": \"{{$json.service_tier}}\",\n    \"monthly_value\": {{$json.monthly_contract_value}}\n  },\n  \"success_metrics\": {\n    \"onboarding_completion_target\": \"14_days\",\n    \"first_value_target\": \"30_days\"\n  }\n}"
+      },
+      "id": "lifecycle-cs-setup-021",
+      "name": "Stage 11 - CS Setup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4640, -200]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "days"
+      },
+      "id": "lifecycle-30day-wait-022",
+      "name": "Wait 30 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [4860, -200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/customer-success/health-check",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"check_type\": \"30_day_review\"\n}"
+      },
+      "id": "lifecycle-health-check-023",
+      "name": "Stage 12 - 30-Day Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [5080, -200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.health_score}}",
+              "operation": "largerEqual",
+              "value2": 80
+            }
+          ]
+        }
+      },
+      "id": "lifecycle-healthy-024",
+      "name": "IF Healthy Customer",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [5300, -200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.lead_email}}\",\n  \"template_name\": \"referral_request\",\n  \"personalization_data\": {\n    \"customer_name\": \"{{$json.lead_name.split(' ')[0]}}\",\n    \"success_metrics\": \"{{$json.success_summary}}\"\n  },\n  \"campaign_type\": \"advocacy\"\n}"
+      },
+      "id": "lifecycle-advocacy-025",
+      "name": "Stage 13 - Advocacy Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [5520, -300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.lead_email}}\",\n  \"subject\": \"Following up on our conversation about {{$json.company}}\",\n  \"template_name\": \"follow_up_nurture\",\n  \"campaign_type\": \"nurture_sequence\",\n  \"sequence_stage\": 1\n}"
+      },
+      "id": "lifecycle-nurture-026",
+      "name": "Start Nurture Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/integrations/email/send-campaign",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to_email\": \"{{$json.lead_email}}\",\n  \"template_name\": \"re_engagement\",\n  \"campaign_type\": \"re_engagement\"\n}"
+      },
+      "id": "lifecycle-reengage-027",
+      "name": "Re-engagement Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2220, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"lifecycle_completed\",\n  \"stage\": \"advocate\",\n  \"customer_id\": \"{{$json.crm_record_id}}\",\n  \"journey_summary\": {\n    \"started_at\": \"{{$json.lifecycle_start_time}}\",\n    \"completed_at\": \"{{new Date().toISOString()}}\",\n    \"total_value_generated\": \"{{$json.total_contract_value}}\",\n    \"referrals_generated\": \"{{$json.referral_count || 0}}\"\n  }\n}"
+      },
+      "id": "lifecycle-complete-028",
+      "name": "Lifecycle Complete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [5740, -300]
+    }
+  ],
+  "connections": {
+    "Webhook - Lifecycle Trigger": {
+      "main": [
+        [
+          {
+            "node": "Stage 1 - Lead Qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1 - Lead Qualification": {
+      "main": [
+        [
+          {
+            "node": "IF Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Stage 2 - Create CRM Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Nurture Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 2 - Create CRM Record": {
+      "main": [
+        [
+          {
+            "node": "Stage 3 - Generate Sales Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 3 - Generate Sales Pitch": {
+      "main": [
+        [
+          {
+            "node": "Stage 4 - Send Personalized Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 4 - Send Personalized Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Stage 5 - Check Engagement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 5 - Check Engagement": {
+      "main": [
+        [
+          {
+            "node": "IF Engaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Engaged": {
+      "main": [
+        [
+          {
+            "node": "Stage 6 - Sales Strategy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Re-engagement Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 6 - Sales Strategy": {
+      "main": [
+        [
+          {
+            "node": "IF Demo Recommended",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Demo Recommended": {
+      "main": [
+        [
+          {
+            "node": "Stage 7 - Schedule Demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 7 - Schedule Demo": {
+      "main": [
+        [
+          {
+            "node": "Wait for Demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Demo": {
+      "main": [
+        [
+          {
+            "node": "Stage 8 - AI Avatar Demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 8 - AI Avatar Demo": {
+      "main": [
+        [
+          {
+            "node": "IF Demo Successful",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Demo Successful": {
+      "main": [
+        [
+          {
+            "node": "Stage 9 - Generate Proposal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 9 - Generate Proposal": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Check Proposal Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Proposal Status": {
+      "main": [
+        [
+          {
+            "node": "IF Proposal Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Proposal Accepted": {
+      "main": [
+        [
+          {
+            "node": "Stage 10 - Start Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 10 - Start Onboarding": {
+      "main": [
+        [
+          {
+            "node": "Stage 11 - CS Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 11 - CS Setup": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 Days": {
+      "main": [
+        [
+          {
+            "node": "Stage 12 - 30-Day Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 12 - 30-Day Health Check": {
+      "main": [
+        [
+          {
+            "node": "IF Healthy Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Healthy Customer": {
+      "main": [
+        [
+          {
+            "node": "Stage 13 - Advocacy Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 13 - Advocacy Request": {
+      "main": [
+        [
+          {
+            "node": "Lifecycle Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-11-25T19:00:00.000Z",
+      "updatedAt": "2024-11-25T19:00:00.000Z",
+      "id": "lifecycle",
+      "name": "Customer Lifecycle"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-11-25T19:00:00.000Z",
+  "versionId": "1"
+}

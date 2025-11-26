@@ -1,0 +1,692 @@
+{
+  "name": "LinkedIn Outreach Sequence - Connection to Meeting",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linkedin-outreach-start",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "linkedin-webhook-001",
+      "name": "Webhook - Start LinkedIn Sequence",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "linkedin-outreach-start"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase3/rag-research/search",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{$json.target_name}} {{$json.target_company}} background industry\",\n  \"search_depth\": \"deep\",\n  \"sources\": [\"linkedin\", \"company_website\", \"industry_news\"],\n  \"max_results\": 10\n}"
+      },
+      "id": "linkedin-research-002",
+      "name": "Step 1 - Research Target",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"linkedin_connection_request\",\n  \"target_info\": {\n    \"name\": \"{{$json.target_name}}\",\n    \"title\": \"{{$json.target_title}}\",\n    \"company\": \"{{$json.target_company}}\",\n    \"industry\": \"{{$json.target_industry}}\"\n  },\n  \"research_data\": {{JSON.stringify($json.research_results)}},\n  \"personalization_level\": \"high\",\n  \"tone\": \"professional_friendly\",\n  \"word_limit\": 300\n}"
+      },
+      "id": "linkedin-message-003",
+      "name": "Step 2 - Craft Connection Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/connections",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipients\": {\n    \"values\": [{\n      \"person\": {\n        \"_path\": \"/people/{{$json.target_linkedin_id}}\"\n      }\n    }]\n  },\n  \"subject\": \"Connection Request\",\n  \"body\": \"{{$json.connection_message}}\"\n}"
+      },
+      "id": "linkedin-connect-004",
+      "name": "Step 3 - Send Connection Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"name\": [{\n        \"first_name\": \"{{$json.target_name.split(' ')[0]}}\",\n        \"last_name\": \"{{$json.target_name.split(' ')[1] || ''}}\"\n      }],\n      \"company_name\": [{\n        \"value\": \"{{$json.target_company}}\"\n      }],\n      \"job_title\": [{\n        \"value\": \"{{$json.target_title}}\"\n      }],\n      \"source\": [{\n        \"option\": \"linkedin_outreach\"\n      }],\n      \"outreach_status\": [{\n        \"option\": \"connection_sent\"\n      }],\n      \"linkedin_profile\": [{\n        \"url\": \"{{$json.target_linkedin_url}}\"\n      }]\n    }\n  }\n}"
+      },
+      "id": "linkedin-crm-005",
+      "name": "Step 4 - Log in CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "amount": 48,
+        "unit": "hours"
+      },
+      "id": "linkedin-wait-006",
+      "name": "Wait 48 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/connections/{{$json.target_linkedin_id}}",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        }
+      },
+      "id": "linkedin-check-007",
+      "name": "Step 5 - Check Connection Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.connection_status}}",
+              "operation": "equals",
+              "value2": "accepted"
+            }
+          ]
+        }
+      },
+      "id": "linkedin-connected-008",
+      "name": "IF Connection Accepted",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "linkedin-wait2-009",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2000, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"linkedin_follow_up_message\",\n  \"target_info\": {\n    \"name\": \"{{$json.target_name.split(' ')[0]}}\",\n    \"title\": \"{{$json.target_title}}\",\n    \"company\": \"{{$json.target_company}}\"\n  },\n  \"context\": \"connection_accepted\",\n  \"objective\": \"schedule_discovery_call\",\n  \"tone\": \"professional_conversational\",\n  \"include_value_proposition\": true,\n  \"word_limit\": 500\n}"
+      },
+      "id": "linkedin-followup-010",
+      "name": "Step 6 - Craft Follow-up Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2220, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/mailbox",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipients\": {\n    \"values\": [{\n      \"person\": {\n        \"_path\": \"/people/{{$json.target_linkedin_id}}\"\n      }\n    }]\n  },\n  \"subject\": \"Thanks for connecting - {{$json.target_company}} growth opportunity\",\n  \"body\": \"{{$json.follow_up_message}}\"\n}"
+      },
+      "id": "linkedin-send-message-011",
+      "name": "Step 7 - Send Follow-up Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2440, 200]
+    },
+    {
+      "parameters": {
+        "amount": 72,
+        "unit": "hours"
+      },
+      "id": "linkedin-wait3-012",
+      "name": "Wait 72 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2660, 200]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/mailbox/conversations",
+        "options": {
+          "headers": {
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "qs": {
+          "recipient": "{{$json.target_linkedin_id}}"
+        }
+      },
+      "id": "linkedin-check-response-013",
+      "name": "Step 8 - Check for Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2880, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.has_response}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "linkedin-responded-014",
+      "name": "IF Responded",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3100, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/intent-classifier/classify",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"{{$json.response_message}}\",\n  \"context\": \"linkedin_outreach_response\"\n}"
+      },
+      "id": "linkedin-classify-015",
+      "name": "Step 9 - Classify Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3320, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.intent}}",
+              "operation": "equals",
+              "value2": "interested"
+            }
+          ]
+        }
+      },
+      "id": "linkedin-interested-016",
+      "name": "IF Interested",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [3540, 100]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.CALENDLY_API_URL}}/scheduled_events",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.CALENDLY_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"event_type\": \"discovery_call\",\n  \"invitee_name\": \"{{$json.target_name}}\",\n  \"invitee_company\": \"{{$json.target_company}}\",\n  \"duration\": 30,\n  \"notes\": \"LinkedIn outreach follow-up - {{$json.target_title}} at {{$json.target_company}}\"\n}"
+      },
+      "id": "linkedin-schedule-017",
+      "name": "Step 10 - Send Calendar Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3760, 0]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/mailbox",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipients\": {\n    \"values\": [{\n      \"person\": {\n        \"_path\": \"/people/{{$json.target_linkedin_id}}\"\n      }\n    }]\n  },\n  \"subject\": \"Let's schedule that call!\",\n  \"body\": \"Great to hear you're interested! Here's my calendar link to book a time that works for you: {{$json.calendar_link}}\\n\\nI'll prepare some specific ideas for {{$json.target_company}} based on what we discussed.\"\n}"
+      },
+      "id": "linkedin-calendar-message-018",
+      "name": "Step 11 - Send Calendar Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3980, 0]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.ATTIO_API_URL}}/v2/records/{{$json.crm_record_id}}",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.ATTIO_API_KEY}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {\n    \"values\": {\n      \"outreach_status\": [{\n        \"option\": \"meeting_scheduled\"\n      }],\n      \"lifecycle_stage\": [{\n        \"option\": \"opportunity\"\n      }],\n      \"lead_score\": [{\n        \"number\": 75\n      }]\n    }\n  }\n}"
+      },
+      "id": "linkedin-update-crm-019",
+      "name": "Step 12 - Update CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [4200, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"linkedin_value_content\",\n  \"target_info\": {\n    \"industry\": \"{{$json.target_industry}}\",\n    \"company_size\": \"{{$json.target_company_size}}\"\n  },\n  \"objective\": \"nurture_and_reengage\",\n  \"content_themes\": [\"industry_insights\", \"case_studies\", \"best_practices\"]\n}"
+      },
+      "id": "linkedin-nurture-020",
+      "name": "Create Nurture Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3320, 300]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "linkedin-nurture-wait-021",
+      "name": "Wait 1 Week",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [3540, 300]
+    },
+    {
+      "parameters": {
+        "url": "{{$env.LINKEDIN_API_URL}}/people/~/shares",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.LINKEDIN_ACCESS_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content\": {\n    \"contentEntities\": [],\n    \"title\": \"{{$json.nurture_content.title}}\",\n    \"description\": \"{{$json.nurture_content.description}}\"\n  },\n  \"distribution\": {\n    \"linkedInDistributionTarget\": {\n      \"visibleToGuest\": true\n    }\n  },\n  \"text\": {\n    \"text\": \"{{$json.nurture_content.post_text}}\"\n  }\n}"
+      },
+      "id": "linkedin-share-content-022",
+      "name": "Share Value Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [3760, 300]
+    },
+    {
+      "parameters": {
+        "amount": 14,
+        "unit": "days"
+      },
+      "id": "linkedin-final-wait-023",
+      "name": "Wait 2 Weeks",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/agents/phase2/content-writer/generate",
+        "options": {
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{$env.API_TOKEN}}"
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"content_type\": \"linkedin_final_outreach\",\n  \"target_info\": {\n    \"name\": \"{{$json.target_name.split(' ')[0]}}\",\n    \"company\": \"{{$json.target_company}}\"\n  },\n  \"context\": \"no_initial_response\",\n  \"objective\": \"final_attempt_with_value\",\n  \"tone\": \"helpful_no_pressure\"\n}"
+      },
+      "id": "linkedin-final-message-024",
+      "name": "Final Value Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [2220, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"linkedin_sequence_completed\",\n  \"outcome\": \"{{$json.final_outcome || 'no_response'}}\",\n  \"target\": \"{{$json.target_name}}\",\n  \"company\": \"{{$json.target_company}}\",\n  \"crm_record_id\": \"{{$json.crm_record_id}}\",\n  \"sequence_summary\": {\n    \"connection_sent\": true,\n    \"connection_accepted\": \"{{$json.connection_accepted || false}}\",\n    \"messages_sent\": \"{{$json.messages_sent_count}}\",\n    \"responses_received\": \"{{$json.responses_received}}\",\n    \"meeting_scheduled\": \"{{$json.meeting_scheduled || false}}\"\n  }\n}"
+      },
+      "id": "linkedin-complete-025",
+      "name": "Sequence Complete Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [4420, 0]
+    }
+  ],
+  "connections": {
+    "Webhook - Start LinkedIn Sequence": {
+      "main": [
+        [
+          {
+            "node": "Step 1 - Research Target",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 1 - Research Target": {
+      "main": [
+        [
+          {
+            "node": "Step 2 - Craft Connection Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 2 - Craft Connection Message": {
+      "main": [
+        [
+          {
+            "node": "Step 3 - Send Connection Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 3 - Send Connection Request": {
+      "main": [
+        [
+          {
+            "node": "Step 4 - Log in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 4 - Log in CRM": {
+      "main": [
+        [
+          {
+            "node": "Wait 48 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 48 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 5 - Check Connection Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 5 - Check Connection Status": {
+      "main": [
+        [
+          {
+            "node": "IF Connection Accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Connection Accepted": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 2 Weeks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 6 - Craft Follow-up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 6 - Craft Follow-up Message": {
+      "main": [
+        [
+          {
+            "node": "Step 7 - Send Follow-up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 7 - Send Follow-up Message": {
+      "main": [
+        [
+          {
+            "node": "Wait 72 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 72 Hours": {
+      "main": [
+        [
+          {
+            "node": "Step 8 - Check for Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 8 - Check for Response": {
+      "main": [
+        [
+          {
+            "node": "IF Responded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Responded": {
+      "main": [
+        [
+          {
+            "node": "Step 9 - Classify Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Nurture Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 9 - Classify Response": {
+      "main": [
+        [
+          {
+            "node": "IF Interested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Interested": {
+      "main": [
+        [
+          {
+            "node": "Step 10 - Send Calendar Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 10 - Send Calendar Link": {
+      "main": [
+        [
+          {
+            "node": "Step 11 - Send Calendar Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 11 - Send Calendar Message": {
+      "main": [
+        [
+          {
+            "node": "Step 12 - Update CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 12 - Update CRM": {
+      "main": [
+        [
+          {
+            "node": "Sequence Complete Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Nurture Content": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Week": {
+      "main": [
+        [
+          {
+            "node": "Share Value Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Weeks": {
+      "main": [
+        [
+          {
+            "node": "Final Value Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-11-25T19:00:00.000Z",
+      "updatedAt": "2024-11-25T19:00:00.000Z",
+      "id": "outreach",
+      "name": "Outreach"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-11-25T19:00:00.000Z",
+  "versionId": "1"
+}
