@@ -103,6 +103,40 @@ SERVICES = {
             "Performance Evaluation Agent",
             "Deployment Orchestrator"
         ]
+    },
+    "ai_dev_automation": {
+        "name": "AI Development & Automation",
+        "description": "End-to-end AI development and business process automation solutions",
+        "approach": [
+            "Custom AI agent development and deployment",
+            "Business process automation with intelligent workflows",
+            "Integration automation between systems and platforms",
+            "No-code/low-code AI solution development"
+        ],
+        "expertise": [
+            "Custom AI agent architecture and development",
+            "Workflow automation and orchestration",
+            "API integration and middleware development",
+            "Business intelligence automation"
+        ],
+        "technology_stack": [
+            "LangChain and LangGraph frameworks",
+            "n8n workflow automation platform",
+            "FastAPI and Python backend development",
+            "Docker containerization and deployment"
+        ],
+        "workflows": [
+            "SIX3 AI Agent Development Pipeline",
+            "SIX3 Business Process Automation",
+            "SIX3 Integration Orchestration Manager"
+        ],
+        "agents": [
+            "Journey Automation Agent",
+            "Multimodal AI Agent", 
+            "Orchestrator Agent",
+            "RAG Research Agent",
+            "Custom Development Agent"
+        ]
     }
 }
 
@@ -123,6 +157,11 @@ INDUSTRY_USE_CASES = {
             "Recommendation engine fine-tuning",
             "Price optimization models",
             "Churn prediction systems"
+        ],
+        "ai_dev_automation": [
+            "Inventory management automation",
+            "Customer service chatbot development",
+            "Order fulfillment workflow optimization"
         ]
     },
     "saas": {
@@ -140,6 +179,11 @@ INDUSTRY_USE_CASES = {
             "User behavior prediction models",
             "Feature usage optimization",
             "Support ticket classification"
+        ],
+        "ai_dev_automation": [
+            "User onboarding automation",
+            "API integration development",
+            "Custom dashboard creation"
         ]
     },
     "local_services": {
@@ -157,6 +201,11 @@ INDUSTRY_USE_CASES = {
             "Lead scoring models",
             "Service demand prediction",
             "Customer lifetime value models"
+        ],
+        "ai_dev_automation": [
+            "Appointment scheduling automation",
+            "Service request management",
+            "Customer follow-up workflows"
         ]
     }
 }
@@ -203,6 +252,24 @@ SERVICE_FAQS = {
         {
             "question": "Do you provide ongoing model maintenance and updates?",
             "answer": "Yes, we provide continuous monitoring, performance optimization, and model retraining as your data evolves. Maintenance packages include monthly performance reviews."
+        }
+    ],
+    "ai_dev_automation": [
+        {
+            "question": "How quickly can you develop and deploy custom AI agents?",
+            "answer": "Simple AI agents can be deployed in 1-2 weeks, while complex multi-agent systems typically take 3-4 weeks. We use our proven frameworks to accelerate development."
+        },
+        {
+            "question": "Can you automate our existing business processes?",
+            "answer": "Yes, we specialize in analyzing current workflows and implementing intelligent automation. Most businesses see 50-80% reduction in manual tasks within 30 days."
+        },
+        {
+            "question": "What platforms and systems do you integrate with?",
+            "answer": "We integrate with virtually any system through APIs, webhooks, or direct database connections. Common platforms include CRMs, email systems, databases, and cloud services."
+        },
+        {
+            "question": "Do you provide training for our team on the AI systems?",
+            "answer": "Absolutely. We provide comprehensive training, documentation, and ongoing support. Our goal is to make your team autonomous with the AI tools we build."
         }
     ]
 }
