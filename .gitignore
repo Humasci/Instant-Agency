@@ -109,3 +109,5 @@ grafana_data/
 
 # CRM uploads
 suitecrm_data/
+.vercel
+.env*.local

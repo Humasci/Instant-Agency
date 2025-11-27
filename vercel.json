@@ -1,32 +1,31 @@
 {
   "version": 2,
-  "name": "six3-agency-dashboard",
-  "builds": [
-    {
-      "src": "status_dashboard.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "control-panel-visual.html", 
-      "use": "@vercel/static"
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3.2.0"
     }
-  ],
-  "routes": [
+  },
+  "outputDirectory": ".",
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/status_dashboard.html"
+      "source": "/",
+      "destination": "/status_dashboard.html"
     },
     {
-      "src": "/dashboard",
-      "dest": "/status_dashboard.html" 
+      "source": "/dashboard",
+      "destination": "/status_dashboard.html" 
     },
     {
-      "src": "/control-panel",
-      "dest": "/control-panel-visual.html"
+      "source": "/control-panel",
+      "destination": "/control-panel-visual.html"
     },
     {
-      "src": "/status",
-      "dest": "/status_dashboard.html"
+      "source": "/status",
+      "destination": "/status_dashboard.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
     }
   ],
   "headers": [
