@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Features Guide - SIX3 Agency</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #1a2332;
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #243447;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1de9b6;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            color: #8b99ab;
+            font-size: 1.3rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .nav-link {
+            background: #1de9b6;
+            color: #1a2332;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: #00d9c8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 233, 182, 0.3);
+        }
+
+        .nav-link.secondary {
+            background: #2d3e50;
+            color: #1de9b6;
+            border: 1px solid #1de9b6;
+        }
+
+        .nav-link.secondary:hover {
+            background: #3d4e60;
+        }
+
+        .section {
+            background: #243447;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            color: #1de9b6;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #2d3e50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        .section h4 {
+            font-size: 1.25rem;
+            color: #1de9b6;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 24px;
+            border-left: 4px solid #1de9b6;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(29, 233, 182, 0.2);
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .feature-description {
+            color: #8b99ab;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: #8b99ab;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #1de9b6;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stat-box {
+            background: #1a2332;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid #2d3e50;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1de9b6;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #8b99ab;
+            margin-top: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: rgba(29, 233, 182, 0.15);
+            color: #1de9b6;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+
+        .badge-info {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498db;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2d3e50;
+        }
+
+        th {
+            background: #2d3e50;
+            color: #8b99ab;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: #ffffff;
+        }
+
+        .icon {
+            font-size: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 SIX3 Agency Complete Features Guide</h1>
+            <p>Comprehensive documentation of all 29 AI agents, 10 integrations, 24 workflows, and 90+ API endpoints</p>
+            <div class="nav-links">
+                <a href="/status_dashboard.html" class="nav-link">📊 Live Dashboard</a>
+                <a href="/contact.html" class="nav-link">📧 Contact Form</a>
+                <a href="/" class="nav-link secondary">🏠 Home</a>
+            </div>
+        </div>
+
+        <!-- Platform Overview -->
+        <div class="section">
+            <h2><span class="icon">📈</span> Platform Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">29</div>
+                    <div class="stat-label">AI Agents</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">10</div>
+                    <div class="stat-label">Integrations</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Workflows</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">90+</div>
+                    <div class="stat-label">API Endpoints</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">20+</div>
+                    <div class="stat-label">Database Tables</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">23,401</div>
+                    <div class="stat-label">Lines of Code</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Agents -->
+        <div class="section">
+            <h2><span class="icon">🤖</span> AI Agent Ecosystem (29 Agents)</h2>
+
+            <h3>Phase 1: Foundation Agents (2)</h3>
+            <span class="badge badge-success">✓ Operational</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">🎯 Prospect Agent</div>
+                    <div class="feature-description">
+                        Lead qualification using HuggingFace sentiment analysis. Scores leads 0-10 and classifies as hot/warm/cold.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">💬 FAQ Chatbot</div>
+                    <div class="feature-description">
+                        Automated customer inquiry responses with context awareness and conversation memory.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Phase 2: Sales & Content Automation (6)</h3>
+            <span class="badge badge-success">✓ Active</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">📧 Sales Pitch Agent</div>
+                    <div class="feature-description">
+                        Generates personalized B2B sales emails using Mistral-7B/GPT-Neo-2.7B models.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">✍️ Content Writer Agent</div>
+                    <div class="feature-description">
+                        Creates blog posts, articles, and marketing content with built-in SEO optimization.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔍 Intent Classifier Agent</div>
+                    <div class="feature-description">
+                        Classifies user messages by intent: pricing, support, demo, technical, etc.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">💌 Email Personalizer Agent</div>
+                    <div class="feature-description">
+                        Context-aware personalized email generation based on customer data and history.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📱 Social Media Agent</div>
+                    <div class="feature-description">
+                        Platform-specific posts for LinkedIn, Twitter, Facebook with optimal timing.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔎 SEO Optimizer Agent</div>
+                    <div class="feature-description">
+                        Comprehensive SEO: keyword research, competitor analysis, technical SEO, schema markup.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Phase 3: Orchestration & Analytics (8)</h3>
+            <span class="badge badge-success">✓ Active</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">🎭 Orchestrator Agent</div>
+                    <div class="feature-description">
+                        Routes customer interactions to appropriate agents. Manages 7 journey stages from awareness to retention.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🛣️ Journey Automation Agent</div>
+                    <div class="feature-description">
+                        End-to-end customer journey mapping with 12 stages (AWARENESS→CHURN_RISK). Automated triggers and handoffs.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📚 RAG Research Agent</div>
+                    <div class="feature-description">
+                        Retrieval-Augmented Generation for research. Semantic search using embeddings across knowledge base and docs.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">💼 Sales Strategist Agent</div>
+                    <div class="feature-description">
+                        Advanced B2B sales strategies, deal analysis, objection handling, campaign planning.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📣 Marketing Campaign Agent</div>
+                    <div class="feature-description">
+                        Campaign planning across awareness/consideration/conversion stages with multi-channel orchestration.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🤝 Customer Success Agent</div>
+                    <div class="feature-description">
+                        Health monitoring, onboarding automation, intervention triggers, expansion opportunity detection.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📊 Analytics Agent</div>
+                    <div class="feature-description">
+                        Performance reporting: agent performance, customer journey analysis, ROI metrics, executive summaries.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🎨 Multimodal AI Agent</div>
+                    <div class="feature-description">
+                        Multi-modal capabilities: text, image, and audio processing with unified interface.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Phase 4: Advanced Capabilities (5)</h3>
+            <span class="badge badge-warning">🔧 In Development</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">👤 Digital Avatar Agent</div>
+                    <div class="feature-description">
+                        3 personas (Sarah-Sales, Marcus-Solutions, Priya-Success). Integrates D-ID, HeyGen, Synthesia. ElevenLabs voice.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🎤 Voice Conversation Agent</div>
+                    <div class="feature-description">
+                        Voice transcription, TTS synthesis. Multiple styles (professional, friendly, authoritative). Languages: en, es, fr, de.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🌍 Multilingual Agent</div>
+                    <div class="feature-description">
+                        Text translation, language detection, multi-language content generation with context preservation.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">⚡ Realtime Conversation Agent</div>
+                    <div class="feature-description">
+                        Combined avatar + voice + AI interactions. WebRTC streaming support for low-latency communication.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🧠 Model Fine-Tuning Agent</div>
+                    <div class="feature-description">
+                        Custom LLM fine-tuning with LoRA. Training data handling, model optimization, A/B testing, PyTorch/TensorFlow support.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Service Delivery Specialists (4)</h3>
+            <span class="badge badge-success">✓ Operational</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">🎯 Service Delivery Orchestrator</div>
+                    <div class="feature-description">
+                        Central coordination for 3 core services: search marketing, AI media, ML tuning.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔍 Search Marketing Specialist</div>
+                    <div class="feature-description">
+                        Multi-platform campaign management (Google Ads, Meta, LinkedIn, TikTok). AI-driven bid optimization, ROI analysis.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🎬 Generative AI Media Specialist</div>
+                    <div class="feature-description">
+                        AI avatar creation, voice cloning, video generation, UGC automation with quality control.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔬 ML/AI Expert</div>
+                    <div class="feature-description">
+                        ML operations, model training, data preprocessing, model deployment and monitoring.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Business Operations Specialists (5)</h3>
+            <span class="badge badge-success">✓ Operational</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">📋 Project Manager Agent</div>
+                    <div class="feature-description">
+                        Project planning, coordination, tracking. 6 project statuses, 5 task statuses, team management.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔬 Research Analyst Agent</div>
+                    <div class="feature-description">
+                        In-depth competitive analysis, market research, trend identification with data visualization.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">💬 Client Communication Manager</div>
+                    <div class="feature-description">
+                        All client communications tracking, interaction history, relationship context maintenance.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📊 Status Tracking Manager</div>
+                    <div class="feature-description">
+                        Project/agent status monitoring, report generation, alerts for issues and blockers.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🔍 Search Marketing Expert</div>
+                    <div class="feature-description">
+                        Comprehensive search marketing expertise, keyword strategy, bid optimization, performance analysis.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="section">
+            <h2><span class="icon">🔗</span> Integration Systems (10 Active)</h2>
+
+            <h3>Email Services</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">📧 Mailgun Integration</div>
+                    <div class="feature-description">
+                        Email sending (single/batch), validation, templates, tracking, mailing lists.
+                        <span class="badge badge-success" style="margin-top: 12px; display: block;">Free: 100 emails/day</span>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📨 SendGrid Integration</div>
+                    <div class="feature-description">
+                        SendGrid API, template management, advanced analytics, deliverability optimization.
+                    </div>
+                </div>
+            </div>
+
+            <h3>CRM Platforms</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">👥 Attio CRM</div>
+                    <div class="feature-description">
+                        Person/company management, notes, pipeline tracking, custom fields, API v2 support.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📊 SuiteCRM</div>
+                    <div class="feature-description">
+                        Lead/contact management, opportunity tracking, full CRM capabilities.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Social Media</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">💼 LinkedIn Integration</div>
+                    <div class="feature-description">
+                        Post publishing (profiles/company pages), scheduled posting, analytics, lead generation, connection management.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🐦 Twitter Integration</div>
+                    <div class="feature-description">
+                        Tweet posting, engagement tracking, hashtag management, audience analytics.
+                    </div>
+                </div>
+            </div>
+
+            <h3>Workflow & Escalation</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">⚙️ N8N Integration</div>
+                    <div class="feature-description">
+                        Workflow execution management, trigger workflows, execution history, programmatic workflow creation.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🚨 Human Escalation System</div>
+                    <div class="feature-description">
+                        Auto-detection, multi-channel notifications (Slack/Email/SMS/Webhook), 4 priority levels, queue management.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflows -->
+        <div class="section">
+            <h2><span class="icon">⚙️</span> N8N Workflow Engine (24 Workflows)</h2>
+
+            <h3>Sales Workflows (3)</h3>
+            <ul class="feature-list">
+                <li>Sales Lead Qualification - Webhook → AI qualification → CRM → Notifications</li>
+                <li>Advanced Lead Scoring - Multi-stage qualification with Attio sync</li>
+                <li>Form Capture to Attio - Automated lead capture and CRM integration</li>
+            </ul>
+
+            <h3>Marketing Workflows (5)</h3>
+            <ul class="feature-list">
+                <li>Content Pipeline - Creation → Approval → Publishing workflow</li>
+                <li>Content-Driven Lead Gen - Content → Capture → Nurture sequence</li>
+                <li>Multi-Platform Ad Campaigns - Google/Meta/LinkedIn/TikTok setup</li>
+                <li>Email Campaign Scheduler - Personalization and timing optimization</li>
+                <li>Email Personalization - Dynamic content based on user data</li>
+            </ul>
+
+            <h3>Customer Journey Workflows (4)</h3>
+            <ul class="feature-list">
+                <li>Success Monitoring - Health check → Intervention → Escalation</li>
+                <li>Complete Customer Lifecycle - Awareness → Success tracking</li>
+                <li>Client Onboarding - New customer setup and training sequence</li>
+                <li>Event/Webinar Follow-up - Registration → Attendance → Follow-up</li>
+            </ul>
+
+            <h3>Social Media & Outreach (4)</h3>
+            <ul class="feature-list">
+                <li>LinkedIn Outreach Sequence - Connection → Message → Engagement → Meeting</li>
+                <li>Cold Email Campaign - List → Personalization → Send → Track → Follow-up</li>
+                <li>Social Media Posting - Platform-specific content distribution</li>
+                <li>Lead Capture - Multi-channel lead capture automation</li>
+            </ul>
+
+            <h3>AI Media Production (3)</h3>
+            <ul class="feature-list">
+                <li>Avatar Production - AI avatar creation with voice synthesis</li>
+                <li>Video Generation - AI-powered video content creation</li>
+                <li>ML Model Fine-Tuning - Automated model training pipeline</li>
+            </ul>
+
+            <h3>Examples & Templates (5)</h3>
+            <ul class="feature-list">
+                <li>Phase 1 Lead Qualification Example</li>
+                <li>Phase 2 Sales Personalization Example</li>
+                <li>Phase 4 Avatar Call Orchestration Example</li>
+                <li>Marketing Lead Capture Template</li>
+                <li>Complete Lifecycle Template</li>
+            </ul>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="section">
+            <h2><span class="icon">🔌</span> API Endpoints (90+ Endpoints)</h2>
+
+            <h3>Agent Service API (40+ Endpoints)</h3>
+            <h4>Core Endpoints</h4>
+            <ul class="feature-list">
+                <li>/health - Service health check</li>
+                <li>/agents - List all available agents</li>
+                <li>/metrics/{agent_name} - Agent performance metrics</li>
+                <li>/agent/{agent_name}/process - Generic agent execution</li>
+                <li>/execute - Universal execution endpoint</li>
+            </ul>
+
+            <h4>Phase 1 Endpoints</h4>
+            <ul class="feature-list">
+                <li>/phase1/qualify-lead - Lead qualification</li>
+                <li>/phase1/faq - FAQ chatbot interaction</li>
+                <li>/phase1/qualify-and-create-in-crm - Qualify and sync to CRM</li>
+            </ul>
+
+            <h4>Phase 2 Endpoints</h4>
+            <ul class="feature-list">
+                <li>/phase2/generate-sales-pitch - Sales email generation</li>
+                <li>/phase2/write-content - Content creation</li>
+                <li>/phase2/classify-intent - Message intent classification</li>
+                <li>/phase2/personalize-email - Email personalization</li>
+                <li>/phase2/create-social-posts - Social media content</li>
+            </ul>
+
+            <h4>Phase 3 Endpoints</h4>
+            <ul class="feature-list">
+                <li>/phase3/orchestrate - Workflow orchestration</li>
+                <li>/phase3/research - RAG-based research</li>
+                <li>/phase3/sales-strategy - Sales strategy generation</li>
+                <li>/phase3/marketing-campaign - Campaign planning</li>
+                <li>/phase3/customer-success - Customer health analysis</li>
+                <li>/phase3/analytics - Performance analytics</li>
+            </ul>
+
+            <h4>Phase 4 Endpoints</h4>
+            <ul class="feature-list">
+                <li>/phase4/digital-avatar - Avatar video generation</li>
+                <li>/phase4/voice-conversation - TTS/ASR services</li>
+                <li>/phase4/multilingual - Translation services</li>
+                <li>/phase4/realtime-conversation - Real-time avatar interactions</li>
+                <li>/phase4/personalization - A/B testing and segmentation</li>
+            </ul>
+
+            <h4>Control Panel Monitoring</h4>
+            <ul class="feature-list">
+                <li>/control-panel/dashboard - Centralized overview</li>
+                <li>/control-panel/agents - All agent status</li>
+                <li>/control-panel/agent/{agent_name} - Detailed agent info</li>
+                <li>/control-panel/activities - Recent activities log</li>
+                <li>/control-panel/workflow/{workflow_id} - Workflow trace</li>
+                <li>/control-panel/events - System events and alerts</li>
+                <li>/control-panel/statistics - System-wide statistics</li>
+                <li>/control-panel/inter-agent-messages - Agent communication</li>
+            </ul>
+
+            <h3>Service Delivery API (25+ Endpoints)</h3>
+            <ul class="feature-list">
+                <li>/health - Service health check</li>
+                <li>/capabilities - List all service capabilities</li>
+                <li>/services - Available service packages</li>
+                <li>/clients/onboard - New client onboarding</li>
+                <li>/clients/{client_id}/status - Client status tracking</li>
+                <li>/services/search-marketing/campaigns - Campaign management</li>
+                <li>/services/ai-media/content - Media content generation</li>
+                <li>/services/ml-tuning/models - Model training management</li>
+                <li>/webhooks/lead-qualification - Lead webhook handler</li>
+                <li>/webhooks/campaign-optimization - Campaign webhook</li>
+                <li>/analytics/dashboard - Analytics dashboard data</li>
+                <li>/reports/performance - Performance reports</li>
+            </ul>
+
+            <h3>Customer Portal API (20+ Endpoints)</h3>
+            <ul class="feature-list">
+                <li>/login - User authentication</li>
+                <li>/register - New user registration</li>
+                <li>/logout - Session termination</li>
+                <li>/ - Landing page</li>
+                <li>/dashboard - Customer dashboard</li>
+                <li>/support - Support interface</li>
+                <li>/knowledge-base - Knowledge base access</li>
+                <li>/chat - AI chat interface</li>
+                <li>/api/chat/start - Start chat session</li>
+                <li>/api/chat/message - Send chat message</li>
+                <li>/api/chat/history/{session_id} - Chat history</li>
+                <li>/api/dashboard/metrics - Dashboard metrics</li>
+                <li>/support/create-ticket - Create support ticket</li>
+            </ul>
+        </div>
+
+        <!-- Database Schema -->
+        <div class="section">
+            <h2><span class="icon">🗄️</span> Database Architecture (20+ Tables)</h2>
+
+            <h3>Core Business Tables</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Purpose</th>
+                            <th>Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>clients</td>
+                            <td>Client information</td>
+                            <td>Company info, contact, timezone, relationship stage</td>
+                        </tr>
+                        <tr>
+                            <td>projects</td>
+                            <td>Project management</td>
+                            <td>Budgets, timelines, status tracking, milestones</td>
+                        </tr>
+                        <tr>
+                            <td>service_deliveries</td>
+                            <td>Deliverable tracking</td>
+                            <td>Quality scores, approval status, versions</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Agent Operations</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Purpose</th>
+                            <th>Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>agent_work_products</td>
+                            <td>Agent outputs</td>
+                            <td>File storage, versioning, content hashing</td>
+                        </tr>
+                        <tr>
+                            <td>agent_interactions</td>
+                            <td>Agent activity log</td>
+                            <td>Input/output, timing, success metrics</td>
+                        </tr>
+                        <tr>
+                            <td>agent_metrics</td>
+                            <td>Performance tracking</td>
+                            <td>Metrics over time, baseline comparison</td>
+                        </tr>
+                        <tr>
+                            <td>inter_agent_messages</td>
+                            <td>Agent communication</td>
+                            <td>Message routing, collaboration tracking</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Customer Portal</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Table</th>
+                            <th>Purpose</th>
+                            <th>Key Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>users</td>
+                            <td>User accounts</td>
+                            <td>Email, password hash, JWT tokens</td>
+                        </tr>
+                        <tr>
+                            <td>customer_data</td>
+                            <td>Customer info</td>
+                            <td>Subscription, health scores, service info</td>
+                        </tr>
+                        <tr>
+                            <td>support_tickets</td>
+                            <td>Help requests</td>
+                            <td>Status tracking, priority, assignment</td>
+                        </tr>
+                        <tr>
+                            <td>chat_sessions</td>
+                            <td>Chat conversations</td>
+                            <td>Session management, agent assignment</td>
+                        </tr>
+                        <tr>
+                            <td>chat_messages</td>
+                            <td>Chat messages</td>
+                            <td>Message content, confidence scores, context</td>
+                        </tr>
+                        <tr>
+                            <td>kb_articles</td>
+                            <td>Knowledge base</td>
+                            <td>Articles, tags, search optimization</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="section">
+            <h2><span class="icon">🛠️</span> Technology Stack</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Backend Framework</div>
+                    <ul class="feature-list">
+                        <li>Python 3.10+</li>
+                        <li>FastAPI 0.104+</li>
+                        <li>Uvicorn ASGI server</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">AI/ML Stack</div>
+                    <ul class="feature-list">
+                        <li>LangChain 0.1.0</li>
+                        <li>CrewAI 0.1.26</li>
+                        <li>AutoGen 0.2.9</li>
+                        <li>Transformers 4.36</li>
+                        <li>PyTorch 2.1.0</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Databases</div>
+                    <ul class="feature-list">
+                        <li>PostgreSQL 15</li>
+                        <li>Redis 7</li>
+                        <li>Chromadb 0.4.22</li>
+                        <li>Qdrant 1.7.0</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Workflow & Queue</div>
+                    <ul class="feature-list">
+                        <li>N8N (self-hosted)</li>
+                        <li>Celery 5.3.4</li>
+                        <li>Redis message broker</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Monitoring</div>
+                    <ul class="feature-list">
+                        <li>Prometheus</li>
+                        <li>Grafana</li>
+                        <li>Metabase</li>
+                        <li>Loguru 0.7.2</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Deployment</div>
+                    <ul class="feature-list">
+                        <li>Docker & Docker Compose</li>
+                        <li>Vercel (serverless)</li>
+                        <li>Railway (containers)</li>
+                        <li>Google Cloud Platform</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Options -->
+        <div class="section">
+            <h2><span class="icon">🚀</span> Deployment Options</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">Vercel (Serverless)</div>
+                    <div class="feature-description">
+                        <strong>Best for:</strong> Frontend, API routes, serverless functions<br>
+                        <strong>Scaling:</strong> Automatic<br>
+                        <strong>Cost:</strong> Free tier available
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Railway (Containers)</div>
+                    <div class="feature-description">
+                        <strong>Best for:</strong> Persistent services, databases<br>
+                        <strong>Scaling:</strong> Vertical & horizontal<br>
+                        <strong>Cost:</strong> Pay-as-you-go
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Google Cloud Platform</div>
+                    <div class="feature-description">
+                        <strong>Best for:</strong> Enterprise deployments<br>
+                        <strong>Scaling:</strong> Full control<br>
+                        <strong>Cost:</strong> Enterprise pricing
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Self-Hosted (Docker)</div>
+                    <div class="feature-description">
+                        <strong>Best for:</strong> Full control, air-gapped<br>
+                        <strong>Scaling:</strong> Manual configuration<br>
+                        <strong>Cost:</strong> Infrastructure only
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="section">
+            <h2><span class="icon">🎯</span> Quick Start Guide</h2>
+
+            <h3>1. Environment Setup</h3>
+            <ul class="feature-list">
+                <li>Clone repository: <code>git clone https://github.com/Humasci/Instant-Agency</code></li>
+                <li>Copy environment variables: <code>cp .env.example .env</code></li>
+                <li>Configure API keys (Mailgun, Attio, OpenAI, etc.)</li>
+            </ul>
+
+            <h3>2. Local Development</h3>
+            <ul class="feature-list">
+                <li>Install dependencies: <code>pip install -r agents/requirements.txt</code></li>
+                <li>Start services: <code>docker-compose up -d</code></li>
+                <li>Run agent service: <code>python agents/main.py</code></li>
+                <li>Access dashboard: <code>http://localhost:8000</code></li>
+            </ul>
+
+            <h3>3. Deploy to Production</h3>
+            <ul class="feature-list">
+                <li>Vercel: Connect GitHub repo and deploy</li>
+                <li>Railway: Import Docker Compose or Dockerfile</li>
+                <li>GCP: Follow guide in <code>google_cloud_deployment.md</code></li>
+            </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="section">
+            <h2><span class="icon">💬</span> Support & Resources</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-title">📚 Documentation</div>
+                    <div class="feature-description">
+                        21+ comprehensive guides covering setup, deployment, architecture, and agent development.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">🐛 Issue Tracking</div>
+                    <div class="feature-description">
+                        GitHub Issues for bug reports, feature requests, and community support.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">💻 Contributing</div>
+                    <div class="feature-description">
+                        Open source project welcoming contributions. See CONTRIBUTING.md for guidelines.
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">📧 Contact</div>
+                    <div class="feature-description">
+                        Use the contact form for enterprise inquiries, custom development, or partnership opportunities.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
