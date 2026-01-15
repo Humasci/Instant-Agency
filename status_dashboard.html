@@ -9,54 +9,55 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a2332;
             min-height: 100vh;
-            color: #333;
+            color: #ffffff;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
+            background: #243447;
+            border-radius: 12px;
             padding: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
         }
-        
+
         .header h1 {
             font-size: 2rem;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #ffffff;
             margin-bottom: 8px;
         }
-        
+
         .header p {
-            color: #666;
+            color: #8b99ab;
             font-size: 1.1rem;
         }
-        
+
         .contact-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: #1de9b6;
+            color: #1a2332;
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
             display: inline-block;
             font-weight: 600;
             margin-top: 16px;
             transition: all 0.3s ease;
         }
-        
+
         .contact-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(29, 233, 182, 0.3);
+            background: #00d9c8;
         }
         
         .dashboard-grid {
@@ -73,23 +74,23 @@
         }
         
         .panel {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
+            background: #243447;
+            border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
         }
-        
+
         .panel h2 {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #1a1a1a;
+            color: #ffffff;
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .panel-icon {
             width: 32px;
             height: 32px;
@@ -100,39 +101,39 @@
             font-size: 1.2rem;
         }
         
-        .client-section { background: linear-gradient(135deg, #667eea, #764ba2); }
-        .department-section { background: linear-gradient(135deg, #f093fb, #f5576c); }
-        
+        .client-section { background: #1de9b6; }
+        .department-section { background: #ff6b35; }
+
         .client-card, .department-card {
-            background: #f8f9fa;
+            background: #2d3e50;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
             border-left: 4px solid;
             transition: all 0.3s ease;
         }
-        
+
         .client-card:hover, .department-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
         }
-        
-        .client-card { border-left-color: #667eea; }
-        .department-card { border-left-color: #f5576c; }
-        
+
+        .client-card { border-left-color: #1de9b6; }
+        .department-card { border-left-color: #ff6b35; }
+
         .client-header, .department-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
         }
-        
+
         .client-name, .department-name {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #ffffff;
         }
-        
+
         .status-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -141,57 +142,58 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        .status-active { background: #d4edda; color: #155724; }
-        .status-planning { background: #fff3cd; color: #856404; }
-        .status-at-risk { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
-        
+
+        .status-active { background: rgba(29, 233, 182, 0.15); color: #1de9b6; }
+        .status-planning { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+        .status-at-risk { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+        .status-completed { background: rgba(52, 152, 219, 0.15); color: #3498db; }
+
         .progress-section {
             margin-bottom: 16px;
         }
-        
+
         .progress-label {
             font-size: 0.9rem;
-            color: #666;
+            color: #8b99ab;
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
         }
-        
+
         .progress-bar {
             height: 8px;
-            background: #e9ecef;
+            background: #1a2332;
             border-radius: 4px;
             overflow: hidden;
         }
-        
+
         .progress-fill {
             height: 100%;
             transition: width 0.3s ease;
         }
-        
-        .progress-search { background: linear-gradient(90deg, #667eea, #764ba2); }
-        .progress-media { background: linear-gradient(90deg, #f093fb, #f5576c); }
-        .progress-ml { background: linear-gradient(90deg, #4facfe, #00f2fe); }
-        
+
+        .progress-search { background: #1de9b6; }
+        .progress-media { background: #ff6b35; }
+        .progress-ml { background: #3498db; }
+
         .task-list {
             list-style: none;
         }
-        
+
         .task-item {
             padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #1a2332;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 12px;
+            color: #8b99ab;
         }
-        
+
         .task-item:last-child {
             border-bottom: none;
         }
-        
+
         .task-status {
             width: 8px;
             height: 8px;
@@ -199,62 +201,64 @@
         }
         
         .task-pending { background: #ffc107; }
-        .task-progress { background: #007bff; }
-        .task-completed { background: #28a745; }
-        
+        .task-progress { background: #1de9b6; }
+        .task-completed { background: #1de9b6; }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 16px;
             margin-top: 16px;
         }
-        
+
         .metric {
             text-align: center;
             padding: 16px;
-            background: #fff;
+            background: #1a2332;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d3e50;
         }
-        
+
         .metric-value {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #ffffff;
         }
-        
+
         .metric-label {
             font-size: 0.8rem;
-            color: #666;
+            color: #8b99ab;
             margin-top: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .refresh-btn {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: #1de9b6;
+            color: #1a2332;
             border: none;
             width: 56px;
             height: 56px;
             border-radius: 50%;
             font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(29, 233, 182, 0.3);
             transition: all 0.3s ease;
         }
-        
+
         .refresh-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(29, 233, 182, 0.5);
+            background: #00d9c8;
         }
-        
+
         .last-updated {
             text-align: center;
-            color: #666;
+            color: #8b99ab;
             font-size: 0.9rem;
             margin-top: 24px;
         }
@@ -508,7 +512,415 @@
                 </div>
             </div>
         </div>
-        
+
+        <!-- AI Agents System Panel -->
+        <div class="panel" style="margin-top: 24px;">
+            <h2>
+                <div class="panel-icon" style="background: #1de9b6;">🤖</div>
+                AI Agent Ecosystem (29 Agents)
+            </h2>
+
+            <div class="department-card">
+                <div class="department-header">
+                    <div class="department-name">Phase 1: Foundation Agents (2)</div>
+                    <div class="status-badge status-completed">Operational</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Prospect Agent - Lead qualification with sentiment analysis
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        FAQ Chatbot - Automated customer inquiries
+                    </li>
+                </ul>
+            </div>
+
+            <div class="department-card">
+                <div class="department-header">
+                    <div class="department-name">Phase 2: Sales & Content (6)</div>
+                    <div class="status-badge status-active">Active</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Sales Pitch Agent - B2B personalized emails
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Content Writer - SEO-optimized content
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Email Personalizer - Context-aware generation
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Social Media Agent - Multi-platform posts
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        SEO Optimizer - Keyword & technical SEO
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Intent Classifier - Message categorization
+                    </li>
+                </ul>
+            </div>
+
+            <div class="department-card">
+                <div class="department-header">
+                    <div class="department-name">Phase 3: Orchestration (8)</div>
+                    <div class="status-badge status-active">Active</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Orchestrator - 7-stage journey management
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Journey Automation - 12-stage lifecycle
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        RAG Research - Semantic search
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Sales Strategist - Deal analysis
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Marketing Campaign - Multi-channel
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Customer Success - Health monitoring
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Analytics - Performance reporting
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Multimodal AI - Text/image/audio
+                    </li>
+                </ul>
+            </div>
+
+            <div class="department-card">
+                <div class="department-header">
+                    <div class="department-name">Phase 4: Advanced (5)</div>
+                    <div class="status-badge status-planning">In Development</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Digital Avatar - 3 personas with voice
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Voice Conversation - TTS/ASR 4+ languages
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-progress"></div>
+                        Multilingual - Translation & detection
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-progress"></div>
+                        Realtime Conversation - Avatar+Voice+AI
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-progress"></div>
+                        Model Fine-Tuning - Custom LLM training
+                    </li>
+                </ul>
+            </div>
+
+            <div class="department-card">
+                <div class="department-header">
+                    <div class="department-name">Service & Business Specialists (8)</div>
+                    <div class="status-badge status-active">Operational</div>
+                </div>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Service Delivery Orchestrator
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Search Marketing Specialist - Google/Meta/LinkedIn
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        AI Media Specialist - Avatar/Video/UGC
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        ML/AI Expert - Model operations
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Project Manager - 6 statuses tracking
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Research Analyst - Market insights
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Client Communication Manager
+                    </li>
+                    <li class="task-item">
+                        <div class="task-status task-completed"></div>
+                        Status Tracking Manager
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Integration Systems Panel -->
+        <div class="panel" style="margin-top: 24px;">
+            <h2>
+                <div class="panel-icon" style="background: #ff6b35;">🔗</div>
+                Integration Systems (10 Active)
+            </h2>
+
+            <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">Mailgun Email<br/><small style="color: #1de9b6;">100 emails/day free</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">SendGrid Email<br/><small style="color: #1de9b6;">Connected</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">Attio CRM<br/><small style="color: #1de9b6;">API v2 Active</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">SuiteCRM<br/><small style="color: #1de9b6;">Synced</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">LinkedIn Integration<br/><small style="color: #1de9b6;">Auto-posting enabled</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">Twitter API<br/><small style="color: #1de9b6;">Engagement tracking</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">✓</div>
+                    <div class="metric-label">N8N Workflows<br/><small style="color: #1de9b6;">24 templates</small></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">⚠️</div>
+                    <div class="metric-label">Human Escalation<br/><small style="color: #ffc107;">4 priority levels</small></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Engine Panel -->
+        <div class="panel" style="margin-top: 24px;">
+            <h2>
+                <div class="panel-icon" style="background: #3498db;">⚙️</div>
+                N8N Workflow Engine (24 Workflows)
+            </h2>
+
+            <div class="dashboard-grid">
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Sales & Marketing (8)</div>
+                        <div class="status-badge status-active">Running</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">3</div>
+                            <div class="metric-label">Lead Qualification</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Content Pipelines</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">3</div>
+                            <div class="metric-label">Outreach Sequences</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Customer Journey (4)</div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">1</div>
+                            <div class="metric-label">Complete Lifecycle</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">1</div>
+                            <div class="metric-label">Health Monitoring</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Onboarding Flows</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">AI Media Production (3)</div>
+                        <div class="status-badge status-active">Processing</div>
+                    </div>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Avatar creation workflow
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-progress"></div>
+                            Video generation pipeline
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            ML fine-tuning workflow
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Communication (9)</div>
+                        <div class="status-badge status-active">Sending</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Email Campaigns</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Social Posting</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">1</div>
+                            <div class="metric-label">Event Follow-ups</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Health Panel -->
+        <div class="panel" style="margin-top: 24px;">
+            <h2>
+                <div class="panel-icon" style="background: #1de9b6;">📊</div>
+                System Health & Infrastructure
+            </h2>
+
+            <div class="dashboard-grid">
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">API Services</div>
+                        <div class="status-badge status-active">90+ Endpoints</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">40+</div>
+                            <div class="metric-label">Agent API</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">25+</div>
+                            <div class="metric-label">Service Delivery</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">20+</div>
+                            <div class="metric-label">Customer Portal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Database Layer</div>
+                        <div class="status-badge status-active">Healthy</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">20+</div>
+                            <div class="metric-label">PostgreSQL Tables</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">✓</div>
+                            <div class="metric-label">Redis Cache</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">✓</div>
+                            <div class="metric-label">Vector Store</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Monitoring Stack</div>
+                        <div class="status-badge status-active">Operational</div>
+                    </div>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Prometheus metrics collection
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Grafana dashboards (5 templates)
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Central logging system
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Metabase analytics
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="department-card">
+                    <div class="department-header">
+                        <div class="department-name">Deployment</div>
+                        <div class="status-badge status-completed">Multi-Cloud</div>
+                    </div>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Vercel (serverless)
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Railway (containers)
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Google Cloud Platform
+                        </li>
+                        <li class="task-item">
+                            <div class="task-status task-completed"></div>
+                            Docker Compose (self-hosted)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="last-updated">
             Last updated: <span id="lastUpdated"></span>
         </div>
