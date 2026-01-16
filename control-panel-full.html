@@ -31,7 +31,7 @@
 
         .header h1 {
             font-size: 2.5rem;
-            font-weight: 700;
+            font-weight: 400;
             color: #1de9b6;
             margin-bottom: 12px;
         }
@@ -56,7 +56,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 600;
+            font-weight: 400;
         }
 
         .tab:hover {
@@ -132,7 +132,7 @@
 
         .agent-name {
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #ffffff;
         }
 
@@ -170,7 +170,7 @@
             font-size: 0.85rem;
             color: #8b99ab;
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 400;
             letter-spacing: 0.5px;
         }
 
@@ -190,7 +190,7 @@
             padding: 8px 16px;
             border-radius: 8px;
             border: none;
-            font-weight: 600;
+            font-weight: 400;
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -261,7 +261,7 @@
 
         .integration-name {
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #ffffff;
         }
 
@@ -269,7 +269,7 @@
             padding: 4px 12px;
             border-radius: 6px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -316,7 +316,7 @@
         }
 
         .workflow-name {
-            font-weight: 600;
+            font-weight: 400;
             color: #ffffff;
             margin-bottom: 4px;
         }
@@ -349,7 +349,7 @@
         .endpoint-method {
             padding: 4px 12px;
             border-radius: 6px;
-            font-weight: 600;
+            font-weight: 400;
             font-size: 0.85rem;
         }
 
@@ -403,7 +403,7 @@
         }
 
         .log-level {
-            font-weight: 600;
+            font-weight: 400;
         }
 
         .log-level.info {
@@ -439,7 +439,7 @@
 
         .stat-value {
             font-size: 2.5rem;
-            font-weight: 700;
+            font-weight: 400;
             color: #1de9b6;
             margin-bottom: 8px;
         }
@@ -459,7 +459,7 @@
             display: block;
             color: #8b99ab;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 400;
             margin-bottom: 8px;
         }
 
@@ -577,24 +577,24 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎛️ SIX3 Agency Control Panel</h1>
+            <h1>SIX3 Agency Control Panel</h1>
             <p>Manage and monitor all 29 agents, 10 integrations, 24 workflows, and system operations</p>
         </div>
 
         <div class="nav-tabs">
-            <div class="tab active" onclick="switchTab('agents')">🤖 Agents (29)</div>
-            <div class="tab" onclick="switchTab('integrations')">🔗 Integrations (10)</div>
-            <div class="tab" onclick="switchTab('workflows')">⚙️ Workflows (24)</div>
-            <div class="tab" onclick="switchTab('api')">🔌 API Endpoints (90+)</div>
-            <div class="tab" onclick="switchTab('database')">🗄️ Database</div>
-            <div class="tab" onclick="switchTab('monitoring')">📊 Monitoring</div>
-            <div class="tab" onclick="switchTab('logs')">📝 Logs</div>
+            <div class="tab active" onclick="switchTab('agents')">Agents (29)</div>
+            <div class="tab" onclick="switchTab('integrations')">Integrations (10)</div>
+            <div class="tab" onclick="switchTab('workflows')">Workflows (24)</div>
+            <div class="tab" onclick="switchTab('api')">API Endpoints (90+)</div>
+            <div class="tab" onclick="switchTab('database')">Database</div>
+            <div class="tab" onclick="switchTab('monitoring')">Monitoring</div>
+            <div class="tab" onclick="switchTab('logs')">Logs</div>
         </div>
 
         <!-- Agents Tab -->
         <div id="agents" class="tab-content active">
             <div class="section">
-                <h2>🤖 AI Agent Management</h2>
+                <h2>AI Agent Management</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -619,7 +619,7 @@
                 <div class="agent-grid">
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🎯 Prospect Agent</div>
+                            <div class="agent-name">Prospect Agent</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -629,15 +629,15 @@
                             Lead qualification with sentiment analysis. Scores 0-10, classifies hot/warm/cold.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('prospect')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('prospect')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('prospect')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('prospect')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('prospect')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('prospect')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">💬 FAQ Chatbot</div>
+                            <div class="agent-name">FAQ Chatbot</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -647,9 +647,9 @@
                             Automated customer inquiry responses with context awareness.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('faq')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('faq')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('faq')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('faq')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('faq')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('faq')">Metrics</button>
                         </div>
                     </div>
                 </div>
@@ -658,7 +658,7 @@
                 <div class="agent-grid">
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">📧 Sales Pitch Agent</div>
+                            <div class="agent-name">Sales Pitch Agent</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -668,15 +668,15 @@
                             Personalized B2B sales emails using Mistral-7B/GPT-Neo-2.7B.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('sales-pitch')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('sales-pitch')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('sales-pitch')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('sales-pitch')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('sales-pitch')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('sales-pitch')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">✍️ Content Writer</div>
+                            <div class="agent-name">Content Writer</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -686,15 +686,15 @@
                             Blog posts, articles, marketing content with SEO optimization.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('content-writer')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('content-writer')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('content-writer')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('content-writer')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('content-writer')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('content-writer')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🔍 Intent Classifier</div>
+                            <div class="agent-name">Intent Classifier</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -704,15 +704,15 @@
                             Message intent classification: pricing, support, demo, technical.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('intent-classifier')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('intent-classifier')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('intent-classifier')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('intent-classifier')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('intent-classifier')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('intent-classifier')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">💌 Email Personalizer</div>
+                            <div class="agent-name">Email Personalizer</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -722,15 +722,15 @@
                             Context-aware email generation based on customer data.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('email-personalizer')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('email-personalizer')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('email-personalizer')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('email-personalizer')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('email-personalizer')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('email-personalizer')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">📱 Social Media Agent</div>
+                            <div class="agent-name">Social Media Agent</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -740,15 +740,15 @@
                             Platform-specific posts for LinkedIn, Twitter, Facebook.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('social-media')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('social-media')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('social-media')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('social-media')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('social-media')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('social-media')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🔎 SEO Optimizer</div>
+                            <div class="agent-name">SEO Optimizer</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -758,9 +758,9 @@
                             Keyword research, competitor analysis, technical SEO, schema.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('seo-optimizer')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('seo-optimizer')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('seo-optimizer')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('seo-optimizer')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('seo-optimizer')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('seo-optimizer')">Metrics</button>
                         </div>
                     </div>
                 </div>
@@ -769,43 +769,43 @@
                 <div class="agent-grid">
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🎭 Orchestrator</div>
+                            <div class="agent-name">Orchestrator</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
                             </div>
                         </div>
                         <div class="agent-description">
-                            Routes interactions, manages 7 journey stages awareness→retention.
+                            Routes interactions, manages 7 journey stages awareness�retention.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('orchestrator')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('orchestrator')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('orchestrator')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('orchestrator')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('orchestrator')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('orchestrator')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🛣️ Journey Automation</div>
+                            <div class="agent-name">Journey Automation</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
                             </div>
                         </div>
                         <div class="agent-description">
-                            12-stage lifecycle (AWARENESS→CHURN_RISK) with automated triggers.
+                            12-stage lifecycle (AWARENESS�CHURN_RISK) with automated triggers.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('journey')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('journey')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('journey')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('journey')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('journey')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('journey')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">📚 RAG Research</div>
+                            <div class="agent-name">RAG Research</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -815,15 +815,15 @@
                             Semantic search using embeddings across knowledge base.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('rag-research')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('rag-research')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('rag-research')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('rag-research')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('rag-research')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('rag-research')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">💼 Sales Strategist</div>
+                            <div class="agent-name">Sales Strategist</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -833,15 +833,15 @@
                             Deal analysis, objection handling, campaign planning.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('sales-strategist')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('sales-strategist')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('sales-strategist')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('sales-strategist')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('sales-strategist')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('sales-strategist')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">📣 Marketing Campaign</div>
+                            <div class="agent-name">Marketing Campaign</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -851,15 +851,15 @@
                             Multi-channel orchestration across all funnel stages.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('marketing-campaign')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('marketing-campaign')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('marketing-campaign')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('marketing-campaign')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('marketing-campaign')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('marketing-campaign')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🤝 Customer Success</div>
+                            <div class="agent-name">Customer Success</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -869,15 +869,15 @@
                             Health monitoring, onboarding, expansion detection.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('customer-success')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('customer-success')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('customer-success')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('customer-success')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('customer-success')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('customer-success')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">📊 Analytics Agent</div>
+                            <div class="agent-name">Analytics Agent</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -887,15 +887,15 @@
                             Performance reporting, ROI metrics, executive summaries.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('analytics')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('analytics')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('analytics')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('analytics')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('analytics')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('analytics')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🎨 Multimodal AI</div>
+                            <div class="agent-name">Multimodal AI</div>
                             <div class="agent-status">
                                 <div class="status-dot active"></div>
                                 <span class="status-text">Active</span>
@@ -905,9 +905,9 @@
                             Text, image, and audio processing with unified interface.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testAgent('multimodal')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('multimodal')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('multimodal')">📊 Metrics</button>
+                            <button class="btn btn-success" onclick="testAgent('multimodal')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('multimodal')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('multimodal')">Metrics</button>
                         </div>
                     </div>
                 </div>
@@ -916,7 +916,7 @@
                 <div class="agent-grid">
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">👤 Digital Avatar</div>
+                            <div class="agent-name">Digital Avatar</div>
                             <div class="agent-status">
                                 <div class="status-dot inactive"></div>
                                 <span class="status-text">Development</span>
@@ -926,15 +926,15 @@
                             3 personas with D-ID, HeyGen, Synthesia. ElevenLabs voice.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-secondary" onclick="testAgent('digital-avatar')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('digital-avatar')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('digital-avatar')">📊 Metrics</button>
+                            <button class="btn btn-secondary" onclick="testAgent('digital-avatar')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('digital-avatar')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('digital-avatar')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🎤 Voice Conversation</div>
+                            <div class="agent-name">Voice Conversation</div>
                             <div class="agent-status">
                                 <div class="status-dot inactive"></div>
                                 <span class="status-text">Development</span>
@@ -944,15 +944,15 @@
                             TTS synthesis, multiple styles, 4+ languages support.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-secondary" onclick="testAgent('voice-conversation')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('voice-conversation')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('voice-conversation')">📊 Metrics</button>
+                            <button class="btn btn-secondary" onclick="testAgent('voice-conversation')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('voice-conversation')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('voice-conversation')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🌍 Multilingual</div>
+                            <div class="agent-name">Multilingual</div>
                             <div class="agent-status">
                                 <div class="status-dot inactive"></div>
                                 <span class="status-text">Development</span>
@@ -962,15 +962,15 @@
                             Translation, language detection, multi-language generation.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-secondary" onclick="testAgent('multilingual')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('multilingual')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('multilingual')">📊 Metrics</button>
+                            <button class="btn btn-secondary" onclick="testAgent('multilingual')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('multilingual')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('multilingual')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">⚡ Realtime Conversation</div>
+                            <div class="agent-name">Realtime Conversation</div>
                             <div class="agent-status">
                                 <div class="status-dot inactive"></div>
                                 <span class="status-text">Development</span>
@@ -980,15 +980,15 @@
                             Avatar + voice + AI with WebRTC streaming support.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-secondary" onclick="testAgent('realtime')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('realtime')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('realtime')">📊 Metrics</button>
+                            <button class="btn btn-secondary" onclick="testAgent('realtime')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('realtime')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('realtime')">Metrics</button>
                         </div>
                     </div>
 
                     <div class="agent-card">
                         <div class="agent-header">
-                            <div class="agent-name">🧠 Model Fine-Tuning</div>
+                            <div class="agent-name">Model Fine-Tuning</div>
                             <div class="agent-status">
                                 <div class="status-dot inactive"></div>
                                 <span class="status-text">Development</span>
@@ -998,9 +998,9 @@
                             Custom LLM training with LoRA, A/B testing, PyTorch support.
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-secondary" onclick="testAgent('fine-tuning')">▶ Test</button>
-                            <button class="btn btn-secondary" onclick="configureAgent('fine-tuning')">⚙️ Configure</button>
-                            <button class="btn btn-secondary" onclick="viewMetrics('fine-tuning')">📊 Metrics</button>
+                            <button class="btn btn-secondary" onclick="testAgent('fine-tuning')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('fine-tuning')">Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('fine-tuning')">Metrics</button>
                         </div>
                     </div>
                 </div>
@@ -1010,7 +1010,7 @@
         <!-- Integrations Tab -->
         <div id="integrations" class="tab-content">
             <div class="section">
-                <h2>🔗 Integration Management</h2>
+                <h2>Integration Management</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1035,33 +1035,33 @@
                 <div class="integration-grid">
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">📧 Mailgun</div>
+                            <div class="integration-name">Mailgun</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active<br>
-                            <strong>Limit:</strong> 100 emails/day free<br>
-                            <strong>Sent Today:</strong> 47 emails
+                            Status: Active<br>
+                            Limit: 100 emails/day free<br>
+                            Sent Today: 47 emails
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('mailgun')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('mailgun')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('mailgun')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('mailgun')">Configure</button>
                         </div>
                     </div>
 
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">📨 SendGrid</div>
+                            <div class="integration-name">SendGrid</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active<br>
-                            <strong>API Key:</strong> Configured<br>
-                            <strong>Sent Today:</strong> 123 emails
+                            Status: Active<br>
+                            API Key: Configured<br>
+                            Sent Today: 123 emails
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('sendgrid')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('sendgrid')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('sendgrid')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('sendgrid')">Configure</button>
                         </div>
                     </div>
                 </div>
@@ -1070,33 +1070,33 @@
                 <div class="integration-grid">
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">👥 Attio CRM</div>
+                            <div class="integration-name">Attio CRM</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active (API v2)<br>
-                            <strong>Synced:</strong> 345 contacts<br>
-                            <strong>Last Sync:</strong> 2 minutes ago
+                            Status: Active (API v2)<br>
+                            Synced: 345 contacts<br>
+                            Last Sync: 2 minutes ago
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('attio')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('attio')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('attio')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('attio')">Configure</button>
                         </div>
                     </div>
 
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">📊 SuiteCRM</div>
+                            <div class="integration-name">SuiteCRM</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active<br>
-                            <strong>Synced:</strong> 892 records<br>
-                            <strong>Last Sync:</strong> 5 minutes ago
+                            Status: Active<br>
+                            Synced: 892 records<br>
+                            Last Sync: 5 minutes ago
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('suitecrm')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('suitecrm')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('suitecrm')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('suitecrm')">Configure</button>
                         </div>
                     </div>
                 </div>
@@ -1105,33 +1105,33 @@
                 <div class="integration-grid">
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">💼 LinkedIn</div>
+                            <div class="integration-name">LinkedIn</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Auto-posting enabled<br>
-                            <strong>Posts Today:</strong> 12 posts<br>
-                            <strong>Engagement:</strong> 456 interactions
+                            Status: Auto-posting enabled<br>
+                            Posts Today: 12 posts<br>
+                            Engagement: 456 interactions
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('linkedin')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('linkedin')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('linkedin')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('linkedin')">Configure</button>
                         </div>
                     </div>
 
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">🐦 Twitter</div>
+                            <div class="integration-name">Twitter</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active<br>
-                            <strong>Tweets Today:</strong> 8 tweets<br>
-                            <strong>Engagement:</strong> 234 interactions
+                            Status: Active<br>
+                            Tweets Today: 8 tweets<br>
+                            Engagement: 234 interactions
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('twitter')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('twitter')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('twitter')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('twitter')">Configure</button>
                         </div>
                     </div>
                 </div>
@@ -1140,33 +1140,33 @@
                 <div class="integration-grid">
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">⚙️ N8N Workflows</div>
+                            <div class="integration-name">N8N Workflows</div>
                             <span class="badge badge-connected">Connected</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Running<br>
-                            <strong>Active Workflows:</strong> 24<br>
-                            <strong>Executions Today:</strong> 1,234
+                            Status: Running<br>
+                            Active Workflows: 24<br>
+                            Executions Today: 1,234
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('n8n')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('n8n')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('n8n')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('n8n')">Configure</button>
                         </div>
                     </div>
 
                     <div class="integration-card">
                         <div class="integration-header">
-                            <div class="integration-name">🚨 Human Escalation</div>
+                            <div class="integration-name">Human Escalation</div>
                             <span class="badge badge-warning">Monitoring</span>
                         </div>
                         <div class="integration-info">
-                            <strong>Status:</strong> Active<br>
-                            <strong>Priority Levels:</strong> 4<br>
-                            <strong>Escalations Today:</strong> 3
+                            Status: Active<br>
+                            Priority Levels: 4<br>
+                            Escalations Today: 3
                         </div>
                         <div class="agent-controls">
-                            <button class="btn btn-success" onclick="testIntegration('escalation')">🧪 Test</button>
-                            <button class="btn btn-secondary" onclick="configureIntegration('escalation')">⚙️ Configure</button>
+                            <button class="btn btn-success" onclick="testIntegration('escalation')">� Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('escalation')">Configure</button>
                         </div>
                     </div>
                 </div>
@@ -1176,7 +1176,7 @@
         <!-- Workflows Tab -->
         <div id="workflows" class="tab-content">
             <div class="section">
-                <h2>⚙️ Workflow Management</h2>
+                <h2>Workflow Management</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1202,12 +1202,12 @@
                     <div class="workflow-item">
                         <div class="workflow-info">
                             <div class="workflow-name">Sales Lead Qualification</div>
-                            <div class="workflow-description">Webhook → AI qualification → CRM → Notifications</div>
+                            <div class="workflow-description">Webhook �AI qualification �CRM �Notifications</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('lead-qualification')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('lead-qualification')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-qualification')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('lead-qualification')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('lead-qualification')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-qualification')">Logs</button>
                         </div>
                     </div>
 
@@ -1217,9 +1217,9 @@
                             <div class="workflow-description">Multi-stage qualification with Attio sync</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('lead-scoring')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('lead-scoring')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-scoring')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('lead-scoring')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('lead-scoring')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-scoring')">Logs</button>
                         </div>
                     </div>
 
@@ -1229,9 +1229,9 @@
                             <div class="workflow-description">Automated lead capture and CRM integration</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('form-capture')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('form-capture')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('form-capture')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('form-capture')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('form-capture')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('form-capture')">Logs</button>
                         </div>
                     </div>
                 </div>
@@ -1241,12 +1241,12 @@
                     <div class="workflow-item">
                         <div class="workflow-info">
                             <div class="workflow-name">Content Pipeline</div>
-                            <div class="workflow-description">Creation → Approval → Publishing workflow</div>
+                            <div class="workflow-description">Creation �Approval �Publishing workflow</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('content-pipeline')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('content-pipeline')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('content-pipeline')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('content-pipeline')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('content-pipeline')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('content-pipeline')">Logs</button>
                         </div>
                     </div>
 
@@ -1256,9 +1256,9 @@
                             <div class="workflow-description">Google/Meta/LinkedIn/TikTok campaign setup</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('ad-campaigns')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('ad-campaigns')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('ad-campaigns')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('ad-campaigns')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('ad-campaigns')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('ad-campaigns')">Logs</button>
                         </div>
                     </div>
 
@@ -1268,15 +1268,15 @@
                             <div class="workflow-description">Personalization and timing optimization</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-success" onclick="triggerWorkflow('email-scheduler')">▶ Trigger</button>
-                            <button class="btn btn-secondary" onclick="editWorkflow('email-scheduler')">✏️ Edit</button>
-                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('email-scheduler')">📝 Logs</button>
+                            <button class="btn btn-success" onclick="triggerWorkflow('email-scheduler')">� Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('email-scheduler')">Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('email-scheduler')">Logs</button>
                         </div>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-top: 32px;">
-                    <button class="btn btn-primary" onclick="createWorkflow()">➕ Create New Workflow</button>
+                    <button class="btn btn-primary" onclick="createWorkflow()">� Create New Workflow</button>
                 </div>
             </div>
         </div>
@@ -1284,7 +1284,7 @@
         <!-- API Tab -->
         <div id="api" class="tab-content">
             <div class="section">
-                <h2>🔌 API Endpoint Management</h2>
+                <h2>API Endpoint Management</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1312,7 +1312,7 @@
                         <span class="endpoint-path">/health</span>
                     </div>
                     <div class="endpoint-description">Service health check and status</div>
-                    <button class="btn btn-success" onclick="testEndpoint('/health', 'GET')">🧪 Test Endpoint</button>
+                    <button class="btn btn-success" onclick="testEndpoint('/health', 'GET')">� Test Endpoint</button>
                 </div>
 
                 <div class="api-endpoint">
@@ -1321,7 +1321,7 @@
                         <span class="endpoint-path">/agents</span>
                     </div>
                     <div class="endpoint-description">List all available agents</div>
-                    <button class="btn btn-success" onclick="testEndpoint('/agents', 'GET')">🧪 Test Endpoint</button>
+                    <button class="btn btn-success" onclick="testEndpoint('/agents', 'GET')">� Test Endpoint</button>
                 </div>
 
                 <div class="api-endpoint">
@@ -1330,7 +1330,7 @@
                         <span class="endpoint-path">/phase1/qualify-lead</span>
                     </div>
                     <div class="endpoint-description">Lead qualification with sentiment analysis</div>
-                    <button class="btn btn-success" onclick="testEndpoint('/phase1/qualify-lead', 'POST')">🧪 Test Endpoint</button>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase1/qualify-lead', 'POST')">� Test Endpoint</button>
                 </div>
 
                 <div class="api-endpoint">
@@ -1339,7 +1339,7 @@
                         <span class="endpoint-path">/phase2/generate-sales-pitch</span>
                     </div>
                     <div class="endpoint-description">Generate personalized sales email</div>
-                    <button class="btn btn-success" onclick="testEndpoint('/phase2/generate-sales-pitch', 'POST')">🧪 Test Endpoint</button>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase2/generate-sales-pitch', 'POST')">� Test Endpoint</button>
                 </div>
 
                 <div class="api-endpoint">
@@ -1348,11 +1348,11 @@
                         <span class="endpoint-path">/phase3/orchestrate</span>
                     </div>
                     <div class="endpoint-description">Workflow orchestration across agents</div>
-                    <button class="btn btn-success" onclick="testEndpoint('/phase3/orchestrate', 'POST')">🧪 Test Endpoint</button>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase3/orchestrate', 'POST')">� Test Endpoint</button>
                 </div>
 
                 <div style="text-align: center; margin-top: 24px;">
-                    <button class="btn btn-secondary" onclick="viewAllEndpoints()">📋 View All 90+ Endpoints</button>
+                    <button class="btn btn-secondary" onclick="viewAllEndpoints()">� View All 90+ Endpoints</button>
                 </div>
             </div>
         </div>
@@ -1360,7 +1360,7 @@
         <!-- Database Tab -->
         <div id="database" class="tab-content">
             <div class="section">
-                <h2>🗄️ Database Management</h2>
+                <h2>Database Management</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1389,8 +1389,8 @@
                             <div class="workflow-description">345 records | Company info, contact, timezone, relationship stage</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-secondary" onclick="viewTable('clients')">👁️ View</button>
-                            <button class="btn btn-secondary" onclick="exportTable('clients')">📥 Export</button>
+                            <button class="btn btn-secondary" onclick="viewTable('clients')">View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('clients')">Export</button>
                         </div>
                     </div>
 
@@ -1400,8 +1400,8 @@
                             <div class="workflow-description">892 records | Budgets, timelines, status tracking</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-secondary" onclick="viewTable('projects')">👁️ View</button>
-                            <button class="btn btn-secondary" onclick="exportTable('projects')">📥 Export</button>
+                            <button class="btn btn-secondary" onclick="viewTable('projects')">View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('projects')">Export</button>
                         </div>
                     </div>
 
@@ -1411,8 +1411,8 @@
                             <div class="workflow-description">12,456 records | Agent outputs, versioning, content hashing</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-secondary" onclick="viewTable('agent_work_products')">👁️ View</button>
-                            <button class="btn btn-secondary" onclick="exportTable('agent_work_products')">📥 Export</button>
+                            <button class="btn btn-secondary" onclick="viewTable('agent_work_products')">View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('agent_work_products')">Export</button>
                         </div>
                     </div>
 
@@ -1422,15 +1422,15 @@
                             <div class="workflow-description">34,234 records | All agent calls with input/output, timing</div>
                         </div>
                         <div class="workflow-actions">
-                            <button class="btn btn-secondary" onclick="viewTable('agent_interactions')">👁️ View</button>
-                            <button class="btn btn-secondary" onclick="exportTable('agent_interactions')">📥 Export</button>
+                            <button class="btn btn-secondary" onclick="viewTable('agent_interactions')">View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('agent_interactions')">Export</button>
                         </div>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-top: 24px;">
-                    <button class="btn btn-primary" onclick="runQuery()">🔍 Run Custom Query</button>
-                    <button class="btn btn-secondary" onclick="backupDatabase()">💾 Backup Database</button>
+                    <button class="btn btn-primary" onclick="runQuery()">Run Custom Query</button>
+                    <button class="btn btn-secondary" onclick="backupDatabase()">� Backup Database</button>
                 </div>
             </div>
         </div>
@@ -1438,7 +1438,7 @@
         <!-- Monitoring Tab -->
         <div id="monitoring" class="tab-content">
             <div class="section">
-                <h2>📊 System Monitoring</h2>
+                <h2>System Monitoring</h2>
 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1503,9 +1503,9 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 24px;">
-                    <button class="btn btn-secondary" onclick="openPrometheus()">📈 Open Prometheus</button>
-                    <button class="btn btn-secondary" onclick="openGrafana()">📊 Open Grafana</button>
-                    <button class="btn btn-secondary" onclick="openMetabase()">📉 Open Metabase</button>
+                    <button class="btn btn-secondary" onclick="openPrometheus()">Open Prometheus</button>
+                    <button class="btn btn-secondary" onclick="openGrafana()">Open Grafana</button>
+                    <button class="btn btn-secondary" onclick="openMetabase()">Open Metabase</button>
                 </div>
             </div>
         </div>
@@ -1513,7 +1513,7 @@
         <!-- Logs Tab -->
         <div id="logs" class="tab-content">
             <div class="section">
-                <h2>📝 System Logs</h2>
+                <h2>System Logs</h2>
 
                 <div style="margin-bottom: 16px; display: flex; gap: 12px;">
                     <select class="form-control" style="max-width: 200px;">
@@ -1529,8 +1529,8 @@
                         <option>Warning</option>
                         <option>Error</option>
                     </select>
-                    <button class="btn btn-secondary" onclick="refreshLogs()">🔄 Refresh</button>
-                    <button class="btn btn-secondary" onclick="exportLogs()">📥 Export</button>
+                    <button class="btn btn-secondary" onclick="refreshLogs()">Refresh</button>
+                    <button class="btn btn-secondary" onclick="exportLogs()">Export</button>
                 </div>
 
                 <div class="log-viewer">
@@ -1902,7 +1902,7 @@
                 warningBanner.className = 'alert alert-warning';
                 warningBanner.style.marginTop = '20px';
                 warningBanner.innerHTML = `
-                    <strong>⚠️ Demo Mode:</strong> API service not detected at ${API_CONFIG.baseURL}.
+                    Demo Mode: API service not detected at ${API_CONFIG.baseURL}.
                     Start the agent service to see live data.
                     <a href="/features-guide.html" style="color: #1de9b6; text-decoration: underline;">View Setup Guide</a>
                 `;
@@ -2061,7 +2061,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ ${name} integration test successful!`;
+                alertDiv.textContent = `${name} integration test successful!`;
 
                 resultDiv.style.display = 'block';
                 resultTextarea.value = JSON.stringify({
@@ -2084,7 +2084,7 @@
                 <div id="integration-config-alert" class="alert alert-info">Update integration settings</div>
                 <div class="form-group">
                     <label class="form-label">API Key</label>
-                    <input type="password" id="integration-key" class="form-control" value="••••••••••••••••">
+                    <input type="password" id="integration-key" class="form-control" value="����������������">
                 </div>
                 <div class="form-group">
                     <label class="form-label">API Endpoint</label>
@@ -2107,7 +2107,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ ${name} configuration saved successfully!`;
+                alertDiv.textContent = `${name} configuration saved successfully!`;
 
                 setTimeout(() => closeModal(), 1500);
             } catch (error) {
@@ -2149,7 +2149,7 @@
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ Workflow executed successfully!`;
+                alertDiv.textContent = `Workflow executed successfully!`;
 
                 resultDiv.style.display = 'block';
                 resultTextarea.value = JSON.stringify({
@@ -2267,7 +2267,7 @@
                 const result = await apiCall(path, method, body);
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ Request successful!`;
+                alertDiv.textContent = `Request successful!`;
 
                 responseDiv.style.display = 'block';
                 responseTextarea.value = JSON.stringify(result, null, 2);
@@ -2286,32 +2286,32 @@
                 <div style="max-height: 400px; overflow-y: auto;">
                     <h4 style="color: #1de9b6; margin-top: 16px;">Phase 1 Agents</h4>
                     <ul style="color: #8b99ab; list-style: none; padding-left: 0;">
-                        <li><strong>POST</strong> /phase1/qualify-lead</li>
-                        <li><strong>POST</strong> /phase1/faq</li>
+                        <li>POST /phase1/qualify-lead</li>
+                        <li>POST /phase1/faq</li>
                     </ul>
                     <h4 style="color: #1de9b6; margin-top: 16px;">Phase 2 Agents</h4>
                     <ul style="color: #8b99ab; list-style: none; padding-left: 0;">
-                        <li><strong>POST</strong> /phase2/generate-sales-pitch</li>
-                        <li><strong>POST</strong> /phase2/write-content</li>
-                        <li><strong>POST</strong> /phase2/classify-intent</li>
-                        <li><strong>POST</strong> /phase2/personalize-email</li>
-                        <li><strong>POST</strong> /phase2/create-social-posts</li>
+                        <li>POST /phase2/generate-sales-pitch</li>
+                        <li>POST /phase2/write-content</li>
+                        <li>POST /phase2/classify-intent</li>
+                        <li>POST /phase2/personalize-email</li>
+                        <li>POST /phase2/create-social-posts</li>
                     </ul>
                     <h4 style="color: #1de9b6; margin-top: 16px;">Phase 3 Agents</h4>
                     <ul style="color: #8b99ab; list-style: none; padding-left: 0;">
-                        <li><strong>POST</strong> /phase3/orchestrate</li>
-                        <li><strong>POST</strong> /phase3/research</li>
-                        <li><strong>POST</strong> /phase3/sales-strategy</li>
-                        <li><strong>POST</strong> /phase3/marketing-campaign</li>
-                        <li><strong>POST</strong> /phase3/customer-success</li>
-                        <li><strong>POST</strong> /phase3/analytics</li>
+                        <li>POST /phase3/orchestrate</li>
+                        <li>POST /phase3/research</li>
+                        <li>POST /phase3/sales-strategy</li>
+                        <li>POST /phase3/marketing-campaign</li>
+                        <li>POST /phase3/customer-success</li>
+                        <li>POST /phase3/analytics</li>
                     </ul>
                     <h4 style="color: #1de9b6; margin-top: 16px;">System Endpoints</h4>
                     <ul style="color: #8b99ab; list-style: none; padding-left: 0;">
-                        <li><strong>GET</strong> /health</li>
-                        <li><strong>GET</strong> /agents</li>
-                        <li><strong>GET</strong> /control-panel/dashboard</li>
-                        <li><strong>GET</strong> /control-panel/agents</li>
+                        <li>GET /health</li>
+                        <li>GET /agents</li>
+                        <li>GET /control-panel/dashboard</li>
+                        <li>GET /control-panel/agents</li>
                     </ul>
                 </div>
                 <a href="/features-guide.html" class="btn btn-primary" style="margin-top: 16px;">View Full Documentation</a>
@@ -2372,7 +2372,7 @@
 
             setTimeout(() => {
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ ${tableName} refreshed`;
+                alertDiv.textContent = `${tableName} refreshed`;
             }, 500);
         }
 
@@ -2410,7 +2410,7 @@
 
             setTimeout(() => {
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ Export ready! Downloading ${tableName}.${format}...`;
+                alertDiv.textContent = `Export ready! Downloading ${tableName}.${format}...`;
             }, 1500);
         }
 
@@ -2445,7 +2445,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = '✓ Query executed successfully (3 rows returned)';
+                alertDiv.textContent = 'Query executed successfully (3 rows returned)';
 
                 resultsDiv.style.display = 'block';
                 resultsDiv.querySelector('.log-viewer').innerHTML = `
@@ -2494,7 +2494,7 @@
                 await new Promise(resolve => setTimeout(resolve, 3000));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ Backup created successfully: ${backupName}`;
+                alertDiv.textContent = `Backup created successfully: ${backupName}`;
             } catch (error) {
                 alertDiv.className = 'alert alert-error';
                 alertDiv.textContent = `Backup failed: ${error.message}`;
@@ -2523,7 +2523,7 @@
 
             // Add loading indicator
             const originalContent = logViewer.innerHTML;
-            logViewer.innerHTML = '<div style="color: #1de9b6; padding: 16px;">⟳ Refreshing logs...</div>' + originalContent;
+            logViewer.innerHTML = '<div style="color: #1de9b6; padding: 16px;">� Refreshing logs...</div>' + originalContent;
 
             try {
                 // Simulate fetching fresh logs
@@ -2595,7 +2595,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 alertDiv.className = 'alert alert-success';
-                alertDiv.textContent = `✓ Export ready! Downloading logs_${new Date().toISOString().split('T')[0]}.${format}`;
+                alertDiv.textContent = `Export ready! Downloading logs_${new Date().toISOString().split('T')[0]}.${format}`;
 
                 // In a real implementation, this would trigger an actual download
                 console.log(`Downloading logs: ${timeRange}, ${logLevel}, ${format}`);

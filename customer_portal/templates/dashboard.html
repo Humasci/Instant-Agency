@@ -272,7 +272,7 @@
                 {% for notification in notifications %}
                 <div class="alert alert-{{ notification.type }} alert-dismissible" role="alert">
                     <i class="fas {{ notification.icon }} me-2"></i>
-                    <strong>{{ notification.title }}:</strong> {{ notification.message }}
+                    {{ notification.title }}: {{ notification.message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
