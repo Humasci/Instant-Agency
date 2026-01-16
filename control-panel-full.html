@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - SIX3 Agency</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #1a2332;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #243447;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1de9b6;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            color: #8b99ab;
+            font-size: 1.2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: #243447;
+            color: #8b99ab;
+            padding: 12px 24px;
+            border: 1px solid #2d3e50;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            background: #2d3e50;
+            color: #ffffff;
+        }
+
+        .tab.active {
+            background: #1de9b6;
+            color: #1a2332;
+            border-color: #1de9b6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: #243447;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d3e50;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: #1de9b6;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h3 {
+            font-size: 1.25rem;
+            color: #ffffff;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .agent-card {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #3d4e60;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            border-color: #1de9b6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(29, 233, 182, 0.2);
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .agent-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: #1de9b6;
+        }
+
+        .status-dot.inactive {
+            background: #6b7a8f;
+        }
+
+        .status-dot.error {
+            background: #ff6b6b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: #8b99ab;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .agent-description {
+            color: #8b99ab;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .agent-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #1de9b6;
+            color: #1a2332;
+        }
+
+        .btn-primary:hover {
+            background: #00d9c8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(29, 233, 182, 0.3);
+        }
+
+        .btn-secondary {
+            background: #2d3e50;
+            color: #8b99ab;
+            border: 1px solid #3d4e60;
+        }
+
+        .btn-secondary:hover {
+            background: #3d4e60;
+            color: #ffffff;
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 0.25);
+        }
+
+        .btn-success {
+            background: rgba(29, 233, 182, 0.15);
+            color: #1de9b6;
+            border: 1px solid rgba(29, 233, 182, 0.3);
+        }
+
+        .btn-success:hover {
+            background: rgba(29, 233, 182, 0.25);
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .integration-card {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #3d4e60;
+        }
+
+        .integration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .integration-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-connected {
+            background: rgba(29, 233, 182, 0.15);
+            color: #1de9b6;
+        }
+
+        .badge-disconnected {
+            background: rgba(255, 107, 107, 0.15);
+            color: #ff6b6b;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+
+        .integration-info {
+            color: #8b99ab;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .workflow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .workflow-item {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #3d4e60;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .workflow-info {
+            flex: 1;
+        }
+
+        .workflow-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .workflow-description {
+            font-size: 0.85rem;
+            color: #8b99ab;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .api-endpoint {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #3d4e60;
+            margin-bottom: 12px;
+        }
+
+        .endpoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .endpoint-method {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .method-get {
+            background: rgba(29, 233, 182, 0.15);
+            color: #1de9b6;
+        }
+
+        .method-post {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+        }
+
+        .method-delete {
+            background: rgba(255, 107, 107, 0.15);
+            color: #ff6b6b;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .endpoint-description {
+            color: #8b99ab;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .log-viewer {
+            background: #1a2332;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #2d3e50;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid #2d3e50;
+            display: flex;
+            gap: 12px;
+        }
+
+        .log-timestamp {
+            color: #6b7a8f;
+        }
+
+        .log-level {
+            font-weight: 600;
+        }
+
+        .log-level.info {
+            color: #1de9b6;
+        }
+
+        .log-level.warning {
+            color: #ffc107;
+        }
+
+        .log-level.error {
+            color: #ff6b6b;
+        }
+
+        .log-message {
+            color: #8b99ab;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #2d3e50;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #3d4e60;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1de9b6;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #8b99ab;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            color: #8b99ab;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: #1a2332;
+            border: 1px solid #2d3e50;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1de9b6;
+            box-shadow: 0 0 0 3px rgba(29, 233, 182, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #243447;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #2d3e50;
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #1de9b6;
+            margin-bottom: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #8b99ab;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(29, 233, 182, 0.1);
+            border-left-color: #1de9b6;
+            color: #1de9b6;
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.1);
+            border-left-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-left-color: #3498db;
+            color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .agent-grid, .integration-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎛️ SIX3 Agency Control Panel</h1>
+            <p>Manage and monitor all 29 agents, 10 integrations, 24 workflows, and system operations</p>
+        </div>
+
+        <div class="nav-tabs">
+            <div class="tab active" onclick="switchTab('agents')">🤖 Agents (29)</div>
+            <div class="tab" onclick="switchTab('integrations')">🔗 Integrations (10)</div>
+            <div class="tab" onclick="switchTab('workflows')">⚙️ Workflows (24)</div>
+            <div class="tab" onclick="switchTab('api')">🔌 API Endpoints (90+)</div>
+            <div class="tab" onclick="switchTab('database')">🗄️ Database</div>
+            <div class="tab" onclick="switchTab('monitoring')">📊 Monitoring</div>
+            <div class="tab" onclick="switchTab('logs')">📝 Logs</div>
+        </div>
+
+        <!-- Agents Tab -->
+        <div id="agents" class="tab-content active">
+            <div class="section">
+                <h2>🤖 AI Agent Management</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">23</div>
+                        <div class="stat-label">Active Agents</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">In Development</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">1,247</div>
+                        <div class="stat-label">Tasks Completed Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <h3>Phase 1: Foundation Agents</h3>
+                <div class="agent-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🎯 Prospect Agent</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Lead qualification with sentiment analysis. Scores 0-10, classifies hot/warm/cold.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('prospect')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('prospect')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('prospect')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">💬 FAQ Chatbot</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Automated customer inquiry responses with context awareness.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('faq')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('faq')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('faq')">📊 Metrics</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Phase 2: Sales & Content Automation</h3>
+                <div class="agent-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">📧 Sales Pitch Agent</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Personalized B2B sales emails using Mistral-7B/GPT-Neo-2.7B.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('sales-pitch')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('sales-pitch')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('sales-pitch')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">✍️ Content Writer</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Blog posts, articles, marketing content with SEO optimization.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('content-writer')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('content-writer')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('content-writer')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🔍 Intent Classifier</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Message intent classification: pricing, support, demo, technical.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('intent-classifier')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('intent-classifier')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('intent-classifier')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">💌 Email Personalizer</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Context-aware email generation based on customer data.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('email-personalizer')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('email-personalizer')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('email-personalizer')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">📱 Social Media Agent</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Platform-specific posts for LinkedIn, Twitter, Facebook.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('social-media')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('social-media')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('social-media')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🔎 SEO Optimizer</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Keyword research, competitor analysis, technical SEO, schema.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('seo-optimizer')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('seo-optimizer')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('seo-optimizer')">📊 Metrics</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Phase 3: Orchestration & Analytics</h3>
+                <div class="agent-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🎭 Orchestrator</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Routes interactions, manages 7 journey stages awareness→retention.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('orchestrator')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('orchestrator')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('orchestrator')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🛣️ Journey Automation</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            12-stage lifecycle (AWARENESS→CHURN_RISK) with automated triggers.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('journey')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('journey')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('journey')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">📚 RAG Research</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Semantic search using embeddings across knowledge base.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('rag-research')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('rag-research')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('rag-research')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">💼 Sales Strategist</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Deal analysis, objection handling, campaign planning.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('sales-strategist')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('sales-strategist')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('sales-strategist')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">📣 Marketing Campaign</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Multi-channel orchestration across all funnel stages.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('marketing-campaign')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('marketing-campaign')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('marketing-campaign')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🤝 Customer Success</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Health monitoring, onboarding, expansion detection.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('customer-success')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('customer-success')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('customer-success')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">📊 Analytics Agent</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Performance reporting, ROI metrics, executive summaries.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('analytics')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('analytics')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('analytics')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🎨 Multimodal AI</div>
+                            <div class="agent-status">
+                                <div class="status-dot active"></div>
+                                <span class="status-text">Active</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Text, image, and audio processing with unified interface.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testAgent('multimodal')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('multimodal')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('multimodal')">📊 Metrics</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Phase 4: Advanced Capabilities</h3>
+                <div class="agent-grid">
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">👤 Digital Avatar</div>
+                            <div class="agent-status">
+                                <div class="status-dot inactive"></div>
+                                <span class="status-text">Development</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            3 personas with D-ID, HeyGen, Synthesia. ElevenLabs voice.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-secondary" onclick="testAgent('digital-avatar')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('digital-avatar')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('digital-avatar')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🎤 Voice Conversation</div>
+                            <div class="agent-status">
+                                <div class="status-dot inactive"></div>
+                                <span class="status-text">Development</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            TTS synthesis, multiple styles, 4+ languages support.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-secondary" onclick="testAgent('voice-conversation')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('voice-conversation')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('voice-conversation')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🌍 Multilingual</div>
+                            <div class="agent-status">
+                                <div class="status-dot inactive"></div>
+                                <span class="status-text">Development</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Translation, language detection, multi-language generation.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-secondary" onclick="testAgent('multilingual')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('multilingual')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('multilingual')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">⚡ Realtime Conversation</div>
+                            <div class="agent-status">
+                                <div class="status-dot inactive"></div>
+                                <span class="status-text">Development</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Avatar + voice + AI with WebRTC streaming support.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-secondary" onclick="testAgent('realtime')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('realtime')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('realtime')">📊 Metrics</button>
+                        </div>
+                    </div>
+
+                    <div class="agent-card">
+                        <div class="agent-header">
+                            <div class="agent-name">🧠 Model Fine-Tuning</div>
+                            <div class="agent-status">
+                                <div class="status-dot inactive"></div>
+                                <span class="status-text">Development</span>
+                            </div>
+                        </div>
+                        <div class="agent-description">
+                            Custom LLM training with LoRA, A/B testing, PyTorch support.
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-secondary" onclick="testAgent('fine-tuning')">▶ Test</button>
+                            <button class="btn btn-secondary" onclick="configureAgent('fine-tuning')">⚙️ Configure</button>
+                            <button class="btn btn-secondary" onclick="viewMetrics('fine-tuning')">📊 Metrics</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integrations Tab -->
+        <div id="integrations" class="tab-content">
+            <div class="section">
+                <h2>🔗 Integration Management</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Connected</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">15.2K</div>
+                        <div class="stat-label">API Calls Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">99.8%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <h3>Email Services</h3>
+                <div class="integration-grid">
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">📧 Mailgun</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active<br>
+                            <strong>Limit:</strong> 100 emails/day free<br>
+                            <strong>Sent Today:</strong> 47 emails
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('mailgun')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('mailgun')">⚙️ Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">📨 SendGrid</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active<br>
+                            <strong>API Key:</strong> Configured<br>
+                            <strong>Sent Today:</strong> 123 emails
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('sendgrid')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('sendgrid')">⚙️ Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>CRM Platforms</h3>
+                <div class="integration-grid">
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">👥 Attio CRM</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active (API v2)<br>
+                            <strong>Synced:</strong> 345 contacts<br>
+                            <strong>Last Sync:</strong> 2 minutes ago
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('attio')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('attio')">⚙️ Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">📊 SuiteCRM</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active<br>
+                            <strong>Synced:</strong> 892 records<br>
+                            <strong>Last Sync:</strong> 5 minutes ago
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('suitecrm')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('suitecrm')">⚙️ Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Social Media</h3>
+                <div class="integration-grid">
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">💼 LinkedIn</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Auto-posting enabled<br>
+                            <strong>Posts Today:</strong> 12 posts<br>
+                            <strong>Engagement:</strong> 456 interactions
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('linkedin')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('linkedin')">⚙️ Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">🐦 Twitter</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active<br>
+                            <strong>Tweets Today:</strong> 8 tweets<br>
+                            <strong>Engagement:</strong> 234 interactions
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('twitter')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('twitter')">⚙️ Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Workflow & Escalation</h3>
+                <div class="integration-grid">
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">⚙️ N8N Workflows</div>
+                            <span class="badge badge-connected">Connected</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Running<br>
+                            <strong>Active Workflows:</strong> 24<br>
+                            <strong>Executions Today:</strong> 1,234
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('n8n')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('n8n')">⚙️ Configure</button>
+                        </div>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-header">
+                            <div class="integration-name">🚨 Human Escalation</div>
+                            <span class="badge badge-warning">Monitoring</span>
+                        </div>
+                        <div class="integration-info">
+                            <strong>Status:</strong> Active<br>
+                            <strong>Priority Levels:</strong> 4<br>
+                            <strong>Escalations Today:</strong> 3
+                        </div>
+                        <div class="agent-controls">
+                            <button class="btn btn-success" onclick="testIntegration('escalation')">🧪 Test</button>
+                            <button class="btn btn-secondary" onclick="configureIntegration('escalation')">⚙️ Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflows Tab -->
+        <div id="workflows" class="tab-content">
+            <div class="section">
+                <h2>⚙️ Workflow Management</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Total Workflows</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">1,234</div>
+                        <div class="stat-label">Executions Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">97.2%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <h3>Sales Workflows</h3>
+                <div class="workflow-list">
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Sales Lead Qualification</div>
+                            <div class="workflow-description">Webhook → AI qualification → CRM → Notifications</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('lead-qualification')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('lead-qualification')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-qualification')">📝 Logs</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Advanced Lead Scoring</div>
+                            <div class="workflow-description">Multi-stage qualification with Attio sync</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('lead-scoring')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('lead-scoring')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('lead-scoring')">📝 Logs</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Form Capture to Attio</div>
+                            <div class="workflow-description">Automated lead capture and CRM integration</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('form-capture')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('form-capture')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('form-capture')">📝 Logs</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Marketing Workflows</h3>
+                <div class="workflow-list">
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Content Pipeline</div>
+                            <div class="workflow-description">Creation → Approval → Publishing workflow</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('content-pipeline')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('content-pipeline')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('content-pipeline')">📝 Logs</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Multi-Platform Ad Campaigns</div>
+                            <div class="workflow-description">Google/Meta/LinkedIn/TikTok campaign setup</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('ad-campaigns')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('ad-campaigns')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('ad-campaigns')">📝 Logs</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Email Campaign Scheduler</div>
+                            <div class="workflow-description">Personalization and timing optimization</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-success" onclick="triggerWorkflow('email-scheduler')">▶ Trigger</button>
+                            <button class="btn btn-secondary" onclick="editWorkflow('email-scheduler')">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="viewWorkflowLogs('email-scheduler')">📝 Logs</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 32px;">
+                    <button class="btn btn-primary" onclick="createWorkflow()">➕ Create New Workflow</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Tab -->
+        <div id="api" class="tab-content">
+            <div class="section">
+                <h2>🔌 API Endpoint Management</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">90+</div>
+                        <div class="stat-label">Total Endpoints</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45.2K</div>
+                        <div class="stat-label">Requests Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156ms</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <h3>Agent Service API (40+ Endpoints)</h3>
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-path">/health</span>
+                    </div>
+                    <div class="endpoint-description">Service health check and status</div>
+                    <button class="btn btn-success" onclick="testEndpoint('/health', 'GET')">🧪 Test Endpoint</button>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <span class="endpoint-path">/agents</span>
+                    </div>
+                    <div class="endpoint-description">List all available agents</div>
+                    <button class="btn btn-success" onclick="testEndpoint('/agents', 'GET')">🧪 Test Endpoint</button>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <span class="endpoint-path">/phase1/qualify-lead</span>
+                    </div>
+                    <div class="endpoint-description">Lead qualification with sentiment analysis</div>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase1/qualify-lead', 'POST')">🧪 Test Endpoint</button>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <span class="endpoint-path">/phase2/generate-sales-pitch</span>
+                    </div>
+                    <div class="endpoint-description">Generate personalized sales email</div>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase2/generate-sales-pitch', 'POST')">🧪 Test Endpoint</button>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <span class="endpoint-path">/phase3/orchestrate</span>
+                    </div>
+                    <div class="endpoint-description">Workflow orchestration across agents</div>
+                    <button class="btn btn-success" onclick="testEndpoint('/phase3/orchestrate', 'POST')">🧪 Test Endpoint</button>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <button class="btn btn-secondary" onclick="viewAllEndpoints()">📋 View All 90+ Endpoints</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Tab -->
+        <div id="database" class="tab-content">
+            <div class="section">
+                <h2>🗄️ Database Management</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">20+</div>
+                        <div class="stat-label">Tables</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45.8K</div>
+                        <div class="stat-label">Total Records</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2.3GB</div>
+                        <div class="stat-label">Database Size</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">Query Performance</div>
+                    </div>
+                </div>
+
+                <h3>Core Business Tables</h3>
+                <div class="workflow-list">
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">clients</div>
+                            <div class="workflow-description">345 records | Company info, contact, timezone, relationship stage</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-secondary" onclick="viewTable('clients')">👁️ View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('clients')">📥 Export</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">projects</div>
+                            <div class="workflow-description">892 records | Budgets, timelines, status tracking</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-secondary" onclick="viewTable('projects')">👁️ View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('projects')">📥 Export</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">agent_work_products</div>
+                            <div class="workflow-description">12,456 records | Agent outputs, versioning, content hashing</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-secondary" onclick="viewTable('agent_work_products')">👁️ View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('agent_work_products')">📥 Export</button>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">agent_interactions</div>
+                            <div class="workflow-description">34,234 records | All agent calls with input/output, timing</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <button class="btn btn-secondary" onclick="viewTable('agent_interactions')">👁️ View</button>
+                            <button class="btn btn-secondary" onclick="exportTable('agent_interactions')">📥 Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <button class="btn btn-primary" onclick="runQuery()">🔍 Run Custom Query</button>
+                    <button class="btn btn-secondary" onclick="backupDatabase()">💾 Backup Database</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Tab -->
+        <div id="monitoring" class="tab-content">
+            <div class="section">
+                <h2>📊 System Monitoring</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">23</div>
+                        <div class="stat-label">Active Services</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45.2K</div>
+                        <div class="stat-label">Requests/Day</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156ms</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                </div>
+
+                <h3>Service Health</h3>
+                <div class="workflow-list">
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Agent Service API</div>
+                            <div class="workflow-description">Status: Running | CPU: 45% | Memory: 2.3GB | Uptime: 15 days</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <span class="badge badge-connected">Healthy</span>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">PostgreSQL Database</div>
+                            <div class="workflow-description">Status: Running | Connections: 45/100 | Size: 2.3GB | Queries: 1.2K/min</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <span class="badge badge-connected">Healthy</span>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">Redis Cache</div>
+                            <div class="workflow-description">Status: Running | Memory: 256MB | Hit Rate: 94.5% | Keys: 12.5K</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <span class="badge badge-connected">Healthy</span>
+                        </div>
+                    </div>
+
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <div class="workflow-name">N8N Workflow Engine</div>
+                            <div class="workflow-description">Status: Running | Active Workflows: 24 | Executions: 1.2K/day</div>
+                        </div>
+                        <div class="workflow-actions">
+                            <span class="badge badge-connected">Healthy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <button class="btn btn-secondary" onclick="openPrometheus()">📈 Open Prometheus</button>
+                    <button class="btn btn-secondary" onclick="openGrafana()">📊 Open Grafana</button>
+                    <button class="btn btn-secondary" onclick="openMetabase()">📉 Open Metabase</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div id="logs" class="tab-content">
+            <div class="section">
+                <h2>📝 System Logs</h2>
+
+                <div style="margin-bottom: 16px; display: flex; gap: 12px;">
+                    <select class="form-control" style="max-width: 200px;">
+                        <option>All Services</option>
+                        <option>Agent Service</option>
+                        <option>Database</option>
+                        <option>Integrations</option>
+                        <option>Workflows</option>
+                    </select>
+                    <select class="form-control" style="max-width: 200px;">
+                        <option>All Levels</option>
+                        <option>Info</option>
+                        <option>Warning</option>
+                        <option>Error</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="refreshLogs()">🔄 Refresh</button>
+                    <button class="btn btn-secondary" onclick="exportLogs()">📥 Export</button>
+                </div>
+
+                <div class="log-viewer">
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:45</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Agent 'prospect' completed lead qualification task (ID: 12345)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:43</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Workflow 'lead-qualification' triggered successfully</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:40</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Email sent via Mailgun to client@example.com</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:38</span>
+                        <span class="log-level warning">WARN</span>
+                        <span class="log-message">Rate limit warning: LinkedIn API approaching limit (850/1000)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:35</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Database backup completed successfully (2.3GB)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:30</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Agent 'content-writer' generated blog post (1,245 words)</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:25</span>
+                        <span class="log-level error">ERROR</span>
+                        <span class="log-message">Failed to connect to external API: timeout after 30s</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">2024-01-15 14:32:20</span>
+                        <span class="log-level info">INFO</span>
+                        <span class="log-message">Social media post published to LinkedIn (Post ID: abc123)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Agent Testing/Configuration -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Agent Configuration</h2>
+            </div>
+            <div id="modal-body">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveModalData()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Agent Functions
+        function testAgent(agentName) {
+            openModal('Test Agent: ' + agentName, `
+                <div class="alert alert-info">Testing ${agentName} agent...</div>
+                <div class="form-group">
+                    <label class="form-label">Test Input</label>
+                    <textarea class="form-control" placeholder="Enter test data..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Parameters (JSON)</label>
+                    <textarea class="form-control">{"temperature": 0.7, "max_tokens": 500}</textarea>
+                </div>
+            `);
+        }
+
+        function configureAgent(agentName) {
+            openModal('Configure Agent: ' + agentName, `
+                <div class="form-group">
+                    <label class="form-label">Agent Name</label>
+                    <input type="text" class="form-control" value="${agentName}" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control">
+                        <option>Active</option>
+                        <option>Inactive</option>
+                        <option>Development</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">API Endpoint</label>
+                    <input type="text" class="form-control" value="/phase1/${agentName}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Configuration (JSON)</label>
+                    <textarea class="form-control">{"model": "gpt-3.5-turbo", "temperature": 0.7}</textarea>
+                </div>
+            `);
+        }
+
+        function viewMetrics(agentName) {
+            openModal('Metrics: ' + agentName, `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">1,234</div>
+                        <div class="stat-label">Total Executions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">234ms</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45</div>
+                        <div class="stat-label">Executions Today</div>
+                    </div>
+                </div>
+                <div class="alert alert-success" style="margin-top: 16px;">
+                    Last execution: 2 minutes ago | Status: Success
+                </div>
+            `);
+        }
+
+        // Integration Functions
+        function testIntegration(name) {
+            openModal('Test Integration: ' + name, `
+                <div class="alert alert-info">Testing ${name} integration...</div>
+                <div class="form-group">
+                    <label class="form-label">Test Action</label>
+                    <select class="form-control">
+                        <option>Connection Test</option>
+                        <option>Send Test Message</option>
+                        <option>Fetch Data</option>
+                        <option>Sync Records</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 16px;">Run Test</button>
+                <div class="alert alert-success" style="margin-top: 16px; display: none;">
+                    Test completed successfully!
+                </div>
+            `);
+        }
+
+        function configureIntegration(name) {
+            openModal('Configure Integration: ' + name, `
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <input type="password" class="form-control" value="••••••••••••••••">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">API Endpoint</label>
+                    <input type="text" class="form-control" value="https://api.${name}.com/v2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Webhook URL</label>
+                    <input type="text" class="form-control" value="https://your-domain.com/webhooks/${name}">
+                </div>
+            `);
+        }
+
+        // Workflow Functions
+        function triggerWorkflow(name) {
+            alert('Triggering workflow: ' + name + '...\n\nWorkflow execution started. Check logs tab for progress.');
+        }
+
+        function editWorkflow(name) {
+            alert('Opening workflow editor for: ' + name + '\n\nThis would redirect to N8N workflow editor.');
+        }
+
+        function viewWorkflowLogs(name) {
+            switchTab('logs');
+        }
+
+        function createWorkflow() {
+            alert('Creating new workflow...\n\nThis would open the N8N workflow creation interface.');
+        }
+
+        // API Functions
+        function testEndpoint(path, method) {
+            openModal('Test API Endpoint', `
+                <div class="form-group">
+                    <label class="form-label">Method</label>
+                    <input type="text" class="form-control" value="${method}" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Endpoint</label>
+                    <input type="text" class="form-control" value="${path}" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Request Body (JSON)</label>
+                    <textarea class="form-control">{}</textarea>
+                </div>
+                <button class="btn btn-primary" onclick="sendRequest()">Send Request</button>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Response</label>
+                    <textarea class="form-control" readonly>Response will appear here...</textarea>
+                </div>
+            `);
+        }
+
+        function viewAllEndpoints() {
+            alert('Viewing all API endpoints...\n\nThis would display the complete API documentation.');
+        }
+
+        // Database Functions
+        function viewTable(tableName) {
+            alert('Viewing table: ' + tableName + '\n\nThis would open a table viewer with filtering and sorting.');
+        }
+
+        function exportTable(tableName) {
+            alert('Exporting table: ' + tableName + '\n\nDownloading CSV export...');
+        }
+
+        function runQuery() {
+            openModal('Run Custom Query', `
+                <div class="form-group">
+                    <label class="form-label">SQL Query</label>
+                    <textarea class="form-control" placeholder="SELECT * FROM clients WHERE..."></textarea>
+                </div>
+                <button class="btn btn-primary">Execute Query</button>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Results</label>
+                    <div class="log-viewer" style="height: 200px;">
+                        Query results will appear here...
+                    </div>
+                </div>
+            `);
+        }
+
+        function backupDatabase() {
+            alert('Creating database backup...\n\nBackup started. This may take several minutes.');
+        }
+
+        // Monitoring Functions
+        function openPrometheus() {
+            window.open('http://localhost:9090', '_blank');
+        }
+
+        function openGrafana() {
+            window.open('http://localhost:3000', '_blank');
+        }
+
+        function openMetabase() {
+            window.open('http://localhost:3001', '_blank');
+        }
+
+        // Log Functions
+        function refreshLogs() {
+            alert('Refreshing logs...');
+        }
+
+        function exportLogs() {
+            alert('Exporting logs...\n\nDownloading log file...');
+        }
+
+        // Modal Functions
+        function openModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function saveModalData() {
+            alert('Saving changes...');
+            closeModal();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Auto-refresh status indicators every 5 seconds
+        setInterval(function() {
+            // Simulate status updates
+            console.log('Updating status indicators...');
+        }, 5000);
+    </script>
+</body>
+</html>
